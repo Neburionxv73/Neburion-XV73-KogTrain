@@ -1,0 +1,15 @@
+{
+  "name": "Neburion XV73",
+  "productName": "Digital Cognitive Training System",
+  "version": "2.1.0-beta.4",
+  "channel": "beta",
+  "releaseDate": "2026-07-12",
+  "status": "Sprint 0 Foundation",
+  "engines": [
+    "Experience Engine",
+    "Cognitive Engine",
+    "Progress Engine",
+    "Coach Engine"
+  ],
+  "releaseName": "Exercise Runner 2.0 + Memory Lab"
+}

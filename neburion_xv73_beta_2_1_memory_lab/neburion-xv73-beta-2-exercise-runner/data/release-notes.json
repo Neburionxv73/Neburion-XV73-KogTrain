@@ -1,0 +1,37 @@
+[
+  {
+    "version": "2.1.0-beta.4",
+    "date": "2026-07-12",
+    "title": "Exercise Runner 2.0 + Memory Lab",
+    "items": [
+      "Memory Lab mit 25 Übungen in fünf Kategorien und fünf Schwierigkeitsstufen",
+      "Verbindlicher Ablauf Anzeigen → Ausblenden → Abrufen → Feedback → Strategie → nächste Aufgabe",
+      "Exercise Runner 2.0 unterstützt Memory Choice, freien Abruf und Memory-Reihenfolgen",
+      "Progress Engine 2.0 mit Tabellen nach Trainingsbereich und Gedächtniskategorie",
+      "Coach Feedback 2.0 mit Strategie und nachvollziehbarem Datenbezug"
+    ]
+  },
+  {
+    "version": "2.0.0-beta.3",
+    "date": "2026-07-12",
+    "title": "Product Studio Foundation",
+    "items": [
+      "Developer Center mit Roadmap und Qualitätsstatus",
+      "Produktmanifest und klare Leitlinien",
+      "Vercel- und GitHub-Deployment vorbereitet",
+      "Automatisierte Build- und Projektprüfungen",
+      "PWA-Service-Worker und Offline-Grundlage",
+      "Release-Kanäle Beta und Stable dokumentiert"
+    ]
+  },
+  {
+    "version": "2.0.0-beta.2",
+    "date": "2026-07-12",
+    "title": "Exercise Runner",
+    "items": [
+      "Zentrale Übungsmaschine",
+      "Einzelwahl, Mehrfachwahl und Reihenfolge",
+      "Punkte, Zeitmessung und Coach-Feedback"
+    ]
+  }
+]
