@@ -1,46 +1,47 @@
-# Neburion XV73 – Beta 2.1
+# Neburion XV73 Beta 2.2
 
-## Exercise Runner 2.0 + Memory Lab
+## Attention Lab + Exercise Runner 2.1 + Progress Engine 2.1 + Coach Feedback 2.1
 
-Neburion XV73 ist ein modulares kognitives Lernsystem auf Basis von Next.js, React und TypeScript.
+Diese Beta erweitert das digitale kognitive Trainingssystem um ein vollständiges Attention Lab.
 
-### Neu in Beta 2.1
+### Neu
 
-- 25 Memory-Lab-Übungen
-- 5 Gedächtniskategorien
-- 5 Schwierigkeitsstufen
-- echte Merkphase mit vollständigem Ausblenden vor der Antwort
-- Exercise Runner 2.0 mit sechs Aufgabentypen
-- Progress Engine 2.0 mit konkreten Fortschrittstabellen
-- Coach Feedback 2.0 mit Strategie und Begründung
+- Visuelle Suche
+- Reaktionskontrolle mit echter Millisekunden-Messung
+- Farbkonflikt
+- Zahlensuche
+- Doppelaufgaben
+- Fünf Schwierigkeitsstufen: Einstieg, Leicht, Mittel, Schwer, Profi
+- Speicherung von Trefferquote, Reaktionszeit, Fehlstarts, Auslassungen und Fehlmarkierungen
+- Separate Auswertung nach Attention-Kategorie
+- Coach berücksichtigt jetzt Memory- und Attention-Lab-Ergebnisse
 
-### Lokaler Start
+### Lokal starten
 
 ```bash
 npm install
 npm run dev
 ```
 
-Danach öffnen:
+Dann öffnen:
 
 ```text
 http://localhost:3000
 ```
 
-Direkt zum Memory Lab:
+Direkt zum Attention Lab:
 
 ```text
-http://localhost:3000/memory-lab
+http://localhost:3000/attention-lab
 ```
 
 ### Qualitätsprüfung
 
 ```bash
-npm run typecheck
 npm run validate
 npm run build
 ```
 
-### Medizinische Grenze
+Stand: 2.2.0-beta.5
 
-Neburion XV73 ist ein Trainings- und Lernsystem. Es ersetzt keine medizinische Diagnose, Therapie oder persönliche Behandlung durch Fachpersonal.
+Hinweis: Neburion XV73 ist ein Trainings- und Lernsystem. Es ersetzt keine medizinische Diagnose oder Therapie.

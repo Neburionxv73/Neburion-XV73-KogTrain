@@ -1,13 +1,22 @@
-NEBURION XV73 – LOKAL STARTEN
+NEBURION XV73 BETA 2.3 – LOKALE VORSCHAU
 
+EMPFOHLENER START
 1. ZIP vollständig entpacken.
-2. Falls noch nicht vorhanden: Node.js LTS von https://nodejs.org installieren.
-3. START_NEBURION_WINDOWS.bat doppelklicken.
-4. Beim ersten Start werden Abhängigkeiten installiert und der Build erstellt.
-5. Danach öffnet sich die App automatisch unter:
-   http://localhost:3000
+2. Den entpackten Projektordner öffnen.
+3. START_NEBURION_LOKALE_VORSCHAU.bat doppelklicken.
+4. Beim ersten Start werden die benötigten Pakete installiert und der Build erstellt.
+5. Danach öffnet sich automatisch die lokale Kontrollseite mit eingebetteter App.
 
-Wichtig:
+DIREKTE ADRESSE
+http://localhost:3000
+
+WICHTIG
+- Node.js LTS muss installiert sein.
 - Das schwarze Startfenster während der Nutzung geöffnet lassen.
-- Zum Beenden das Fenster schließen oder Strg+C drücken.
-- Für die weitere Entwicklung START_NEBURION_ENTWICKLUNG.bat verwenden.
+- Zum Beenden Strg+C drücken oder das Startfenster schließen.
+- Trainingsdaten werden lokal im verwendeten Browser gespeichert.
+
+ALTERNATIVEN
+- START_NEBURION_WINDOWS.bat: öffnet die App direkt.
+- START_NEBURION_ENTWICKLUNG.bat: Entwicklungsmodus für Codeänderungen.
+- NEBURION_XV73_LOKALE_VORSCHAU.html: Kontrollseite; benötigt den laufenden lokalen Server.

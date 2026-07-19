@@ -1,7 +1,7 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-title Neburion XV73 Beta 2.0
+title Neburion XV73 Beta 2.3
 
 where node >nul 2>&1
 if errorlevel 1 (

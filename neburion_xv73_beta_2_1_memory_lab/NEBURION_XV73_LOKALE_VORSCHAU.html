@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Neburion XV73 – Lokale Vorschau</title>
+  <style>
+    :root { color-scheme: dark; --bg:#07111f; --panel:#0d1b2c; --line:rgba(255,255,255,.12); --text:#f5f7fb; --muted:#a9b7c9; --accent:#82e6c7; --accent2:#8ea8ff; }
+    * { box-sizing: border-box; }
+    body { margin:0; min-height:100vh; font-family:Inter,Segoe UI,Arial,sans-serif; color:var(--text); background:radial-gradient(circle at 15% 10%,rgba(74,108,255,.22),transparent 34%),radial-gradient(circle at 85% 15%,rgba(62,220,174,.14),transparent 30%),var(--bg); }
+    header { padding:24px clamp(18px,4vw,56px) 18px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:18px; border-bottom:1px solid var(--line); background:rgba(7,17,31,.8); backdrop-filter:blur(18px); position:sticky; top:0; z-index:10; }
+    .brand { display:flex; align-items:center; gap:14px; }
+    .mark { width:46px; height:46px; display:grid; place-items:center; border-radius:15px; background:linear-gradient(145deg,rgba(142,168,255,.28),rgba(130,230,199,.16)); border:1px solid var(--line); box-shadow:0 14px 38px rgba(0,0,0,.3); font-size:22px; }
+    h1 { margin:0; font-size:clamp(20px,2vw,30px); letter-spacing:-.03em; }
+    .sub { margin:4px 0 0; color:var(--muted); font-size:14px; }
+    .status { display:flex; align-items:center; gap:9px; padding:10px 14px; border:1px solid var(--line); border-radius:999px; color:var(--muted); background:rgba(255,255,255,.04); }
+    .dot { width:10px; height:10px; border-radius:50%; background:#f5b84b; box-shadow:0 0 16px rgba(245,184,75,.75); }
+    nav { display:flex; flex-wrap:wrap; gap:9px; padding:16px clamp(18px,4vw,56px); }
+    a.button { color:var(--text); text-decoration:none; padding:10px 14px; border-radius:12px; border:1px solid var(--line); background:rgba(255,255,255,.05); transition:.2s ease; }
+    a.button:hover { transform:translateY(-2px); border-color:rgba(130,230,199,.48); background:rgba(130,230,199,.09); }
+    a.primary { background:linear-gradient(135deg,rgba(142,168,255,.28),rgba(130,230,199,.2)); }
+    main { padding:0 clamp(18px,4vw,56px) 34px; }
+    .notice { margin-bottom:16px; padding:14px 16px; border:1px solid var(--line); border-radius:14px; background:rgba(255,255,255,.04); color:var(--muted); line-height:1.55; }
+    .viewport { overflow:hidden; min-height:72vh; border-radius:22px; border:1px solid var(--line); background:var(--panel); box-shadow:0 24px 80px rgba(0,0,0,.38); }
+    iframe { width:100%; height:78vh; border:0; background:#fff; }
+    footer { padding:0 clamp(18px,4vw,56px) 30px; color:var(--muted); font-size:13px; }
+    code { color:var(--accent); }
+    @media (max-width:720px) { header { position:static; } iframe { height:72vh; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <div class="mark">◈</div>
+      <div><h1>Neburion XV73 · Lokale Vorschau</h1><p class="sub">Beta 2.3 – Adaptive Platform Core</p></div>
+    </div>
+    <div class="status"><span class="dot"></span><span>Lokaler Server: <strong>localhost:3000</strong></span></div>
+  </header>
+
+  <nav aria-label="Direktnavigation">
+    <a class="button primary" href="http://localhost:3000" target="preview">Startseite</a>
+    <a class="button" href="http://localhost:3000/dashboard" target="preview">Dashboard</a>
+    <a class="button" href="http://localhost:3000/memory-lab" target="preview">Memory Lab</a>
+    <a class="button" href="http://localhost:3000/attention-lab" target="preview">Attention Lab</a>
+    <a class="button" href="http://localhost:3000/progress" target="preview">Fortschritt</a>
+    <a class="button" href="http://localhost:3000/coach" target="preview">Coach</a>
+    <a class="button" href="http://localhost:3000" target="_blank" rel="noopener">In neuem Fenster</a>
+  </nav>
+
+  <main>
+    <div class="notice">
+      Diese Kontrollseite zeigt deine laufende Plattform direkt im Vorschaufenster. Das schwarze Startfenster muss geöffnet bleiben. Falls unten nichts erscheint, warte kurz und klicke anschließend auf <strong>Startseite</strong>. Die eigentliche App läuft unter <code>http://localhost:3000</code>.
+    </div>
+    <section class="viewport" aria-label="Neburion XV73 Vorschau">
+      <iframe name="preview" src="http://localhost:3000" title="Neburion XV73 lokale Anwendung"></iframe>
+    </section>
+  </main>
+  <footer>Lokale Entwicklungs- und Qualitätskontrolle · Daten bleiben im Browser gespeichert.</footer>
+</body>
+</html>
