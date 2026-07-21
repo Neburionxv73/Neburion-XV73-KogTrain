@@ -1,7 +1,9 @@
 {
   "name": "neburion-xv73-platform-release",
   "version": "4.0.0",
-  "private": true,
+  "private": true,"engines": {
+  "node": "20.x"
+},
   "scripts": {
     "dev": "next dev",
     "build": "next build",
