@@ -1,0 +1,32 @@
+{
+  "name": "neburion-xv73-platform-release",
+  "version": "4.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "validate": "npm run typecheck && node scripts/validate-project.mjs",
+    "release:check": "npm run quality:full",
+    "validate:total": "npm run typecheck && node scripts/validate-project.mjs && node scripts/validate-total.mjs",
+    "smoke": "node scripts/smoke-test.mjs",
+    "quality:full": "npm run validate:total && npm run validate:release && npm run build && npm run smoke",
+    "validate:release": "node scripts/validate-platform-release.mjs"
+  },
+  "dependencies": {
+    "next": "16.2.10",
+    "react": "19.2.7",
+    "react-dom": "19.2.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "typescript": "^5.9.0"
+  },
+  "overrides": {
+    "postcss": "8.5.10"
+  }
+}

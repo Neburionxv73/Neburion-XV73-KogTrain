@@ -1,0 +1,3 @@
+"use client";
+import { AppShell } from "@/components/layout/AppShell";
+export default function Settings(){function clear(){if(confirm("Lokale Trainingsdaten wirklich löschen?")){localStorage.removeItem("neburion.trainingResults.v2");location.reload()}}return <AppShell sidebar><div className="panel"><span className="eyebrow">Experience Engine</span><h1>Einstellungen und lokale Kontrolle.</h1><p className="lead">In dieser Foundation bleiben Profildaten und Trainingsergebnisse auf dem jeweiligen Gerät.</p><button className="btn btn-secondary" onClick={clear}>Lokale Trainingsdaten löschen</button></div></AppShell>}

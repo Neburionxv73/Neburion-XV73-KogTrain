@@ -1,0 +1,178 @@
+[
+  {
+    "version": "4.0.0",
+    "title": "Platform Release – Strength-Based Cognitive Training",
+    "date": "2026-07-21",
+    "items": [
+      "Fünf vollständig integrierte Trainingswelten mit einheitlicher Session-Nutzerführung",
+      "Stärkenorientierter Coach mit wertschätzender, transparenter und nicht pathologisierender Sprache",
+      "Adaptive lokale Übungsauswahl, Fortschrittsprofile, Wochenziele und persönliche Meilensteine",
+      "PWA-Installation, Offline-Fallback, lokales Profil sowie geprüfter Datenexport und -import",
+      "Stabile Release-Pipeline mit TypeScript-, Integrations-, Sicherheits-, Build- und HTTP-Smoke-Tests"
+    ]
+  },
+  {
+    "version": "3.9.0-rc.1",
+    "title": "Release Candidate Quality & Safety Pass",
+    "date": "2026-07-21",
+    "items": [
+      "Konsolidierte Versions- und Releasekennzeichnung in der gesamten Plattform",
+      "Automatische Prüfung der stärkenorientierten und nicht beschämenden Coach-Sprache",
+      "Datenschutz-, Sicherheits- und medizinische Abgrenzung im Release-Gate geprüft",
+      "Produktionsrouten, PWA, Offline-Fallback und interne Navigation vollständig getestet",
+      "Release-Checkliste und manueller Geräteprüfplan für Version 4.0 ergänzt"
+    ]
+  },
+  {
+    "version": "3.8.0-beta.1",
+    "title": "Design Experience Pass & Strength Coach",
+    "date": "2026-07-21",
+    "items": [
+      "Eigenständige visuelle Bühnen für alle Trainingsdomänen",
+      "Stärkenorientierte, wertschätzende Coach-Sprache",
+      "Positives Feedback ohne Defizit- oder Beschämungslogik",
+      "Mehr Layoutvariation, Tiefenwirkung und mobile Feinarbeit",
+      "Reduzierte Bewegung und kontrollierte Mikroanimationen"
+    ]
+  },
+  {
+    "version": "3.7.0-beta.1",
+    "date": "2026-07-19",
+    "title": "Content Expansion & Controlled Generators",
+    "items": [
+      "25 täglich reproduzierbare Generator-Aufgaben",
+      "Generator Lab mit sichtbaren Varianten",
+      "Session-Pool um kontrollierte Aufgaben erweitert",
+      "Fünf Generatorfamilien für Logik, Mathematik, Sprache, Visual und Attention"
+    ]
+  },
+  {
+    "version": "3.5.0-beta.1",
+    "title": "PWA & Offline Excellence",
+    "date": "2026-07-19",
+    "items": [
+      "Installierbare App mit PNG- und Maskable-Icons",
+      "Robuste Offline-Navigation mit eigener Rückfallseite",
+      "Netzwerkstatus, Installationshinweis und kontrollierte Update-Erkennung",
+      "Eigene App-&-Offline-Statusseite",
+      "Service-Worker-Strategien für Seiten und statische Assets"
+    ]
+  },
+  {
+    "version": "3.2.0-beta.1",
+    "title": "Expanded Exercise Library",
+    "date": "2026-07-19",
+    "items": [
+      "24 neue datenbasierte Übungen",
+      "Sessions verwenden nun auch das Memory Lab",
+      "Ausgewogene Sessions priorisieren verschiedene Trainingsbereiche",
+      "Mehr Kategorien, Schwierigkeitsstufen und Strategien"
+    ]
+  },
+  {
+    "version": "3.0.0-beta.1",
+    "date": "2026-07-19",
+    "title": "Integration & Gesamtprüfung",
+    "items": [
+      "GitHub-Actions-Build-Cache für npm und Next.js eingerichtet",
+      "Erweiterte Gesamtvalidierung für Routen, Links, Übungs-IDs und Barrierefreiheitsgrundlagen",
+      "Produktions-Smoke-Test für alle zentralen Plattformrouten",
+      "Einheitliches Quality Gate über npm run quality:full",
+      "Beta-3.0-Integrationsdokumentation ergänzt"
+    ]
+  },
+  {
+    "version": "2.9.0-beta.1",
+    "date": "2026-07-19",
+    "title": "Platform Polish & Quality Pass",
+    "items": [
+      "Aktive und barrierearme Plattformnavigation",
+      "Fokusansicht mit lokal gespeicherter Kontrasteinstellung",
+      "Verbesserte Tastatur-, Touch- und Mobile-Bedienung",
+      "Reduzierte Bewegung, Kontrast- und Druckoptimierung",
+      "Einheitliche Release- und Qualitätskennzeichnung"
+    ]
+  },
+  {
+    "version": "2.8.0-beta.1",
+    "date": "2026-07-19",
+    "title": "Coach Engine 3.0",
+    "items": [
+      "Transparenter Tagesfokus für alle fünf Trainingswelten",
+      "7-Minuten-Trainingsplan mit drei konkreten Schritten",
+      "Wochenrückblick und verständliche Trend-Einordnung",
+      "Stärken-, Fokus- und Abwechslungslogik",
+      "Neue hochwertige Coach-Erlebnisoberfläche"
+    ]
+  },
+  {
+    "version": "2.6.0-beta.1",
+    "title": "Visual Lab 1.0",
+    "date": "2026-07-19",
+    "items": [
+      "Fünf interaktive visuelle Trainingswelten",
+      "Formen, Spiegelung, Rotation, räumliche Reihen und Perspektive",
+      "Fünf Schwierigkeitsstufen mit hochwertiger visueller Inszenierung",
+      "Progress Engine um visuelle Kategorien erweitert",
+      "Motivational Exercise Experience System konsequent angewendet"
+    ]
+  },
+  {
+    "version": "2.4.0-beta.1",
+    "title": "Logic Lab 1.0",
+    "date": "2026-07-19",
+    "items": [
+      "Vier interaktive Logic-Trainingswelten",
+      "Motivational Exercise Experience System integriert",
+      "Mudrasol/Jarvis/Neburion Qualitätsdreiklang",
+      "Progress- und XP-kompatible Ergebnisdaten"
+    ]
+  },
+  {
+    "version": "2.2.0-beta.5",
+    "date": "2026-07-13",
+    "title": "Attention Lab + Live Metrics",
+    "items": [
+      "Attention Lab mit fünf Übungsfamilien und fünf Schwierigkeitsstufen",
+      "Visuelle Suche, Reaktion, Farbkonflikt, Zahlensuche und Doppelaufgaben",
+      "Live-Messung von Reaktionszeit, Fehlstarts, Treffern, Auslassungen und Fehlmarkierungen",
+      "Progress Engine 2.1 mit separater Aufmerksamkeitsauswertung nach Kategorie",
+      "Coach Feedback 2.1 berücksichtigt jetzt Memory- und Attention-Lab-Ergebnisse"
+    ]
+  },
+  {
+    "version": "2.1.0-beta.4",
+    "date": "2026-07-12",
+    "title": "Exercise Runner 2.0 + Memory Lab",
+    "items": [
+      "Memory Lab mit 25 Übungen in fünf Kategorien und fünf Schwierigkeitsstufen",
+      "Verbindlicher Ablauf Anzeigen → Ausblenden → Abrufen → Feedback → Strategie → nächste Aufgabe",
+      "Exercise Runner 2.0 unterstützt Memory Choice, freien Abruf und Memory-Reihenfolgen",
+      "Progress Engine 2.0 mit Tabellen nach Trainingsbereich und Gedächtniskategorie",
+      "Coach Feedback 2.0 mit Strategie und nachvollziehbarem Datenbezug"
+    ]
+  },
+  {
+    "version": "2.0.0-beta.3",
+    "date": "2026-07-12",
+    "title": "Product Studio Foundation",
+    "items": [
+      "Developer Center mit Roadmap und Qualitätsstatus",
+      "Produktmanifest und klare Leitlinien",
+      "Vercel- und GitHub-Deployment vorbereitet",
+      "Automatisierte Build- und Projektprüfungen",
+      "PWA-Service-Worker und Offline-Grundlage",
+      "Release-Kanäle Beta und Stable dokumentiert"
+    ]
+  },
+  {
+    "version": "2.0.0-beta.2",
+    "date": "2026-07-12",
+    "title": "Exercise Runner",
+    "items": [
+      "Zentrale Übungsmaschine",
+      "Einzelwahl, Mehrfachwahl und Reihenfolge",
+      "Punkte, Zeitmessung und Coach-Feedback"
+    ]
+  }
+]

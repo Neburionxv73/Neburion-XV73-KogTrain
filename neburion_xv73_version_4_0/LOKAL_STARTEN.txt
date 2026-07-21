@@ -1,0 +1,13 @@
+NEBURION XV73 – LOKAL STARTEN
+
+1. ZIP vollständig entpacken.
+2. Falls noch nicht vorhanden: Node.js LTS von https://nodejs.org installieren.
+3. START_NEBURION_WINDOWS.bat doppelklicken.
+4. Beim ersten Start werden Abhängigkeiten installiert und der Build erstellt.
+5. Danach öffnet sich die App automatisch unter:
+   http://localhost:3000
+
+Wichtig:
+- Das schwarze Startfenster während der Nutzung geöffnet lassen.
+- Zum Beenden das Fenster schließen oder Strg+C drücken.
+- Für die weitere Entwicklung START_NEBURION_ENTWICKLUNG.bat verwenden.

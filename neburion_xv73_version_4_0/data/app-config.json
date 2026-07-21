@@ -1,0 +1,15 @@
+{
+  "name": "Neburion XV73",
+  "productName": "Digital Cognitive Training System",
+  "version": "4.0.0",
+  "channel": "stable",
+  "releaseDate": "2026-07-21",
+  "status": "Version 4.0 Platform Release",
+  "engines": [
+    "Experience Engine",
+    "Cognitive Engine",
+    "Progress Engine",
+    "Coach Engine"
+  ],
+  "releaseName": "Platform Release – Strength-Based Cognitive Training"
+}
