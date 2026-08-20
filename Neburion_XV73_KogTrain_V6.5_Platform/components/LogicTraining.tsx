@@ -52,8 +52,7 @@ export function LogicTraining() {
 
   function next() {
     if (index >= sessionQuestions.length - 1) {
-      const finalScore = score + (selected === sessionQuestions[index].answer ? 1 : 0);
-      const nextStats = { sessions: stats.sessions + 1, bestScore: Math.max(stats.bestScore, finalScore) };
+      const nextStats = { sessions: stats.sessions + 1, bestScore: Math.max(stats.bestScore, score) };
       setStats(nextStats);
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(nextStats)); } catch {}
       setPhase("done");
@@ -66,7 +65,6 @@ export function LogicTraining() {
 
   const current = sessionQuestions[index];
   const percent = Math.round((score / sessionQuestions.length) * 100);
-  const finalPercent = phase === "done" ? percent : 0;
 
   return (
     <section className="logicTrainer" aria-live="polite">
@@ -110,7 +108,7 @@ export function LogicTraining() {
       {phase === "done" && (
         <div className="trainingStage resultStage">
           <p className="eyebrow">Session abgeschlossen</p>
-          <h2>{finalPercent}% richtig</h2>
+          <h2>{percent}% richtig</h2>
           <div className="finalScore"><strong>{score}</strong><span>/ {sessionQuestions.length}</span></div>
           <p>Dein Bestwert: {stats.bestScore} von {sessionQuestions.length}. Der Wert beschreibt nur diese Trainingssession.</p>
           <button className="primary trainingButton" type="button" onClick={start}>Neue Session</button>
