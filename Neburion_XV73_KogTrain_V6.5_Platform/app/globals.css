@@ -84,3 +84,54 @@ footer { min-height: 110px; border-top: 1px solid var(--line); display: flex; al
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
 }
+
+.cardAction { margin-top: auto; min-height: 48px; border-top: 1px solid var(--line); padding: 18px 0 0; display: flex; align-items: center; justify-content: space-between; font-weight: 700; }
+.mutedAction { color: var(--muted); cursor: default; }
+.trainingPage { min-height: 100vh; }
+.trainingTopbar { width: min(calc(100% - 40px), var(--max)); margin: 0 auto; min-height: 76px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+.backLink { min-height: 44px; display: inline-flex; align-items: center; color: var(--text); font-weight: 700; }
+.trainingShell { width: min(calc(100% - 40px), 1080px); margin: 0 auto; padding: 72px 0 100px; }
+.trainingHeader { display: grid; grid-template-columns: 1fr auto; gap: 48px; align-items: end; margin-bottom: 44px; }
+.trainingHeader h1 { font-size: clamp(46px, 7vw, 82px); margin-bottom: 22px; }
+.trainingLead { max-width: 720px; color: var(--muted); font-size: 18px; line-height: 1.65; }
+.sessionMeta { display: grid; grid-template-columns: repeat(2, minmax(120px, 1fr)); gap: 10px; }
+.sessionMeta span { min-height: 92px; padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); color: var(--muted); display: flex; flex-direction: column; justify-content: space-between; font-size: 13px; }
+.sessionMeta strong { color: var(--text); font-size: 22px; }
+.trainingStage { min-height: 520px; border: 1px solid var(--line); border-radius: 24px; background: radial-gradient(circle at 50% 15%, #17253a 0, transparent 36%), var(--panel); display: grid; place-items: center; padding: 44px; box-shadow: 0 34px 90px rgba(0,0,0,.24); }
+.stageCentered { width: min(100%, 720px); text-align: center; display: flex; flex-direction: column; align-items: center; }
+.stageCentered h2 { max-width: 760px; }
+.stageCentered > p:not(.eyebrow):not(.roundLabel):not(.instruction):not(.countdownHint):not(.feedbackBadge) { color: var(--muted); line-height: 1.6; font-size: 17px; }
+.primaryButton { min-height: 50px; border: 0; border-radius: 12px; padding: 0 22px; background: var(--accent); color: #06110e; font: inherit; font-weight: 800; cursor: pointer; margin-top: 20px; }
+.primaryButton:disabled { opacity: .45; cursor: not-allowed; }
+.roundLabel, .instruction, .countdownHint { color: var(--muted); }
+.roundLabel { font-size: 13px; text-transform: uppercase; letter-spacing: .12em; font-weight: 700; }
+.instruction { font-size: 18px; margin-bottom: 28px; }
+.countdownHint { margin-top: 26px; font-size: 14px; }
+.memorySequence { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.memorySequence span { width: 70px; height: 82px; display: grid; place-items: center; border: 1px solid #35506f; border-radius: 18px; background: #152133; font-size: 34px; font-weight: 800; }
+.recallForm label { margin-bottom: 10px; color: var(--muted); }
+.recallForm input { width: min(100%, 440px); min-height: 58px; border: 1px solid var(--line); border-radius: 14px; background: #0a0f16; color: var(--text); padding: 0 18px; font: inherit; font-size: 24px; text-align: center; letter-spacing: .12em; }
+.recallForm input:focus { outline: 3px solid var(--accent); outline-offset: 3px; }
+.feedbackBadge { display: inline-flex; min-height: 38px; align-items: center; justify-content: center; padding: 0 14px; border-radius: 999px; font-weight: 800; margin-bottom: 20px; }
+.feedbackBadge.correct { background: rgba(141,245,214,.12); color: var(--accent); border: 1px solid rgba(141,245,214,.35); }
+.feedbackBadge.incorrect { background: rgba(255,167,167,.1); color: #ffb0b0; border: 1px solid rgba(255,167,167,.3); }
+.finalScore { display: flex; align-items: baseline; gap: 8px; margin: 10px 0 18px; }
+.finalScore strong { font-size: 92px; line-height: 1; letter-spacing: -.06em; }
+.finalScore span { color: var(--muted); font-size: 26px; }
+.trainingNotice { margin-top: 22px; padding: 20px 22px; border-left: 2px solid var(--accent); background: var(--panel); }
+.trainingNotice p { color: var(--muted); margin: 6px 0 0; line-height: 1.55; }
+@media (max-width: 820px) {
+  .trainingHeader { grid-template-columns: 1fr; }
+  .sessionMeta { grid-template-columns: repeat(2, 1fr); }
+  .trainingStage { min-height: 480px; padding: 32px 24px; }
+}
+@media (max-width: 640px) {
+  .trainingTopbar, .trainingShell { width: min(calc(100% - 28px), 1080px); }
+  .trainingTopbar span { display: none; }
+  .trainingShell { padding-top: 46px; }
+  .trainingHeader h1 { font-size: clamp(42px, 14vw, 58px); }
+  .sessionMeta { grid-template-columns: 1fr 1fr; }
+  .memorySequence span { width: 54px; height: 66px; border-radius: 14px; font-size: 28px; }
+  .trainingStage { min-height: 460px; padding: 26px 18px; }
+  .finalScore strong { font-size: 74px; }
+}
