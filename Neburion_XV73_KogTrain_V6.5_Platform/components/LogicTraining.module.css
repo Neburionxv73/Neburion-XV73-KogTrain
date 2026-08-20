@@ -1,0 +1,79 @@
+.logicTrainer {
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  overflow: hidden;
+}
+
+.logicStage {
+  width: 100%;
+}
+
+.logicPattern {
+  width: min(100%, 720px);
+  min-height: 116px;
+  margin: 18px 0 28px;
+  padding: 24px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #334a65;
+  border-radius: 20px;
+  background: #0b121b;
+  font-size: clamp(24px, 4vw, 42px);
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-align: center;
+}
+
+.logicOptions {
+  width: min(100%, 760px);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.logicOptions button {
+  min-height: 64px;
+  padding: 14px 18px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #101925;
+  color: var(--text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform .2s ease, border-color .2s ease, background .2s ease;
+}
+
+.logicOptions button:hover {
+  transform: translateY(-2px);
+  border-color: #4f6c8e;
+  background: #142133;
+}
+
+.logicOptions button:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+@media (max-width: 640px) {
+  .logicPattern {
+    min-height: 96px;
+    padding: 18px 14px;
+    font-size: clamp(22px, 8vw, 34px);
+  }
+
+  .logicOptions {
+    grid-template-columns: 1fr;
+  }
+
+  .logicOptions button {
+    min-height: 56px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logicOptions button {
+    transition: none;
+  }
+}
