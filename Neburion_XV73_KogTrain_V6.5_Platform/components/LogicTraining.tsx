@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import styles from "./LogicTraining.module.css";
 
 type LogicQuestion = {
   prompt: string;
@@ -67,7 +68,7 @@ export function LogicTraining() {
   const percent = Math.round((score / sessionQuestions.length) * 100);
 
   return (
-    <section className="logicTrainer" aria-live="polite">
+    <section className={styles.logicTrainer} aria-live="polite">
       <div className="trainingStats">
         <span>Session {stats.sessions + (phase === "done" ? 0 : 1)}</span>
         <span>Bestwert {stats.bestScore} / {sessionQuestions.length}</span>
@@ -84,11 +85,11 @@ export function LogicTraining() {
       )}
 
       {phase === "question" && (
-        <div className="trainingStage logicStage">
+        <div className={`trainingStage ${styles.logicStage}`}>
           <p className="roundLabel">Aufgabe {index + 1}</p>
           <h2>{current.prompt}</h2>
-          <div className="logicPattern" aria-label={current.detail}>{current.detail}</div>
-          <div className="logicOptions">
+          <div className={styles.logicPattern} aria-label={current.detail}>{current.detail}</div>
+          <div className={styles.logicOptions}>
             {current.options.map((option, optionIndex) => (
               <button key={option} type="button" onClick={() => answer(optionIndex)}>{option}</button>
             ))}
@@ -97,7 +98,7 @@ export function LogicTraining() {
       )}
 
       {phase === "feedback" && selected !== null && (
-        <div className="trainingStage logicStage">
+        <div className={`trainingStage ${styles.logicStage}`}>
           <p className={`feedbackBadge ${selected === current.answer ? "correct" : "incorrect"}`}>{selected === current.answer ? "Richtig" : "Noch nicht"}</p>
           <h2>{selected === current.answer ? "Regel erkannt." : `Richtig wäre: ${current.options[current.answer]}`}</h2>
           <p>{current.explanation}</p>
