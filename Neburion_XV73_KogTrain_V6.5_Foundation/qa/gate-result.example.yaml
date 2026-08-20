@@ -1,0 +1,12 @@
+gate: RESPONSIVE_GATE
+status: PENDING
+run_id: PENDING
+build_hash: PENDING
+checks:
+  desktop: PENDING
+  tablet: PENDING
+  smartphone: PENDING
+  touch_targets: PENDING
+  collision_check: PENDING
+reviewer: PENDING
+timestamp: PENDING
