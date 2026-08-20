@@ -5,6 +5,7 @@ export function WorldCard({ world, index }: { world: TrainingWorld; index: numbe
   const activeRoutes: Record<string, string> = {
     memory: "/training/memory",
     attention: "/training/attention",
+    logic: "/training/logic",
   };
   const route = activeRoutes[world.id];
   return (
