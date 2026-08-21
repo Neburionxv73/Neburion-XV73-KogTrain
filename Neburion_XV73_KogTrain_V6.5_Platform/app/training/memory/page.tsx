@@ -2,8 +2,8 @@ import Link from "next/link";
 import { MemoryTraining } from "@/components/MemoryTraining";
 
 export const metadata = {
-  title: "Memory Lab · Neburion XV73 V6.5",
-  description: "Interaktives Sequenztraining im Memory Lab der Neburion XV73 Trainingsplattform.",
+  title: "Memory Lab 2.0 · Neburion XV73 V6.5",
+  description: "Multimodales Gedächtnistraining mit Zahlen, Wörtern, Symbolen, Raumpositionen, Wiedererkennung und N-Back.",
 };
 
 export default function MemoryLabPage() {
@@ -11,7 +11,7 @@ export default function MemoryLabPage() {
     <main className="trainingPage">
       <div className="trainingTopbar">
         <Link href="/" className="backLink">← Plattform</Link>
-        <span>Neburion XV73 · V6.5</span>
+        <span>Memory Lab 2.0 · V6.5</span>
       </div>
       <MemoryTraining />
     </main>
