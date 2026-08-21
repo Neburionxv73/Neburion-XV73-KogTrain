@@ -1,4 +1,5 @@
 export type LabId = "memory" | "attention" | "logic" | "language" | "visual";
+export type StorageScope = "stable" | "preview" | "unknown";
 
 export type LabProgress = {
   id: LabId;
@@ -29,9 +30,13 @@ export type ProgressSnapshot = {
   weekSessions: number;
   weeklyGoal: number;
   streak: number;
-  recommendation: LabProgress;
-  strongest: LabProgress;
+  recommendation: LabProgress | null;
+  strongest: LabProgress | null;
   recentDays: { label: string; count: number }[];
+  hasTrainingData: boolean;
+  activityCount: number;
+  storageHost: string;
+  storageScope: StorageScope;
 };
 
 const ACTIVITY_KEY = "neburion-v65-progress-events";
@@ -74,7 +79,11 @@ function readLab(config: (typeof configs)[number]): LabProgress {
     bestPercent = Math.round((Number(data.bestScore ?? 0) / 8) * 100);
   }
 
-  return { ...config, sessions, bestPercent: Math.max(0, Math.min(100, bestPercent)) };
+  return {
+    ...config,
+    sessions: Math.max(0, Number.isFinite(sessions) ? sessions : 0),
+    bestPercent: Math.max(0, Math.min(100, Number.isFinite(bestPercent) ? bestPercent : 0)),
+  };
 }
 
 function dateKey(date: Date): string {
@@ -86,7 +95,8 @@ function dateKey(date: Date): string {
 
 function readEvents(): ActivityEvent[] {
   try {
-    return JSON.parse(localStorage.getItem(ACTIVITY_KEY) ?? "[]") as ActivityEvent[];
+    const parsed = JSON.parse(localStorage.getItem(ACTIVITY_KEY) ?? "[]");
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
     return [];
   }
@@ -98,7 +108,7 @@ function syncActivity(labs: LabProgress[]): ActivityEvent[] {
   const current = Object.fromEntries(labs.map((lab) => [lab.id, lab.sessions])) as Record<LabId, number>;
 
   if (!baselineRaw) {
-    localStorage.setItem(BASELINE_KEY, JSON.stringify(current));
+    try { localStorage.setItem(BASELINE_KEY, JSON.stringify(current)); } catch {}
     return events;
   }
 
@@ -121,8 +131,10 @@ function syncActivity(labs: LabProgress[]): ActivityEvent[] {
   });
 
   if (changed) {
-    localStorage.setItem(BASELINE_KEY, JSON.stringify(current));
-    localStorage.setItem(ACTIVITY_KEY, JSON.stringify(events.slice(-180)));
+    try {
+      localStorage.setItem(BASELINE_KEY, JSON.stringify(current));
+      localStorage.setItem(ACTIVITY_KEY, JSON.stringify(events.slice(-180)));
+    } catch {}
   }
 
   return events.slice(-180);
@@ -141,15 +153,30 @@ function calculateStreak(events: ActivityEvent[]): number {
   return streak;
 }
 
+function getStorageContext(): { storageHost: string; storageScope: StorageScope } {
+  if (typeof window === "undefined") return { storageHost: "unbekannt", storageScope: "unknown" };
+  const storageHost = window.location.hostname;
+  const previewPattern = /-[a-z0-9]{7,}-[^.]+\.vercel\.app$/i;
+  const storageScope: StorageScope = previewPattern.test(storageHost) ? "preview" : "stable";
+  return { storageHost, storageScope };
+}
+
 export function getProgressSnapshot(): ProgressSnapshot {
   const labs = configs.map(readLab);
   const events = syncActivity(labs);
   const totalSessions = labs.reduce((sum, lab) => sum + lab.sessions, 0);
   const activeLabs = labs.filter((lab) => lab.sessions > 0);
-  const averageBest = activeLabs.length ? Math.round(activeLabs.reduce((sum, lab) => sum + lab.bestPercent, 0) / activeLabs.length) : 0;
-  const sorted = [...labs].sort((a, b) => a.bestPercent - b.bestPercent || a.sessions - b.sessions);
-  const recommendation = activeLabs.length ? sorted[0] : labs[0];
-  const strongest = [...labs].sort((a, b) => b.bestPercent - a.bestPercent || b.sessions - a.sessions)[0];
+  const hasTrainingData = activeLabs.length > 0;
+  const averageBest = hasTrainingData
+    ? Math.round(activeLabs.reduce((sum, lab) => sum + lab.bestPercent, 0) / activeLabs.length)
+    : 0;
+
+  const untrainedLabs = labs.filter((lab) => lab.sessions === 0);
+  const weakestActive = [...activeLabs].sort((a, b) => a.bestPercent - b.bestPercent || a.sessions - b.sessions)[0] ?? null;
+  const recommendation = hasTrainingData ? (untrainedLabs[0] ?? weakestActive) : null;
+  const strongest = hasTrainingData
+    ? [...activeLabs].sort((a, b) => b.bestPercent - a.bestPercent || b.sessions - a.sessions)[0]
+    : null;
 
   const today = dateKey(new Date());
   const todaySessions = events.filter((event) => dateKey(new Date(event.completedAt)) === today).length;
@@ -168,6 +195,7 @@ export function getProgressSnapshot(): ProgressSnapshot {
   const xp = totalSessions * XP_PER_SESSION + labs.reduce((sum, lab) => sum + Math.round(lab.bestPercent / 5) * 5, 0);
   const level = Math.floor(xp / XP_PER_LEVEL) + 1;
   const xpInLevel = xp % XP_PER_LEVEL;
+  const storage = getStorageContext();
 
   return {
     labs,
@@ -185,5 +213,8 @@ export function getProgressSnapshot(): ProgressSnapshot {
     recommendation,
     strongest,
     recentDays,
+    hasTrainingData,
+    activityCount: events.length,
+    ...storage,
   };
 }
