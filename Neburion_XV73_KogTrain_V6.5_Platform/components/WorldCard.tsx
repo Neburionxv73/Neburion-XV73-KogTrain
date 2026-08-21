@@ -7,6 +7,7 @@ export function WorldCard({ world, index }: { world: TrainingWorld; index: numbe
     attention: "/training/attention",
     logic: "/training/logic",
     language: "/training/language",
+    visual: "/training/visual",
   };
   const route = activeRoutes[world.id];
   return (
