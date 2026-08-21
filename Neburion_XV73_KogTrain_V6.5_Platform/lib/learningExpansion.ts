@@ -106,13 +106,13 @@ function memoryTask(seed:number,difficulty:Difficulty):FocusTask {
 }
 
 export function createFocusSession(areas:FocusArea[],difficulty:Difficulty,length=10):FocusTask[] {
-  const selected=areas.length?areas:["math","words","translation","attention","reaction","memory"];
+  const selected: FocusArea[] = areas.length ? areas : ["math","words","translation","attention","reaction","memory"];
   const factories:Record<FocusArea,(seed:number,d:Difficulty)=>FocusTask>={
     math:mathTask,words:wordTask,translation:(seed)=>translationTask(seed),attention:attentionTask,reaction:reactionTask,memory:memoryTask,
   };
   const seed=Date.now()%100000;
   return Array.from({length},(_,index)=>{
-    const area=selected[index%selected.length];
+    const area: FocusArea = selected[index%selected.length];
     return factories[area](seed+index,difficulty);
   }).sort(()=>Math.random()-.5);
 }
