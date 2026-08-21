@@ -1,51 +1,165 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { sample, shuffleOptions } from "@/lib/dynamicTraining";
+import { createLanguageSession, LANGUAGE_SESSION_LENGTH, LANGUAGE_STORAGE_KEY, type LanguageMode, type LanguageSession } from "@/lib/language";
 import styles from "./LanguageTraining.module.css";
 
-type LanguageQuestion = { id:string; category:string; prompt:string; detail:string; options:string[]; answer:number; explanation:string };
-type LanguageStats = { sessions:number; bestScore:number; recentIds:string[] };
-const STORAGE_KEY="neburion-v65-language-stats-v2"; const SESSION_LENGTH=8;
+type ModeStat = { attempts: number; correct: number };
+type Stats = { sessions: number; bestScore: number; recentIds: string[]; modeStats: Partial<Record<LanguageMode, ModeStat>> };
+type Outcome = { mode: LanguageMode; correct: boolean };
+type Phase = "intro" | "question" | "feedback" | "done";
 
-const pool: LanguageQuestion[] = [
- {id:"syn-precise",category:"Synonym",prompt:"Welches Wort bedeutet fast dasselbe wie „präzise“?",detail:"Wähle die passendste Bedeutung.",options:["genau","laut","schnell","selten"],answer:0,explanation:"Präzise bedeutet genau oder sehr treffend."},
- {id:"syn-calm",category:"Synonym",prompt:"Welches Wort passt zu „gelassen“?",detail:"Finde die ähnlichste Bedeutung.",options:["ruhig","hektisch","laut","hart"],answer:0,explanation:"Gelassen beschreibt eine ruhige, ausgeglichene Haltung."},
- {id:"syn-vast",category:"Synonym",prompt:"Was bedeutet „umfangreich“ am ehesten?",detail:"Wähle die treffendste Bedeutung.",options:["groß","leer","kurz","unsicher"],answer:0,explanation:"Umfangreich bedeutet groß oder viel umfassend."},
- {id:"ant-hot",category:"Antonym",prompt:"Welches Wort ist das Gegenteil von „heiß“?",detail:"Finde das Gegenwort.",options:["warm","kalt","hell","trocken"],answer:1,explanation:"Kalt ist das direkte Gegenwort zu heiß."},
- {id:"ant-brave",category:"Antonym",prompt:"Welches Wort ist das Gegenteil von „mutig“?",detail:"Finde das passendste Gegenwort.",options:["ängstlich","stark","schnell","freundlich"],answer:0,explanation:"Ängstlich steht semantisch im Gegensatz zu mutig."},
- {id:"cat-trees",category:"Oberbegriff",prompt:"Welcher Oberbegriff passt zu Eiche, Buche und Ahorn?",detail:"Finde die gemeinsame Kategorie.",options:["Blumen","Bäume","Gräser","Moose"],answer:1,explanation:"Eiche, Buche und Ahorn sind Baumarten."},
- {id:"cat-tools",category:"Oberbegriff",prompt:"Hammer, Säge und Zange gehören zu …",detail:"Finde die gemeinsame Kategorie.",options:["Werkzeugen","Getränken","Tieren","Möbeln"],answer:0,explanation:"Alle drei sind Werkzeuge."},
- {id:"cat-fruit",category:"Oberbegriff",prompt:"Apfel, Birne und Pflaume gehören zu …",detail:"Finde den Oberbegriff.",options:["Gemüse","Obst","Getreide","Gewürzen"],answer:1,explanation:"Es handelt sich um Obstsorten."},
- {id:"ana-hand",category:"Analogie",prompt:"Hand verhält sich zu Finger wie Fuß zu …",detail:"Ergänze die Beziehung.",options:["Knie","Zehe","Arm","Schulter"],answer:1,explanation:"Finger sind Teil der Hand, Zehen Teil des Fußes."},
- {id:"ana-bird",category:"Analogie",prompt:"Vogel verhält sich zu fliegen wie Fisch zu …",detail:"Tätigkeit und Lebewesen.",options:["laufen","schwimmen","springen","graben"],answer:1,explanation:"Fliegen ist typisch für Vögel, Schwimmen für Fische."},
- {id:"ana-book",category:"Begriffsbeziehung",prompt:"Welches Paar entspricht „Buch : lesen“?",detail:"Gegenstand und typische Tätigkeit.",options:["Musik : hören","Tasse : laufen","Fenster : essen","Schuh : schreiben"],answer:0,explanation:"Bücher werden gelesen, Musik wird gehört."},
- {id:"field-speak",category:"Wortfeld",prompt:"Welches Wort gehört am wenigsten zum Wortfeld „sprechen“?",detail:"Drei Wörter passen semantisch zusammen.",options:["flüstern","erzählen","rufen","zeichnen"],answer:3,explanation:"Zeichnen beschreibt keine Form des Sprechens."},
- {id:"field-water",category:"Wortfeld",prompt:"Welches Wort passt am wenigsten zu „Wasser“?",detail:"Finde den Ausreißer.",options:["Fluss","See","Regen","Sand"],answer:3,explanation:"Sand gehört nicht direkt zum Wortfeld Wasser."},
- {id:"field-light",category:"Wortfeld",prompt:"Welches Wort gehört nicht zum Wortfeld „Licht“?",detail:"Finde den Ausreißer.",options:["leuchten","strahlen","glänzen","schweigen"],answer:3,explanation:"Schweigen beschreibt keinen Lichteindruck."},
- {id:"sent-rain",category:"Satzlogik",prompt:"Welche Ergänzung ergibt den logischsten Satz?",detail:"Obwohl es stark regnete, …",options:["blieb die Straße trocken","nahm sie einen Regenschirm","war der Himmel wolkenlos","wurde Wasser zu Staub"],answer:1,explanation:"Ein Regenschirm ist eine plausible Reaktion auf starken Regen."},
- {id:"sent-tired",category:"Satzlogik",prompt:"Welche Fortsetzung ist am plausibelsten?",detail:"Nachdem er die ganze Nacht gearbeitet hatte, …",options:["war er müde","war Mittag gestern","wurde Stein weich","stieg der Boden"],answer:0,explanation:"Nach einer Nacht Arbeit ist Müdigkeit plausibel."},
- {id:"sent-cold",category:"Satzlogik",prompt:"Welche Ergänzung passt am besten?",detail:"Weil es draußen sehr kalt war, …",options:["zog sie eine Jacke an","schaltete sie die Sonne aus","wurde der Schnee heiß","öffnete sie den Kühlschrank zum Wärmen"],answer:0,explanation:"Eine Jacke ist eine plausible Reaktion auf Kälte."},
- {id:"rel-key",category:"Begriffsbeziehung",prompt:"Schlüssel verhält sich zu Schloss wie Passwort zu …",detail:"Mittel und Zugang.",options:["Konto","Fenster","Stuhl","Papier"],answer:0,explanation:"Beide ermöglichen Zugang zu einem geschützten Bereich."},
- {id:"rel-brush",category:"Begriffsbeziehung",prompt:"Pinsel verhält sich zu malen wie Stift zu …",detail:"Werkzeug und Tätigkeit.",options:["schreiben","schlafen","kochen","springen"],answer:0,explanation:"Ein Pinsel wird zum Malen, ein Stift zum Schreiben genutzt."},
- {id:"compound",category:"Wortbildung",prompt:"Welches Wort bildet mit „Haus“ ein sinnvolles zusammengesetztes Wort?",detail:"Wähle eine übliche Wortverbindung.",options:["Tür","schnell","blau","denken"],answer:0,explanation:"Haustür ist ein geläufiges zusammengesetztes Wort."},
- {id:"meaning-fragile",category:"Bedeutung",prompt:"Was bedeutet „zerbrechlich“?",detail:"Wähle die treffendste Erklärung.",options:["leicht zu beschädigen","sehr schwer","besonders laut","immer nass"],answer:0,explanation:"Zerbrechlich bezeichnet etwas, das leicht beschädigt oder gebrochen werden kann."},
- {id:"meaning-scarce",category:"Bedeutung",prompt:"Was bedeutet „knapp“ in „Die Zeit ist knapp“?",detail:"Achte auf den Kontext.",options:["begrenzt","laut","weich","riesig"],answer:0,explanation:"Hier bedeutet knapp: nur begrenzt verfügbar."},
- {id:"order-sentence",category:"Satzbau",prompt:"Welcher Satz ist grammatisch am klarsten?",detail:"Wähle die natürlichste Wortstellung.",options:["Heute gehe ich in den Park.","Heute ich gehe Park den in.","Gehe heute Park ich den.","Den heute gehe Park ich."],answer:0,explanation:"Die erste Variante hat eine natürliche deutsche Satzstellung."},
- {id:"context-bank",category:"Kontext",prompt:"Welche Bedeutung hat „Bank“ in diesem Satz?",detail:"Sie setzte sich auf die Bank im Park.",options:["Sitzmöbel","Geldinstitut","Flussrand","Werkzeug"],answer:0,explanation:"Im Park bezeichnet Bank hier ein Sitzmöbel."}
-];
+const initialStats: Stats = { sessions: 0, bestScore: 0, recentIds: [], modeStats: {} };
+const labels: Record<LanguageMode, string> = {
+  synonym: "Synonyme",
+  antonym: "Antonyme",
+  analogy: "Analogien",
+  category: "Kategorien",
+  wordfield: "Wortfelder",
+  sentence: "Satzlogik",
+  relation: "Beziehungen",
+  context: "Kontext",
+};
 
-export function LanguageTraining(){
- const[sessionQuestions,setSessionQuestions]=useState<LanguageQuestion[]>([]); const[index,setIndex]=useState(0); const[selected,setSelected]=useState<number|null>(null); const[score,setScore]=useState(0); const[phase,setPhase]=useState<"intro"|"question"|"feedback"|"done">("intro"); const[stats,setStats]=useState<LanguageStats>({sessions:0,bestScore:0,recentIds:[]});
- useEffect(()=>{try{const raw=localStorage.getItem(STORAGE_KEY);if(raw)setStats(JSON.parse(raw));}catch{}},[]);
- function makeSession(){const fresh=pool.filter((item)=>!stats.recentIds.includes(item.id));const source=fresh.length>=SESSION_LENGTH?fresh:pool;return sample(source,SESSION_LENGTH).map(shuffleOptions);}
- function start(){setSessionQuestions(makeSession());setIndex(0);setSelected(null);setScore(0);setPhase("question");}
- function answer(optionIndex:number){if(phase!=="question")return;setSelected(optionIndex);if(optionIndex===sessionQuestions[index].answer)setScore((v)=>v+1);setPhase("feedback");}
- function next(){if(index>=sessionQuestions.length-1){const nextStats={sessions:stats.sessions+1,bestScore:Math.max(stats.bestScore,score),recentIds:sessionQuestions.map((q)=>q.id)};setStats(nextStats);try{localStorage.setItem(STORAGE_KEY,JSON.stringify(nextStats));}catch{}setPhase("done");return;}setIndex((v)=>v+1);setSelected(null);setPhase("question");}
- const current=sessionQuestions[index];const percent=sessionQuestions.length?Math.round((score/sessionQuestions.length)*100):0;
- return <section className={styles.trainer} aria-live="polite"><div className={styles.stats}><span>Sessions {stats.sessions}</span><span>Bestwert {stats.bestScore} / {SESSION_LENGTH}</span><span>{phase==="question"||phase==="feedback"?`Aufgabe ${index+1} / ${SESSION_LENGTH}`:"Language Lab"}</span></div>
- {phase==="intro"&&<div className={styles.stage}><p className="eyebrow">24er Aufgabenpool</p><h2>Sprache ohne Auswendiglernen.</h2><p>Acht Aufgaben werden pro Session neu ausgewählt. Synonyme, Antonyme, Analogien, Kontext, Satzlogik und Wortfelder wechseln sich ab; Antworten werden gemischt.</p><button className="primary trainingButton" type="button" onClick={start}>Session generieren</button></div>}
- {phase==="question"&&current&&<div className={styles.stage}><p className="eyebrow">{current.category}</p><h2>{current.prompt}</h2><div className={styles.prompt}>{current.detail}</div><div className={styles.options}>{current.options.map((option,optionIndex)=><button className={styles.option} key={`${current.id}-${option}`} type="button" onClick={()=>answer(optionIndex)}>{option}</button>)}</div></div>}
- {phase==="feedback"&&current&&selected!==null&&<div className={`${styles.stage} ${styles.feedback}`}><p className={`${styles.feedbackBadge} ${selected===current.answer?styles.correct:styles.incorrect}`}>{selected===current.answer?"Richtig":"Noch nicht"}</p><h2>{selected===current.answer?"Beziehung erkannt.":`Richtig wäre: ${current.options[current.answer]}`}</h2><p>{current.explanation}</p><button className="primary trainingButton" type="button" onClick={next}>{index===SESSION_LENGTH-1?"Auswertung":"Nächste Aufgabe"}</button></div>}
- {phase==="done"&&<div className={styles.stage}><p className="eyebrow">Session abgeschlossen</p><h2>{percent}% richtig</h2><div className={styles.score}><strong>{score}</strong><span>/ {SESSION_LENGTH}</span></div><p>Die nächste Session bevorzugt andere Aufgaben aus dem Pool.</p><button className="primary trainingButton" type="button" onClick={start}>Neue Session generieren</button></div>}</section>;
+export function LanguageTraining() {
+  const [session, setSession] = useState<LanguageSession | null>(null);
+  const [index, setIndex] = useState(0);
+  const [selected, setSelected] = useState<number | null>(null);
+  const [outcomes, setOutcomes] = useState<Outcome[]>([]);
+  const [phase, setPhase] = useState<Phase>("intro");
+  const [stats, setStats] = useState<Stats>(initialStats);
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+      if (!raw) return;
+      const saved = JSON.parse(raw) as Partial<Stats>;
+      setStats({
+        sessions: saved.sessions ?? 0,
+        bestScore: saved.bestScore ?? 0,
+        recentIds: saved.recentIds ?? [],
+        modeStats: saved.modeStats ?? {},
+      });
+    } catch {
+      setStats(initialStats);
+    }
+  }, []);
+
+  useEffect(() => {
+    const handler = (event: KeyboardEvent) => {
+      if (phase !== "question" || !session) return;
+      const optionIndex = Number(event.key) - 1;
+      if (optionIndex >= 0 && optionIndex < session.tasks[index].options.length) answer(optionIndex);
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  });
+
+  function start() {
+    setSession(createLanguageSession(stats.bestScore, stats.recentIds));
+    setIndex(0);
+    setSelected(null);
+    setOutcomes([]);
+    setPhase("question");
+  }
+
+  function answer(optionIndex: number) {
+    if (!session || phase !== "question") return;
+    const current = session.tasks[index];
+    setSelected(optionIndex);
+    setOutcomes((values) => [...values, { mode: current.mode, correct: optionIndex === current.answer }]);
+    setPhase("feedback");
+  }
+
+  function next() {
+    if (!session) return;
+    if (index < session.tasks.length - 1) {
+      setIndex((value) => value + 1);
+      setSelected(null);
+      setPhase("question");
+      return;
+    }
+
+    const score = outcomes.filter((item) => item.correct).length;
+    const modeStats = { ...stats.modeStats };
+    outcomes.forEach((item) => {
+      const current = modeStats[item.mode] ?? { attempts: 0, correct: 0 };
+      modeStats[item.mode] = {
+        attempts: current.attempts + 1,
+        correct: current.correct + (item.correct ? 1 : 0),
+      };
+    });
+    const nextStats: Stats = {
+      sessions: stats.sessions + 1,
+      bestScore: Math.max(stats.bestScore, score),
+      recentIds: session.tasks.map((task) => task.id),
+      modeStats,
+    };
+    setStats(nextStats);
+    try { localStorage.setItem(LANGUAGE_STORAGE_KEY, JSON.stringify(nextStats)); } catch {}
+    setPhase("done");
+  }
+
+  const current = session?.tasks[index];
+  const score = outcomes.filter((item) => item.correct).length;
+  const percent = session ? Math.round((score / session.tasks.length) * 100) : 0;
+
+  return (
+    <section className={styles.trainer} aria-live="polite">
+      <div className={styles.stats}>
+        <span>Sessions <strong>{stats.sessions}</strong></span>
+        <span>Bestwert <strong>{stats.bestScore}/{LANGUAGE_SESSION_LENGTH}</strong></span>
+        <span>{session ? `Level ${session.difficulty}` : "Language Lab 2.0"}</span>
+      </div>
+
+      {phase === "intro" && (
+        <div className={styles.stage}>
+          <p className="eyebrow">8 Sprachmodi</p>
+          <h2>Wörter verstehen. Beziehungen erkennen. Kontext deuten.</h2>
+          <p>Jede Session kombiniert acht verschiedene Sprachbereiche. Die Aufgaben variieren, zuletzt verwendete Varianten werden nach Möglichkeit vermieden und die Schwierigkeit passt sich deinem bisherigen Bestwert an.</p>
+          <div className={styles.modeGrid}>{Object.values(labels).map((label) => <span key={label}>{label}</span>)}</div>
+          <button className="primary trainingButton" type="button" onClick={start}>Language Session starten</button>
+        </div>
+      )}
+
+      {phase === "question" && current && session && (
+        <div className={styles.stage}>
+          <p className="eyebrow">{labels[current.mode]} · Aufgabe {index + 1}/{session.tasks.length}</p>
+          <h2>{current.prompt}</h2>
+          <div className={styles.prompt}>{current.detail}</div>
+          <div className={styles.options}>
+            {current.options.map((option, optionIndex) => (
+              <button className={styles.option} key={`${current.id}-${optionIndex}`} type="button" onClick={() => answer(optionIndex)}>
+                <kbd>{optionIndex + 1}</kbd><span>{option}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {phase === "feedback" && current && selected !== null && (
+        <div className={`${styles.stage} ${styles.feedback}`}>
+          <p className={`${styles.feedbackBadge} ${selected === current.answer ? styles.correct : styles.incorrect}`}>{selected === current.answer ? "Richtig" : "Noch nicht"}</p>
+          <h2>{selected === current.answer ? "Sprachliche Beziehung erkannt." : `Richtig wäre: ${current.options[current.answer]}`}</h2>
+          <p>{current.explanation}</p>
+          <button className="primary trainingButton" type="button" onClick={next}>{session && index === session.tasks.length - 1 ? "Auswertung" : "Nächste Aufgabe"}</button>
+        </div>
+      )}
+
+      {phase === "done" && session && (
+        <div className={styles.stage}>
+          <p className="eyebrow">Session abgeschlossen</p>
+          <h2>{percent}% richtig</h2>
+          <div className={styles.score}><strong>{score}</strong><span>/ {session.tasks.length}</span></div>
+          <div className={styles.modeStats}>
+            {(Object.entries(stats.modeStats) as [LanguageMode, ModeStat][]).map(([mode, value]) => (
+              <div key={mode}><span>{labels[mode]}</span><strong>{value.attempts ? Math.round((value.correct / value.attempts) * 100) : 0}%</strong></div>
+            ))}
+          </div>
+          <p>Die nächste Session bevorzugt andere Varianten und nutzt deinen Bestwert für die Schwierigkeitsstufe.</p>
+          <button className="primary trainingButton" type="button" onClick={start}>Neue Language Session</button>
+        </div>
+      )}
+    </section>
+  );
 }
