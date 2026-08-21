@@ -1,0 +1,174 @@
+.trainer {
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: linear-gradient(180deg, var(--panel-2), var(--panel));
+  overflow: hidden;
+}
+
+.stats {
+  min-height: 66px;
+  padding: 0 22px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.stats strong { color: var(--text); }
+
+.stage {
+  min-height: 540px;
+  padding: 42px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.stage h2 { max-width: 820px; }
+.stage > p:not(.eyebrow):not(.feedbackBadge):not(.reaction) { max-width: 720px; color: var(--muted); line-height: 1.65; }
+
+.modeStrip {
+  width: min(100%, 850px);
+  margin: 22px 0 28px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.modeStrip span,
+.taskMeta span,
+.summary span {
+  min-height: 38px;
+  padding: 0 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #31445c;
+  border-radius: 999px;
+  background: #0d1621;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.taskMeta {
+  width: min(100%, 780px);
+  margin-bottom: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.instruction {
+  margin: 4px 0 16px;
+  color: var(--muted);
+}
+
+.visualField {
+  width: min(100%, 780px);
+  min-height: 170px;
+  margin: 12px 0 28px;
+  padding: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  border: 1px solid #334a65;
+  border-radius: 22px;
+  background: radial-gradient(circle at 50% 20%, #182a40, #09111a 70%);
+}
+
+.visualField span {
+  min-width: 62px;
+  min-height: 62px;
+  padding: 8px 12px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #31465f;
+  border-radius: 15px;
+  background: #101b29;
+  color: var(--text);
+  font-size: clamp(28px, 5vw, 48px);
+  font-weight: 800;
+  line-height: 1;
+}
+
+.denseField span {
+  min-width: 48px;
+  min-height: 48px;
+  font-size: clamp(23px, 4vw, 36px);
+}
+
+.options {
+  width: min(100%, 760px);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.options button {
+  min-height: 64px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #101925;
+  color: var(--text);
+  font: inherit;
+  font-weight: 750;
+  cursor: pointer;
+  transition: transform .2s ease, border-color .2s ease, background .2s ease;
+}
+
+.options button:hover { transform: translateY(-2px); border-color: #4f6c8e; background: #142133; }
+.options button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.options kbd { min-width: 28px; min-height: 28px; display: grid; place-items: center; border: 1px solid #415774; border-radius: 8px; color: var(--muted); font: inherit; font-size: 12px; }
+
+.feedbackBadge {
+  display: inline-flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-weight: 800;
+  margin-bottom: 20px;
+}
+
+.correct { background: rgba(141,245,214,.12); color: var(--accent); border: 1px solid rgba(141,245,214,.35); }
+.incorrect { background: rgba(255,167,167,.1); color: #ffb0b0; border: 1px solid rgba(255,167,167,.3); }
+.reaction { margin: 12px 0 24px; color: var(--muted); }
+.reaction strong { color: var(--text); }
+
+.score { display: flex; align-items: baseline; gap: 8px; margin: 10px 0 18px; }
+.score strong { font-size: 88px; line-height: 1; letter-spacing: -.06em; }
+.score span { color: var(--muted); font-size: 24px; }
+
+.summary { margin: 0 0 20px; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.summary strong { margin-left: 6px; color: var(--text); }
+
+@media (max-width: 720px) {
+  .stats { align-items: flex-start; flex-direction: column; padding: 16px 18px; gap: 6px; }
+  .stage { min-height: 470px; padding: 28px 18px; }
+  .visualField { min-height: 145px; padding: 18px 12px; gap: 10px; }
+  .visualField span { min-width: 48px; min-height: 48px; font-size: clamp(24px, 9vw, 38px); }
+  .denseField span { min-width: 42px; min-height: 42px; font-size: 25px; }
+  .options { grid-template-columns: 1fr; }
+  .options button { min-height: 56px; }
+  .score strong { font-size: 72px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .options button { transition: none; }
+}
