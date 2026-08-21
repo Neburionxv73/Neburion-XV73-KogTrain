@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./learning-theme.css";
 
 export const metadata: Metadata = {
-  title: "Neburion XV73 · Kognitive Trainingsplattform V6.5",
-  description: "Modulare kognitive Trainingsplattform mit fünf Trainingswelten, Fortschritt und Coach.",
+  title: "Neburion XV73 · Lern- und Trainingsplattform V6.5",
+  description: "Individuelle Lern- und Trainingsplattform mit Mathematik, Sprache, Englisch, Aufmerksamkeit, Reaktion, Gedächtnis, Logik und visuellen Übungen.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
