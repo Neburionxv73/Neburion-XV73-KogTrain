@@ -16,9 +16,10 @@
   color: var(--muted);
   font-size: 13px;
 }
+.stats strong { color: var(--text); }
 
 .stage {
-  min-height: 520px;
+  min-height: 540px;
   padding: 42px;
   display: flex;
   flex-direction: column;
@@ -26,13 +27,48 @@
   justify-content: center;
   text-align: center;
 }
+.stage h2 { max-width: 820px; }
+.stage > p:not(.eyebrow):not(.feedbackBadge) { max-width: 720px; color: var(--muted); line-height: 1.65; }
 
-.stage h2 { max-width: 780px; }
-.stage > p:not(.eyebrow):not(.feedbackBadge) { max-width: 700px; color: var(--muted); line-height: 1.65; }
+.modeGrid,
+.modeStats {
+  width: min(100%, 860px);
+  margin: 20px 0 28px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+.modeGrid span,
+.modeStats div {
+  min-height: 62px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: #0e1722;
+}
+.modeGrid span { display: grid; place-items: center; color: var(--muted); font-size: 13px; font-weight: 700; }
+.modeStats div { display: flex; flex-direction: column; justify-content: center; gap: 4px; }
+.modeStats span { color: var(--muted); font-size: 12px; }
+.modeStats strong { font-size: 18px; }
+
+.previewBadge {
+  min-height: 38px;
+  margin: 8px 0 2px;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(141,245,214,.32);
+  border-radius: 999px;
+  background: rgba(141,245,214,.08);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 800;
+}
 
 .visualBoard {
-  width: min(100%, 760px);
-  min-height: 150px;
+  width: min(100%, 780px);
+  min-height: 160px;
   margin: 18px 0 28px;
   padding: 24px;
   display: flex;
@@ -42,12 +78,12 @@
   gap: 14px;
   border: 1px solid #334a65;
   border-radius: 22px;
-  background: radial-gradient(circle at 50% 25%, #18283c, #0a111a 68%);
+  background: radial-gradient(circle at 50% 22%, #182b42, #0a111a 70%);
 }
-
 .visualBoard span {
   min-width: 58px;
   min-height: 58px;
+  padding: 8px 12px;
   display: grid;
   place-items: center;
   border: 1px solid #32465f;
@@ -56,24 +92,27 @@
   color: var(--text);
   font-size: clamp(28px, 5vw, 48px);
   font-weight: 800;
+  line-height: 1;
 }
-
 .gridBoard {
-  width: min(100%, 360px);
+  width: min(100%, 380px);
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .options {
-  width: min(100%, 760px);
+  width: min(100%, 780px);
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
-
 .options button {
-  min-height: 60px;
+  min-height: 64px;
   padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   border: 1px solid var(--line);
   border-radius: 14px;
   background: #101925;
@@ -83,9 +122,19 @@
   cursor: pointer;
   transition: transform .2s ease, border-color .2s ease, background .2s ease;
 }
-
 .options button:hover { transform: translateY(-2px); border-color: #4f6c8e; background: #142133; }
 .options button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.options kbd {
+  min-width: 28px;
+  min-height: 28px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #415774;
+  border-radius: 8px;
+  color: var(--muted);
+  font: inherit;
+  font-size: 12px;
+}
 
 .feedbackBadge {
   display: inline-flex;
@@ -97,20 +146,24 @@
   font-weight: 800;
   margin-bottom: 20px;
 }
-
 .correct { background: rgba(141,245,214,.12); color: var(--accent); border: 1px solid rgba(141,245,214,.35); }
 .incorrect { background: rgba(255,167,167,.1); color: #ffb0b0; border: 1px solid rgba(255,167,167,.3); }
-
 .score { display: flex; align-items: baseline; gap: 8px; margin: 10px 0 18px; }
 .score strong { font-size: 88px; line-height: 1; letter-spacing: -.06em; }
 .score span { color: var(--muted); font-size: 24px; }
 
+@media (max-width: 900px) {
+  .modeGrid,
+  .modeStats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
 @media (max-width: 720px) {
   .stats { align-items: flex-start; flex-direction: column; padding: 16px 18px; gap: 6px; }
-  .stage { min-height: 460px; padding: 28px 18px; }
-  .visualBoard { padding: 18px 12px; gap: 10px; }
-  .visualBoard span { min-width: 48px; min-height: 48px; font-size: clamp(24px, 9vw, 38px); }
+  .stage { min-height: 470px; padding: 28px 18px; }
+  .visualBoard { min-height: 140px; padding: 18px 12px; gap: 10px; }
+  .visualBoard span { min-width: 48px; min-height: 48px; padding: 6px 9px; font-size: clamp(23px, 9vw, 38px); }
   .options { grid-template-columns: 1fr; }
+  .options button { min-height: 58px; }
   .score strong { font-size: 72px; }
 }
 

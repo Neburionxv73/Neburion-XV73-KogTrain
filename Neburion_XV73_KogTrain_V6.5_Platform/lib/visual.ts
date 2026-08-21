@@ -1,96 +1,136 @@
 import { difficultyFromPercent, randomInt, shuffled, type Difficulty } from "@/lib/dynamicTraining";
 
-export type VisualQuestion = {
+export type VisualMode = "rotation" | "mirror" | "pattern" | "matrix" | "position" | "search" | "compare" | "memory";
+export type VisualTask = {
   id: string;
-  category: string;
+  mode: VisualMode;
   prompt: string;
   visual: string[];
   options: string[];
   answer: number;
   explanation: string;
+  preview?: string[];
+  previewMs?: number;
 };
+export type VisualSession = { difficulty: Difficulty; tasks: VisualTask[] };
 
-export type VisualSession = {
-  difficulty: Difficulty;
-  questions: VisualQuestion[];
-};
+export const VISUAL_SESSION_LENGTH = 8;
+export const VISUAL_STORAGE_KEY = "neburion-v65-visual-stats";
 
 const arrows = ["↑", "→", "↓", "←"];
 const diagonals = ["↗", "↘", "↙", "↖"];
-const shapes = ["●", "■", "▲", "◆", "✦", "⬟"];
+const shapes = ["●", "■", "▲", "◆", "✦", "⬟", "⬢", "★"];
 
-function withAnswer(id: string, category: string, prompt: string, visual: string[], correct: string, distractors: string[], explanation: string): VisualQuestion {
+function task(id: string, mode: VisualMode, prompt: string, visual: string[], correct: string, distractors: string[], explanation: string, preview?: string[], previewMs?: number): VisualTask {
   const options = shuffled([correct, ...distractors.filter((item) => item !== correct)]).slice(0, 4);
-  return { id, category, prompt, visual, options, answer: options.indexOf(correct), explanation };
+  return { id, mode, prompt, visual, options, answer: options.indexOf(correct), explanation, preview, previewMs };
 }
 
-function patternQuestion(seed: number, difficulty: Difficulty): VisualQuestion {
-  const picked = shuffled(shapes).slice(0, difficulty === 1 ? 2 : 3);
-  const length = difficulty === 3 ? 7 : 6;
-  const visual = Array.from({ length }, (_, index) => picked[index % picked.length]);
-  const correct = picked[length % picked.length];
-  return withAnswer(`pattern-${seed}`, "Muster", "Welches Zeichen setzt die Reihe fort?", [...visual, "?"], correct, shuffled(shapes.filter((item) => item !== correct)).slice(0, 3), "Die Formen wiederholen sich nach einer festen Reihenfolge.");
-}
-
-function rotationQuestion(seed: number, difficulty: Difficulty): VisualQuestion {
-  const baseIndex = randomInt(0, arrows.length - 1);
+function rotation(seed: number, difficulty: Difficulty): VisualTask {
+  const start = randomInt(0, 3);
   const turns = difficulty === 1 ? 1 : randomInt(1, difficulty === 2 ? 2 : 3);
-  const correct = arrows[(baseIndex + turns) % arrows.length];
-  return withAnswer(`rotation-${seed}`, "Rotation", `Wie sieht der Pfeil nach ${turns * 90}° Drehung im Uhrzeigersinn aus?`, [arrows[baseIndex], "↻", `${turns * 90}°`], correct, arrows.filter((item) => item !== correct), "Eine Vierteldrehung entspricht 90 Grad im Uhrzeigersinn.");
+  const correct = arrows[(start + turns) % 4];
+  return task(`rotation-${seed}`, "rotation", `Wie zeigt der Pfeil nach ${turns * 90}° Drehung im Uhrzeigersinn?`, [arrows[start], "↻", `${turns * 90}°`], correct, arrows.filter((item) => item !== correct), "Jede Vierteldrehung entspricht 90 Grad im Uhrzeigersinn.");
 }
 
-function mirrorQuestion(seed: number): VisualQuestion {
-  const index = randomInt(0, diagonals.length - 1);
-  const mirrorMap: Record<string, string> = { "↗": "↖", "↖": "↗", "↘": "↙", "↙": "↘" };
-  const base = diagonals[index];
-  const correct = mirrorMap[base];
-  return withAnswer(`mirror-${seed}`, "Spiegelung", "Welcher Pfeil ist die horizontale Spiegelung?", [base, "│", "?"], correct, diagonals.filter((item) => item !== correct), "Bei einer horizontalen Spiegelung tauschen links und rechts die Seite.");
+function mirror(seed: number, difficulty: Difficulty): VisualTask {
+  const base = diagonals[randomInt(0, diagonals.length - 1)];
+  const horizontal: Record<string, string> = { "↗": "↖", "↖": "↗", "↘": "↙", "↙": "↘" };
+  const vertical: Record<string, string> = { "↗": "↘", "↘": "↗", "↖": "↙", "↙": "↖" };
+  const useVertical = difficulty === 3 && seed % 2 === 0;
+  const correct = (useVertical ? vertical : horizontal)[base];
+  return task(`mirror-${seed}`, "mirror", `Welcher Pfeil ist die ${useVertical ? "vertikale" : "horizontale"} Spiegelung?`, [base, useVertical ? "─" : "│", "?"], correct, diagonals.filter((item) => item !== correct), useVertical ? "Bei vertikaler Spiegelung tauschen oben und unten." : "Bei horizontaler Spiegelung tauschen links und rechts.");
 }
 
-function oddQuestion(seed: number, difficulty: Difficulty): VisualQuestion {
-  const base = shuffled(shapes)[0];
-  const odd = shuffled(shapes.filter((item) => item !== base))[0];
-  const count = difficulty === 3 ? 8 : 6;
-  const oddIndex = randomInt(0, count - 1);
-  const visual = Array.from({ length: count }, (_, index) => index === oddIndex ? odd : base);
-  const correct = String(oddIndex + 1);
-  const positions = shuffled(Array.from({ length: count }, (_, index) => String(index + 1)).filter((item) => item !== correct)).slice(0, 3);
-  return withAnswer(`odd-${seed}`, "Abweichung", "An welcher Position unterscheidet sich das Zeichen?", visual, correct, positions, "Genau ein Element weicht in seiner Form von den übrigen ab.");
+function pattern(seed: number, difficulty: Difficulty): VisualTask {
+  const picked = shuffled(shapes).slice(0, difficulty === 1 ? 2 : 3);
+  const visible = difficulty === 3 ? 7 : 6;
+  const sequence = Array.from({ length: visible }, (_, index) => picked[index % picked.length]);
+  const correct = picked[visible % picked.length];
+  return task(`pattern-${seed}`, "pattern", "Welches Zeichen setzt die visuelle Reihe fort?", [...sequence, "?"], correct, shuffled(shapes.filter((item) => item !== correct)).slice(0, 3), "Die Formen wiederholen sich in einer festen zyklischen Reihenfolge.");
 }
 
-function positionQuestion(seed: number, difficulty: Difficulty): VisualQuestion {
-  const positions = [
-    { label: "oben links", index: 0 }, { label: "oben rechts", index: 2 },
-    { label: "unten links", index: 6 }, { label: "unten rechts", index: 8 },
+function matrix(seed: number, difficulty: Difficulty): VisualTask {
+  const [a, b, c] = shuffled(shapes).slice(0, 3);
+  const visual = difficulty === 1
+    ? [a, b, a, b, a, b, a, "?"]
+    : [a, b, c, b, c, a, c, a, "?"];
+  const correct = difficulty === 1 ? b : b;
+  return task(`matrix-${seed}`, "matrix", "Welches Zeichen ergänzt die Matrix?", visual, correct, shapes.filter((item) => item !== correct).slice(0, 3), difficulty === 1 ? "Die beiden Formen wechseln sich regelmäßig ab." : "Jede Zeile verschiebt die Drei-Symbol-Folge um eine Position.");
+}
+
+function position(seed: number, difficulty: Difficulty): VisualTask {
+  let row = randomInt(0, 2);
+  let col = randomInt(0, 2);
+  const start = row * 3 + col;
+  const moves: string[] = [];
+  const count = difficulty;
+  for (let step = 0; step < count; step += 1) {
+    const candidates: { symbol: string; dr: number; dc: number }[] = [];
+    if (row > 0) candidates.push({ symbol: "↑", dr: -1, dc: 0 });
+    if (row < 2) candidates.push({ symbol: "↓", dr: 1, dc: 0 });
+    if (col > 0) candidates.push({ symbol: "←", dr: 0, dc: -1 });
+    if (col < 2) candidates.push({ symbol: "→", dr: 0, dc: 1 });
+    const move = candidates[randomInt(0, candidates.length - 1)];
+    moves.push(move.symbol);
+    row += move.dr;
+    col += move.dc;
+  }
+  const finalIndex = row * 3 + col;
+  const labels = ["oben links", "oben Mitte", "oben rechts", "Mitte links", "Mitte", "Mitte rechts", "unten links", "unten Mitte", "unten rechts"];
+  const visual = Array.from({ length: 9 }, (_, index) => index === start ? "●" : "·");
+  return task(`position-${seed}`, "position", `Folge den Bewegungen ${moves.join(" ")}. Wo landet der Punkt?`, visual, labels[finalIndex], shuffled(labels.filter((_, index) => index !== finalIndex)).slice(0, 3), "Die Bewegungen werden nacheinander im 3×3-Raster ausgeführt.");
+}
+
+function search(seed: number, difficulty: Difficulty): VisualTask {
+  const base = shapes[randomInt(0, shapes.length - 1)];
+  const target = shapes.filter((item) => item !== base)[randomInt(0, shapes.length - 2)];
+  const count = difficulty === 1 ? 6 : difficulty === 2 ? 9 : 12;
+  const targetIndex = randomInt(0, count - 1);
+  const visual = Array.from({ length: count }, (_, index) => index === targetIndex ? target : base);
+  const correct = String(targetIndex + 1);
+  const distractors = shuffled(Array.from({ length: count }, (_, index) => String(index + 1)).filter((item) => item !== correct)).slice(0, 3);
+  return task(`search-${seed}`, "search", `Finde ${target}. An welcher Position steht das Ziel?`, visual, correct, distractors, "Ein einzelner Zielreiz unterscheidet sich von den Distraktoren.");
+}
+
+function compare(seed: number, difficulty: Difficulty): VisualTask {
+  const length = difficulty === 1 ? 3 : difficulty === 2 ? 4 : 5;
+  const left = Array.from({ length }, () => shapes[randomInt(0, shapes.length - 1)]);
+  const variant = seed % 3;
+  let right = [...left];
+  let correct = "identisch";
+  if (variant === 1) {
+    const index = randomInt(0, length - 1);
+    right[index] = shapes.find((item) => item !== left[index]) ?? "★";
+    correct = "eine Position anders";
+  } else if (variant === 2) {
+    right = [...left].reverse();
+    correct = "umgekehrte Reihenfolge";
+  }
+  return task(`compare-${seed}`, "compare", "Wie verhalten sich die beiden Formreihen zueinander?", [...left, "|", ...right], correct, ["identisch", "eine Position anders", "umgekehrte Reihenfolge", "nur die Größe ist anders"].filter((item) => item !== correct), "Vergleiche Position, Reihenfolge und Form beider Reihen systematisch.");
+}
+
+function memory(seed: number, difficulty: Difficulty): VisualTask {
+  const length = difficulty === 1 ? 4 : difficulty === 2 ? 5 : 6;
+  const preview = shuffled(shapes).slice(0, length);
+  const position = randomInt(0, preview.length - 1);
+  const correct = preview[position];
+  const previewMs = difficulty === 3 ? 2200 : difficulty === 2 ? 2700 : 3200;
+  return task(`memory-${seed}`, "memory", `Welches Symbol stand an Position ${position + 1}?`, ["Position", String(position + 1), "?"], correct, shuffled(shapes.filter((item) => item !== correct)).slice(0, 3), "Die Aufgabe prüft den kurzfristigen Abruf einer zuvor gezeigten Symbolfolge.", preview, previewMs);
+}
+
+export function createVisualSession(bestScore: number): VisualSession {
+  const difficulty = difficultyFromPercent((bestScore / VISUAL_SESSION_LENGTH) * 100);
+  const seed = Date.now() % 100000;
+  const tasks = [
+    rotation(seed, difficulty),
+    mirror(seed + 1, difficulty),
+    pattern(seed + 2, difficulty),
+    matrix(seed + 3, difficulty),
+    position(seed + 4, difficulty),
+    search(seed + 5, difficulty),
+    compare(seed + 6, difficulty),
+    memory(seed + 7, difficulty),
   ];
-  const selected = shuffled(positions)[0];
-  const marker = difficulty === 3 ? "◆" : "●";
-  const visual = Array.from({ length: 9 }, (_, index) => index === selected.index ? marker : "·");
-  return withAnswer(`position-${seed}`, "Raumlage", "Wo befindet sich das markierte Zeichen im Raster?", visual, selected.label, positions.filter((item) => item.label !== selected.label).map((item) => item.label), "Die Position wird relativ zum 3×3-Raster bestimmt.");
-}
-
-function countQuestion(seed: number, difficulty: Difficulty): VisualQuestion {
-  const target = shuffled(shapes)[0];
-  const other = shuffled(shapes.filter((item) => item !== target))[0];
-  const total = difficulty === 1 ? 7 : difficulty === 2 ? 9 : 11;
-  const targetCount = randomInt(2, Math.max(2, total - 3));
-  const visual = shuffled([...Array(targetCount).fill(target), ...Array(total - targetCount).fill(other)]);
-  const correct = String(targetCount);
-  const distractors = [targetCount - 1, targetCount + 1, targetCount + 2].filter((value) => value > 0).map(String);
-  return withAnswer(`count-${seed}`, "Formvergleich", `Wie oft kommt ${target} vor?`, visual, correct, distractors, "Zähle ausschließlich das angegebene Zielzeichen.");
-}
-
-export function createVisualSession(bestPercent: number): VisualSession {
-  const difficulty = difficultyFromPercent(bestPercent);
-  const generators = [
-    () => patternQuestion(1, difficulty),
-    () => rotationQuestion(2, difficulty),
-    () => mirrorQuestion(3),
-    () => oddQuestion(4, difficulty),
-    () => positionQuestion(5, difficulty),
-    () => countQuestion(6, difficulty),
-    () => patternQuestion(7, difficulty),
-    () => rotationQuestion(8, difficulty),
-  ];
-  return { difficulty, questions: shuffled(generators.map((create) => create())) };
+  return { difficulty, tasks: shuffled(tasks) };
 }
