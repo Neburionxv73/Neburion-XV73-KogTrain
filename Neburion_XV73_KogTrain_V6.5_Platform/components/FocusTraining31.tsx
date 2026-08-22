@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FOCUS_AREAS, type FocusArea } from "@/lib/learningExpansion";
 import type { Difficulty } from "@/lib/dynamicTraining";
+import { buildAdaptivePlan, type AdaptiveReactionStat } from "@/lib/adaptiveLearning";
 import {
-  adaptiveDifficulty,
   createDailyChallenge,
   createPersonalSession,
   PERSONAL_PREF_KEY,
@@ -21,6 +21,7 @@ type Phase = "setup" | "preview" | "question" | "feedback" | "done";
 type SkillStat = { attempts:number; correct:number };
 type SkillStats = Record<FocusArea,SkillStat>;
 type SessionRecord = { date:string; accuracy:number; label:string; xp:number };
+type ReactionSample = { key:string; ms:number };
 type Stats = {
   sessions:number;
   lastAccuracy?:number;
@@ -28,6 +29,7 @@ type Stats = {
   history:string[];
   skillStats:SkillStats;
   topicStats:Record<string,SkillStat>;
+  reactionStats:Record<string,AdaptiveReactionStat>;
   recent:SessionRecord[];
   xp:number;
 };
@@ -45,7 +47,7 @@ const EMPTY_SKILLS:SkillStats={
   math:{attempts:0,correct:0}, words:{attempts:0,correct:0}, translation:{attempts:0,correct:0},
   attention:{attempts:0,correct:0}, reaction:{attempts:0,correct:0}, memory:{attempts:0,correct:0},
 };
-const EMPTY_STATS:Stats={sessions:0,bestAccuracy:0,history:[],skillStats:EMPTY_SKILLS,topicStats:{},recent:[],xp:0};
+const EMPTY_STATS:Stats={sessions:0,bestAccuracy:0,history:[],skillStats:EMPTY_SKILLS,topicStats:{},reactionStats:{},recent:[],xp:0};
 const WEEK_TARGETS=[3,5,7];
 const GOALS:GoalPreset[]=[
   {id:"mental-math",title:"Kopfrechnen verbessern",description:"Plus, Minus, Mal, Division und Zahlenfolgen gezielt festigen.",areas:["math"],topics:["plus","minus","mal","division","zahlenfolge"]},
@@ -83,7 +85,7 @@ export function FocusTraining31(){
   const [phase,setPhase]=useState<Phase>("setup");
   const [selected,setSelected]=useState<number|null>(null);
   const [results,setResults]=useState<boolean[]>([]);
-  const [reactionTimes,setReactionTimes]=useState<number[]>([]);
+  const [reactionSamples,setReactionSamples]=useState<ReactionSample[]>([]);
   const [sessionDifficulty,setSessionDifficulty]=useState<Difficulty>(1);
   const [sessionLabel,setSessionLabel]=useState("Persönlicher Plan");
   const shownAt=useRef(0);
@@ -95,17 +97,15 @@ export function FocusTraining31(){
       const raw=localStorage.getItem(PERSONAL_PREF_KEY);
       if(raw){const p=JSON.parse(raw) as Partial<Prefs>;if(Array.isArray(p.areas)&&p.areas.length)setAreas(p.areas);if(Array.isArray(p.topics))setTopics(p.topics);if(p.difficulty&&[1,2,3].includes(p.difficulty))setDifficulty(p.difficulty);if(typeof p.adaptive==="boolean")setAdaptive(p.adaptive);if(p.mode&&SESSION_MODES.some(m=>m.id===p.mode))setMode(p.mode);if(typeof p.weeklyTarget==="number"&&WEEK_TARGETS.includes(p.weeklyTarget))setWeeklyTarget(p.weeklyTarget);}
       const statRaw=localStorage.getItem(PERSONAL_STATS_KEY);
-      if(statRaw){const parsed=JSON.parse(statRaw) as Partial<Stats>;setStats({sessions:parsed.sessions??0,lastAccuracy:parsed.lastAccuracy,bestAccuracy:parsed.bestAccuracy??0,history:Array.isArray(parsed.history)?parsed.history:[],skillStats:{...EMPTY_SKILLS,...(parsed.skillStats??{})},topicStats:parsed.topicStats??{},recent:Array.isArray(parsed.recent)?parsed.recent:[],xp:parsed.xp??0});}
+      if(statRaw){const parsed=JSON.parse(statRaw) as Partial<Stats>;setStats({sessions:parsed.sessions??0,lastAccuracy:parsed.lastAccuracy,bestAccuracy:parsed.bestAccuracy??0,history:Array.isArray(parsed.history)?parsed.history:[],skillStats:{...EMPTY_SKILLS,...(parsed.skillStats??{})},topicStats:parsed.topicStats??{},reactionStats:parsed.reactionStats??{},recent:Array.isArray(parsed.recent)?parsed.recent:[],xp:parsed.xp??0});}
     }catch{}
   },[]);
 
   useEffect(()=>{if(phase!=="preview"||!current?.previewMs)return;const timer=window.setTimeout(()=>{shownAt.current=performance.now();setPhase("question");},current.previewMs);return()=>window.clearTimeout(timer);},[phase,current]);
   useEffect(()=>{if(phase!=="question")return;const handler=(event:KeyboardEvent)=>{const i=Number(event.key)-1;if(i>=0&&i<4)answer(i);};window.addEventListener("keydown",handler);return()=>window.removeEventListener("keydown",handler);});
 
-  const recommendedArea=useMemo<FocusArea>(()=>{
-    const pool=areas.length?areas:FOCUS_AREAS.map(area=>area.id);
-    return [...pool].sort((a,b)=>{const sa=stats.skillStats[a],sb=stats.skillStats[b];if(sa.attempts===0&&sb.attempts>0)return -1;if(sb.attempts===0&&sa.attempts>0)return 1;return percent(sa)-percent(sb);})[0]??"math";
-  },[areas,stats.skillStats]);
+  const adaptivePlan=useMemo(()=>buildAdaptivePlan({selectedAreas:areas,selectedTopics:topics,skillStats:stats.skillStats,topicStats:stats.topicStats,reactionStats:stats.reactionStats,lastAccuracy:stats.lastAccuracy,baseDifficulty:difficulty}),[areas,topics,stats.skillStats,stats.topicStats,stats.reactionStats,stats.lastAccuracy,difficulty]);
+  const recommendedArea=adaptivePlan.primaryArea;
   const recommendedInfo=FOCUS_AREAS.find(area=>area.id===recommendedArea);
   const weekCount=sessionsThisWeek(stats.history);
   const currentStreak=streak(stats.history);
@@ -134,35 +134,46 @@ export function FocusTraining31(){
 
   function start(kind:"personal"|"daily"|"recommended"){
     const modeConfig=SESSION_MODES.find(m=>m.id===mode)??SESSION_MODES[1];
-    const levelForSession=kind==="daily"?2:(adaptive?adaptiveDifficulty(stats.lastAccuracy,difficulty):difficulty);
-    let recommendedTopics=TOPICS[recommendedArea].map(item=>item.id);
-    const weakForArea=topicEntries.find(([key])=>key.startsWith(`${recommendedArea}:`));
-    if(weakForArea){const label=topicTitle(weakForArea[0]);const match=TOPICS[recommendedArea].find(item=>item.label===label);if(match)recommendedTopics=[match.id];}
-    const next=kind==="daily"?createDailyChallenge():kind==="recommended"?createPersonalSession([recommendedArea],recommendedTopics,levelForSession,modeConfig.length):createPersonalSession(areas,topics,levelForSession,modeConfig.length);
-    setTasks(next);setIndex(0);setSelected(null);setResults([]);setReactionTimes([]);setSessionDifficulty(levelForSession);setSessionLabel(kind==="daily"?"Tages-Challenge":kind==="recommended"?`Heute empfohlen · ${weakForArea?topicTitle(weakForArea[0]):recommendedInfo?.title??"Fokus"}`:"Persönlicher Lernpfad");savePrefs();
+    const useAdaptive=adaptive&&kind!=="daily";
+    const levelForSession=kind==="daily"?2:(useAdaptive?adaptivePlan.difficulty:difficulty);
+    const sessionAreas=kind==="recommended"?[adaptivePlan.primaryArea]:(useAdaptive?adaptivePlan.areas:areas);
+    const sessionTopics=kind==="recommended"?(adaptivePlan.primaryTopic?[adaptivePlan.primaryTopic]:adaptivePlan.topics):(useAdaptive?adaptivePlan.topics:topics);
+    const next=kind==="daily"?createDailyChallenge():createPersonalSession(sessionAreas,sessionTopics,levelForSession,modeConfig.length);
+    setTasks(next);setIndex(0);setSelected(null);setResults([]);setReactionSamples([]);setSessionDifficulty(levelForSession);setSessionLabel(kind==="daily"?"Tages-Challenge":kind==="recommended"?`Heute empfohlen · ${adaptivePlan.primaryTopic?TOPICS[adaptivePlan.primaryArea].find(item=>item.id===adaptivePlan.primaryTopic)?.label??recommendedInfo?.title??"Fokus":recommendedInfo?.title??"Fokus"}`:useAdaptive?"Adaptiver Lernpfad":"Persönlicher Lernpfad");savePrefs();
     if(next[0]?.preview)setPhase("preview");else{shownAt.current=performance.now();setPhase("question");}
   }
 
-  function answer(optionIndex:number){if(!current||phase!=="question")return;const correct=optionIndex===current.answer;setSelected(optionIndex);setResults(value=>[...value,correct]);if(current.area==="reaction")setReactionTimes(value=>[...value,Math.round(performance.now()-shownAt.current)]);setPhase("feedback");}
+  function answer(optionIndex:number){if(!current||phase!=="question")return;const correct=optionIndex===current.answer;setSelected(optionIndex);setResults(value=>[...value,correct]);if(current.area==="reaction"){const ms=Math.round(performance.now()-shownAt.current);setReactionSamples(value=>[...value,{key:topicKey(current),ms}]);}setPhase("feedback");}
 
   function finish(){
     const accuracy=tasks.length?Math.round((results.filter(Boolean).length/tasks.length)*100):0;
     const nextSkills:SkillStats={math:{...stats.skillStats.math},words:{...stats.skillStats.words},translation:{...stats.skillStats.translation},attention:{...stats.skillStats.attention},reaction:{...stats.skillStats.reaction},memory:{...stats.skillStats.memory}};
     const nextTopics:Record<string,SkillStat>=Object.fromEntries(Object.entries(stats.topicStats).map(([key,value])=>[key,{...value}]));
+    const nextReactionStats:Record<string,AdaptiveReactionStat>=Object.fromEntries(Object.entries(stats.reactionStats).map(([key,value])=>[key,{...value}]));
     tasks.forEach((task,taskIndex)=>{const currentSkill=nextSkills[task.area];currentSkill.attempts+=1;if(results[taskIndex])currentSkill.correct+=1;const key=topicKey(task);const topicStat=nextTopics[key]??{attempts:0,correct:0};topicStat.attempts+=1;if(results[taskIndex])topicStat.correct+=1;nextTopics[key]=topicStat;});
+    reactionSamples.forEach(sample=>{const currentReaction=nextReactionStats[sample.key]??{attempts:0,totalMs:0};currentReaction.attempts+=1;currentReaction.totalMs+=sample.ms;nextReactionStats[sample.key]=currentReaction;});
     const today=isoDay();const gainedXp=20+results.filter(Boolean).length*10+(accuracy===100?30:0);
     const record:SessionRecord={date:today,accuracy,label:sessionLabel,xp:gainedXp};
-    const nextStats:Stats={sessions:stats.sessions+1,lastAccuracy:accuracy,bestAccuracy:Math.max(stats.bestAccuracy,accuracy),history:[...stats.history,today].slice(-180),skillStats:nextSkills,topicStats:nextTopics,recent:[record,...stats.recent].slice(0,12),xp:stats.xp+gainedXp};
+    const nextStats:Stats={sessions:stats.sessions+1,lastAccuracy:accuracy,bestAccuracy:Math.max(stats.bestAccuracy,accuracy),history:[...stats.history,today].slice(-180),skillStats:nextSkills,topicStats:nextTopics,reactionStats:nextReactionStats,recent:[record,...stats.recent].slice(0,12),xp:stats.xp+gainedXp};
     setStats(nextStats);try{localStorage.setItem(PERSONAL_STATS_KEY,JSON.stringify(nextStats));}catch{}setPhase("done");
   }
 
   function next(){if(index>=tasks.length-1){finish();return;}const n=index+1;setIndex(n);setSelected(null);if(tasks[n].preview)setPhase("preview");else{shownAt.current=performance.now();setPhase("question");}}
-  const avgReaction=reactionTimes.length?Math.round(reactionTimes.reduce((a,b)=>a+b,0)/reactionTimes.length):0;
+  const avgReaction=reactionSamples.length?Math.round(reactionSamples.reduce((a,b)=>a+b.ms,0)/reactionSamples.length):0;
 
   if(phase==="setup")return <section className={styles.trainer} aria-labelledby="focus-title"><div className={styles.setup}>
-    <p className="eyebrow">Learning Expansion 3.4 · Progress Analytics & Motivation</p>
-    <h1 id="focus-title">Dein Lernfortschritt wird sichtbar.</h1>
-    <p>KogTrain verbindet deinen persönlichen Lernpfad jetzt mit Skill-Daten, Unterthemen, XP, Wochenrhythmus und gezielten Wiederholungen. Die Auswertung bleibt lokal und dient nur dem Training.</p>
+    <p className="eyebrow">Learning Expansion 3.6 · Adaptive Learning Engine</p>
+    <h1 id="focus-title">Dein Training passt sich jetzt wirklich an.</h1>
+    <p>KogTrain bewertet Trefferquote, Trainingsmenge, Unterthemen, letzte Session und – bei Reaktionsaufgaben – deine Reaktionszeit. Daraus entsteht ein erklärbarer nächster Trainingsreiz statt einer Black-Box-Empfehlung.</p>
+
+    <h2>Adaptive Empfehlung</h2>
+    <div className={styles.stage} style={{minHeight:"unset",padding:"32px",alignItems:"flex-start",textAlign:"left"}}>
+      <p className="eyebrow">Adaptive Engine · Vertrauen {adaptivePlan.confidence==="high"?"hoch":adaptivePlan.confidence==="medium"?"mittel":"niedrig"}</p>
+      <h2 style={{marginBottom:12}}>{adaptivePlan.primaryTopic?TOPICS[adaptivePlan.primaryArea].find(item=>item.id===adaptivePlan.primaryTopic)?.label:recommendedInfo?.title}</h2>
+      <p>{adaptivePlan.reason}</p>
+      <p><strong>Nächstes Niveau:</strong> {adaptivePlan.difficulty===1?"Leicht":adaptivePlan.difficulty===2?"Standard":"Challenge"} · Priorität {adaptivePlan.score}/145</p>
+      <button className="primaryButton" type="button" onClick={()=>start("recommended")}>Adaptive Session starten</button>
+    </div>
 
     <h2>Heute auf einen Blick</h2>
     <div className={styles.areaGrid}>
@@ -171,18 +182,10 @@ export function FocusTraining31(){
       <button type="button"><span className={styles.icon}>%</span><strong>{totalAttempts?`${overall}%`:"–"}</strong><small>{totalAttempts} ausgewertete Aufgaben</small><p>Bestwert einer Session: {stats.sessions?`${stats.bestAccuracy}%`:"–"}.</p></button>
     </div>
 
-    <h2>Heute empfohlen</h2>
-    <div className={styles.stage} style={{minHeight:"unset",padding:"32px",alignItems:"flex-start",textAlign:"left"}}>
-      <p className="eyebrow">Gezielte Wiederholung</p>
-      <h2 style={{marginBottom:12}}>{weakestTopic?topicTitle(weakestTopic[0]):recommendedInfo?.title??"Mathematik"}</h2>
-      <p>{weakestTopic?`Dieses Unterthema liegt aktuell bei ${percent(weakestTopic[1])}% aus ${weakestTopic[1].attempts} Aufgaben. KogTrain priorisiert es als nächsten sinnvollen Trainingsreiz.`:stats.skillStats[recommendedArea].attempts?`Aktueller Bereichswert: ${percent(stats.skillStats[recommendedArea])}%. Dieser Bereich liegt in deinem gewählten Plan derzeit am niedrigsten.`:"Noch fehlen Vergleichsdaten. Eine erste Session schafft die Grundlage für präzisere Empfehlungen."}</p>
-      <button className="primaryButton" type="button" onClick={()=>start("recommended")}>Empfohlene Session starten</button>
-    </div>
-
     <h2>Stärken & Entwicklung</h2>
     <div className={styles.areaGrid}>
       <button type="button"><span className={styles.icon}>↑</span><strong>{strongestTopic?topicTitle(strongestTopic[0]):strongest?.title??"Noch offen"}</strong><small>Stärkster Trainingswert</small><p>{strongestTopic?`${percent(strongestTopic[1])}% aus ${strongestTopic[1].attempts} Aufgaben`:strongest?`${percent(stats.skillStats[strongest.id])}% im Bereich ${strongest.title}`:"Nach den ersten Sessions wird deine Stärke hier sichtbar."}</p></button>
-      <button type="button"><span className={styles.icon}>↗</span><strong>{weakestTopic?topicTitle(weakestTopic[0]):weakest?.title??"Noch offen"}</strong><small>Entwicklungspotenzial</small><p>{weakestTopic?`${percent(weakestTopic[1])}% – wird gezielt häufiger empfohlen.`:weakest?`${percent(stats.skillStats[weakest.id])}% – hier lohnt sich die nächste Wiederholung.`:"Noch keine belastbare Vergleichsbasis."}</p></button>
+      <button type="button"><span className={styles.icon}>↗</span><strong>{weakestTopic?topicTitle(weakestTopic[0]):weakest?.title??"Noch offen"}</strong><small>Entwicklungspotenzial</small><p>{weakestTopic?`${percent(weakestTopic[1])}% – fließt stärker in den adaptiven Themenmix ein.`:weakest?`${percent(stats.skillStats[weakest.id])}% – hier lohnt sich die nächste Wiederholung.`:"Noch keine belastbare Vergleichsbasis."}</p></button>
       <button type="button"><span className={styles.icon}>★</span><strong>{achievements.length}</strong><small>Erfolge freigeschaltet</small><p>{achievements.slice(-2).join(" · ")||"Dein erster Erfolg wartet nach der ersten Session."}</p></button>
     </div>
 
@@ -201,15 +204,15 @@ export function FocusTraining31(){
     <h2>Gezielte Übungen</h2>
     {areas.map(area=><div key={area} style={{marginBottom:22}}><strong>{FOCUS_AREAS.find(x=>x.id===area)?.title}</strong><div className={styles.levels} style={{marginTop:10}}>{TOPICS[area].map(topic=><button key={topic.id} type="button" className={topics.includes(topic.id)?styles.levelActive:""} aria-pressed={topics.includes(topic.id)} onClick={()=>toggleTopic(topic.id)}>{topic.label}</button>)}</div></div>)}
 
-    <div className={styles.controls}><div><span>Session-Länge</span><div className={styles.levels}>{SESSION_MODES.map(item=><button key={item.id} type="button" className={mode===item.id?styles.levelActive:""} onClick={()=>{setMode(item.id);savePrefs({mode:item.id});}}><strong>{item.label}</strong> · {item.note}</button>)}</div></div><div><span>Grundniveau</span><div className={styles.levels}>{([1,2,3] as Difficulty[]).map(item=><button key={item} type="button" className={difficulty===item?styles.levelActive:""} onClick={()=>{setDifficulty(item);savePrefs({difficulty:item});}}>{item===1?"Leicht":item===2?"Standard":"Challenge"}</button>)}</div><label style={{display:"flex",gap:10,alignItems:"center",marginTop:14,lineHeight:1.5}}><input type="checkbox" checked={adaptive} onChange={e=>{setAdaptive(e.target.checked);savePrefs({adaptive:e.target.checked});}}/> Adaptiv an letzte Leistung anpassen</label></div></div>
+    <div className={styles.controls}><div><span>Session-Länge</span><div className={styles.levels}>{SESSION_MODES.map(item=><button key={item.id} type="button" className={mode===item.id?styles.levelActive:""} onClick={()=>{setMode(item.id);savePrefs({mode:item.id});}}><strong>{item.label}</strong> · {item.note}</button>)}</div></div><div><span>Grundniveau</span><div className={styles.levels}>{([1,2,3] as Difficulty[]).map(item=><button key={item} type="button" className={difficulty===item?styles.levelActive:""} onClick={()=>{setDifficulty(item);savePrefs({difficulty:item});}}>{item===1?"Leicht":item===2?"Standard":"Challenge"}</button>)}</div><label style={{display:"flex",gap:10,alignItems:"center",marginTop:14,lineHeight:1.5}}><input type="checkbox" checked={adaptive} onChange={e=>{setAdaptive(e.target.checked);savePrefs({adaptive:e.target.checked});}}/> Adaptive Engine aktivieren</label></div></div>
 
-    <div className={styles.finishActions}><button className="primaryButton" type="button" onClick={()=>start("personal")}>Meinen Lernpfad starten</button><button className={styles.secondaryButton} type="button" onClick={()=>start("daily")}>Tages-Challenge · 8 Aufgaben</button></div>
+    <div className={styles.finishActions}><button className="primaryButton" type="button" onClick={()=>start("personal")}>{adaptive?"Adaptiven Lernpfad starten":"Meinen Lernpfad starten"}</button><button className={styles.secondaryButton} type="button" onClick={()=>start("daily")}>Tages-Challenge · 8 Aufgaben</button></div>
   </div></section>;
 
   return <section className={styles.trainer} aria-live="polite"><div className={styles.sessionTop}><span>{sessionLabel}</span><span>Aufgabe {Math.min(index+1,tasks.length)}/{tasks.length}</span><span>{current?.topicLabel??current?.label??"Auswertung"}</span><span>Level {sessionDifficulty}</span></div>
     {phase==="preview"&&current?.preview&&<div className={styles.stage}><p className="eyebrow">Merkfähigkeit</p><h2>Präge dir die Folge ein.</h2><div className={styles.preview}>{current.preview.map((item,i)=><span key={`${item}-${i}`}>{item}</span>)}</div><p>Gleich wird die Folge ausgeblendet.</p></div>}
     {phase==="question"&&current&&<div className={styles.stage}><p className="eyebrow">{current.topicLabel??current.label}</p><h2>{current.prompt}</h2><div className={styles.detail}>{current.detail}</div><div className={styles.options}>{current.options.map((option,i)=><button key={`${option}-${i}`} type="button" onClick={()=>answer(i)}><kbd>{i+1}</kbd><span>{option}</span></button>)}</div><p>Tastatur: 1–4</p></div>}
-    {phase==="feedback"&&current&&selected!==null&&<div className={styles.stage}><p className={`${styles.badge} ${selected===current.answer?styles.correct:styles.incorrect}`}>{selected===current.answer?"Richtig ✓":"Fast – weiter geht’s"}</p><h2>{selected===current.answer?"Sauber gelöst.":`Richtig wäre: ${current.options[current.answer]}`}</h2><p>{current.explanation}</p>{current.area==="reaction"&&<p>Reaktionszeit: <strong>{reactionTimes.at(-1)} ms</strong></p>}<button className="primaryButton" type="button" onClick={next}>{index===tasks.length-1?"Auswertung":"Nächste Aufgabe"}</button></div>}
-    {phase==="done"&&<div className={styles.stage}><p className="eyebrow">Heute geschafft 🎉</p><h2>{score}/{tasks.length} Aufgaben richtig</h2><div className={styles.bigScore}>{Math.round((score/tasks.length)*100)}%</div><p>{avgReaction?`Ø Reaktionszeit: ${avgReaction} ms · `:""}+{20+score*10+(score===tasks.length?30:0)} XP. {adaptive?"Die nächste Empfehlung berücksichtigt deine aktualisierten Bereichs- und Unterthemenwerte.":"Dein Training bleibt auf dem gewählten Niveau."}</p><div className={styles.finishActions}><button className="primaryButton" type="button" onClick={()=>setPhase("setup")}>Fortschritt ansehen</button><button className={styles.secondaryButton} type="button" onClick={()=>start("recommended")}>Gezielt weitertrainieren</button></div></div>}
+    {phase==="feedback"&&current&&selected!==null&&<div className={styles.stage}><p className={`${styles.badge} ${selected===current.answer?styles.correct:styles.incorrect}`}>{selected===current.answer?"Richtig ✓":"Fast – weiter geht’s"}</p><h2>{selected===current.answer?"Sauber gelöst.":`Richtig wäre: ${current.options[current.answer]}`}</h2><p>{current.explanation}</p>{current.area==="reaction"&&<p>Reaktionszeit: <strong>{reactionSamples.at(-1)?.ms} ms</strong></p>}<button className="primaryButton" type="button" onClick={next}>{index===tasks.length-1?"Auswertung":"Nächste Aufgabe"}</button></div>}
+    {phase==="done"&&<div className={styles.stage}><p className="eyebrow">Heute geschafft 🎉</p><h2>{score}/{tasks.length} Aufgaben richtig</h2><div className={styles.bigScore}>{Math.round((score/tasks.length)*100)}%</div><p>{avgReaction?`Ø Reaktionszeit: ${avgReaction} ms · `:""}+{20+score*10+(score===tasks.length?30:0)} XP. {adaptive?"Die Adaptive Engine hat deine Werte aktualisiert und berechnet daraus den nächsten Themenmix.":"Dein Training bleibt auf dem gewählten Niveau."}</p><div className={styles.finishActions}><button className="primaryButton" type="button" onClick={()=>setPhase("setup")}>Fortschritt ansehen</button><button className={styles.secondaryButton} type="button" onClick={()=>start("recommended")}>Adaptiv weitertrainieren</button></div></div>}
   </section>;
 }
