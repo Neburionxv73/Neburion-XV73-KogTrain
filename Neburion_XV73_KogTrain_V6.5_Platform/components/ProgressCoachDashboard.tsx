@@ -24,6 +24,10 @@ function useProgressSnapshot() {
   return snapshot;
 }
 
+function ProgressAnchor() {
+  return <div id="fortschritt" className={styles.progressAnchor} aria-hidden="true" />;
+}
+
 function StorageNotice({ snapshot }: { snapshot: ProgressSnapshot }) {
   if (snapshot.storageScope !== "preview") return null;
   return (
@@ -64,31 +68,16 @@ export function CoachHeroCard() {
 export function ProgressCoachDashboard() {
   const snapshot = useProgressSnapshot();
 
-  useEffect(() => {
-    if (!snapshot || window.location.hash !== "#fortschritt") return;
-
-    let secondFrame = 0;
-    const firstFrame = window.requestAnimationFrame(() => {
-      secondFrame = window.requestAnimationFrame(() => {
-        const target = document.getElementById("fortschritt");
-        if (!target) return;
-
-        const topbar = document.querySelector<HTMLElement>(".topbar");
-        const headerOffset = (topbar?.getBoundingClientRect().height ?? 88) + 24;
-        const targetTop = target.getBoundingClientRect().top + window.scrollY - headerOffset;
-
-        window.scrollTo({ top: Math.max(0, targetTop), behavior: "auto" });
-      });
-    });
-
-    return () => {
-      window.cancelAnimationFrame(firstFrame);
-      if (secondFrame) window.cancelAnimationFrame(secondFrame);
-    };
-  }, [snapshot]);
-
   if (!snapshot) {
-    return <section className={styles.dashboard} id="fortschritt"><p className="eyebrow">Progress & Coach 2.1</p><h2>Fortschritt wird geladen.</h2></section>;
+    return (
+      <>
+        <ProgressAnchor />
+        <section className={styles.dashboard}>
+          <p className="eyebrow">Progress & Coach 2.1</p>
+          <h2>Fortschritt wird geladen.</h2>
+        </section>
+      </>
+    );
   }
 
   const dailyPercent = Math.min(100, Math.round((snapshot.todaySessions / snapshot.dailyGoal) * 100));
@@ -99,89 +88,92 @@ export function ProgressCoachDashboard() {
   const strongest = snapshot.strongest;
 
   return (
-    <section className={styles.dashboard} id="fortschritt" aria-labelledby="progress-2-title">
-      <div className={styles.header}>
-        <div>
-          <p className="eyebrow">Progress & Coach 2.1</p>
-          <h2 id="progress-2-title">Dein Training als zusammenhängendes System.</h2>
-          <p>Die Auswertung verbindet alle fünf Labs, zeigt reale lokale Trainingsdaten und leitet daraus nachvollziehbare Empfehlungen ab. Keine medizinische Bewertung, keine versteckte Black-Box-Logik.</p>
-        </div>
-        <div className={styles.levelCard}>
-          <span>Level {snapshot.level}</span>
-          <strong>{snapshot.xp} XP</strong>
-          <div className={styles.bar}><span style={{ width: `${levelPercent}%` }} /></div>
-          <small>{snapshot.xpInLevel}/{snapshot.xpToNextLevel} XP bis zum nächsten Level</small>
-        </div>
-      </div>
-
-      <StorageNotice snapshot={snapshot} />
-
-      <div className={styles.metricGrid}>
-        <article><span>Gesamtsessions</span><strong>{snapshot.totalSessions}</strong><small>über alle fünf Labs</small></article>
-        <article><span>Ø Bestleistung</span><strong>{snapshot.hasTrainingData ? `${snapshot.averageBest}%` : "–"}</strong><small>{snapshot.hasTrainingData ? "aktive Trainingsbereiche" : "noch keine Trainingsbasis"}</small></article>
-        <article><span>Serie</span><strong>{snapshot.streak}</strong><small>{snapshot.streak === 1 ? "Trainingstag" : "Trainingstage"}</small></article>
-        <article><span>Wochenziel</span><strong>{snapshot.weekSessions}/{snapshot.weeklyGoal}</strong><small>{weeklyPercent}% erreicht</small></article>
-      </div>
-
-      <div className={styles.twoColumn}>
-        <div className={styles.panel}>
-          <div className={styles.panelHead}><div><p className="eyebrow">Fünf-Lab-Profil</p><h3>Stärken und Entwicklung</h3></div><span>{snapshot.hasTrainingData ? `${snapshot.averageBest}% Ø` : "noch offen"}</span></div>
-          <div className={styles.labList}>
-            {snapshot.labs.map((item) => (
-              <Link href={item.href} className={styles.labRow} key={item.id}>
-                <div><strong>{item.label}</strong><small>{item.sessions} Sessions · {item.accent}</small></div>
-                <div className={styles.labValue}><span>{item.sessions ? `${item.bestPercent}%` : "–"}</span><div className={styles.bar}><i style={{ width: `${item.sessions ? item.bestPercent : 0}%` }} /></div></div>
-              </Link>
-            ))}
+    <>
+      <ProgressAnchor />
+      <section className={styles.dashboard} aria-labelledby="progress-2-title">
+        <div className={styles.header}>
+          <div>
+            <p className="eyebrow">Progress & Coach 2.1</p>
+            <h2 id="progress-2-title">Dein Training als zusammenhängendes System.</h2>
+            <p>Die Auswertung verbindet alle fünf Labs, zeigt reale lokale Trainingsdaten und leitet daraus nachvollziehbare Empfehlungen ab. Keine medizinische Bewertung, keine versteckte Black-Box-Logik.</p>
+          </div>
+          <div className={styles.levelCard}>
+            <span>Level {snapshot.level}</span>
+            <strong>{snapshot.xp} XP</strong>
+            <div className={styles.bar}><span style={{ width: `${levelPercent}%` }} /></div>
+            <small>{snapshot.xpInLevel}/{snapshot.xpToNextLevel} XP bis zum nächsten Level</small>
           </div>
         </div>
 
-        <div className={styles.panel} id="coach">
-          <div className={styles.panelHead}><div><p className="eyebrow">Coach Layer</p><h3>Heute sinnvoll</h3></div><span>erklärbar</span></div>
-          <div className={styles.recommendation}>
-            <span className={styles.recommendationLabel}>Nächster Fokus</span>
-            {lab && strongest ? (
-              <>
-                <strong>{lab.label} Lab</strong>
-                <p>{lab.sessions === 0
-                  ? `Dieser Bereich wurde auf dieser Domain noch nicht trainiert. Dein aktuell stärkster erfasster Bereich ist ${strongest.label} mit ${strongest.bestPercent}%.`
-                  : `Dieses Lab wird empfohlen, weil sein erfasster Bestwert mit ${lab.bestPercent}% aktuell unter deinem stärksten Bereich ${strongest.label} (${strongest.bestPercent}%) liegt.`}
-                </p>
-                <Link href={lab.href}>Training starten →</Link>
-              </>
-            ) : (
-              <>
-                <strong>Noch keine Trainingsbasis</strong>
-                <p>Auf dieser Domain wurden noch keine abgeschlossenen Lab-Sessions gefunden. Wähle zuerst einen beliebigen Bereich; danach werden Coach-Empfehlungen aus echten Trainingswerten abgeleitet.</p>
-                <a href="#training">Trainingswelt wählen →</a>
-              </>
-            )}
+        <StorageNotice snapshot={snapshot} />
+
+        <div className={styles.metricGrid}>
+          <article><span>Gesamtsessions</span><strong>{snapshot.totalSessions}</strong><small>über alle fünf Labs</small></article>
+          <article><span>Ø Bestleistung</span><strong>{snapshot.hasTrainingData ? `${snapshot.averageBest}%` : "–"}</strong><small>{snapshot.hasTrainingData ? "aktive Trainingsbereiche" : "noch keine Trainingsbasis"}</small></article>
+          <article><span>Serie</span><strong>{snapshot.streak}</strong><small>{snapshot.streak === 1 ? "Trainingstag" : "Trainingstage"}</small></article>
+          <article><span>Wochenziel</span><strong>{snapshot.weekSessions}/{snapshot.weeklyGoal}</strong><small>{weeklyPercent}% erreicht</small></article>
+        </div>
+
+        <div className={styles.twoColumn}>
+          <div className={styles.panel}>
+            <div className={styles.panelHead}><div><p className="eyebrow">Fünf-Lab-Profil</p><h3>Stärken und Entwicklung</h3></div><span>{snapshot.hasTrainingData ? `${snapshot.averageBest}% Ø` : "noch offen"}</span></div>
+            <div className={styles.labList}>
+              {snapshot.labs.map((item) => (
+                <Link href={item.href} className={styles.labRow} key={item.id}>
+                  <div><strong>{item.label}</strong><small>{item.sessions} Sessions · {item.accent}</small></div>
+                  <div className={styles.labValue}><span>{item.sessions ? `${item.bestPercent}%` : "–"}</span><div className={styles.bar}><i style={{ width: `${item.sessions ? item.bestPercent : 0}%` }} /></div></div>
+                </Link>
+              ))}
+            </div>
           </div>
-          <div className={styles.goalBlock}>
-            <div><span>Tagesziel</span><strong>{snapshot.todaySessions}/{snapshot.dailyGoal}</strong></div>
-            <div className={styles.bar}><span style={{ width: `${dailyPercent}%` }} /></div>
-            <small>{dailyPercent >= 100 ? "Tagesziel erreicht. Weitere Sessions sind optional." : snapshot.hasTrainingData ? "Noch eine kurze Session bringt dich dem Tagesziel näher." : "Deine erste Session startet die heutige Aktivitätsaufzeichnung."}</small>
+
+          <div className={styles.panel} id="coach">
+            <div className={styles.panelHead}><div><p className="eyebrow">Coach Layer</p><h3>Heute sinnvoll</h3></div><span>erklärbar</span></div>
+            <div className={styles.recommendation}>
+              <span className={styles.recommendationLabel}>Nächster Fokus</span>
+              {lab && strongest ? (
+                <>
+                  <strong>{lab.label} Lab</strong>
+                  <p>{lab.sessions === 0
+                    ? `Dieser Bereich wurde auf dieser Domain noch nicht trainiert. Dein aktuell stärkster erfasster Bereich ist ${strongest.label} mit ${strongest.bestPercent}%.`
+                    : `Dieses Lab wird empfohlen, weil sein erfasster Bestwert mit ${lab.bestPercent}% aktuell unter deinem stärksten Bereich ${strongest.label} (${strongest.bestPercent}%) liegt.`}
+                  </p>
+                  <Link href={lab.href}>Training starten →</Link>
+                </>
+              ) : (
+                <>
+                  <strong>Noch keine Trainingsbasis</strong>
+                  <p>Auf dieser Domain wurden noch keine abgeschlossenen Lab-Sessions gefunden. Wähle zuerst einen beliebigen Bereich; danach werden Coach-Empfehlungen aus echten Trainingswerten abgeleitet.</p>
+                  <a href="#training">Trainingswelt wählen →</a>
+                </>
+              )}
+            </div>
+            <div className={styles.goalBlock}>
+              <div><span>Tagesziel</span><strong>{snapshot.todaySessions}/{snapshot.dailyGoal}</strong></div>
+              <div className={styles.bar}><span style={{ width: `${dailyPercent}%` }} /></div>
+              <small>{dailyPercent >= 100 ? "Tagesziel erreicht. Weitere Sessions sind optional." : snapshot.hasTrainingData ? "Noch eine kurze Session bringt dich dem Tagesziel näher." : "Deine erste Session startet die heutige Aktivitätsaufzeichnung."}</small>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className={styles.activityPanel}>
-        <div><p className="eyebrow">Letzte 7 Tage</p><h3>Trainingsrhythmus</h3></div>
-        {snapshot.activityCount > 0 ? (
-          <div className={styles.activityChart} aria-label="Sessions der letzten sieben Tage">
-            {snapshot.recentDays.map((day) => (
-              <div key={day.label} className={styles.dayColumn}><div className={styles.dayTrack}><span style={{ height: `${Math.max(day.count ? 18 : 4, (day.count / maxDay) * 100)}%` }} /></div><strong>{day.count}</strong><small>{day.label}</small></div>
-            ))}
-          </div>
-        ) : (
-          <div className={styles.emptyActivity}>
-            <strong>Noch keine datierte Aktivität</strong>
-            <p>Der 7-Tage-Verlauf beginnt mit der ersten Session, die auf diesem Speicherbereich abgeschlossen wird.</p>
-          </div>
-        )}
-      </div>
+        <div className={styles.activityPanel}>
+          <div><p className="eyebrow">Letzte 7 Tage</p><h3>Trainingsrhythmus</h3></div>
+          {snapshot.activityCount > 0 ? (
+            <div className={styles.activityChart} aria-label="Sessions der letzten sieben Tage">
+              {snapshot.recentDays.map((day) => (
+                <div key={day.label} className={styles.dayColumn}><div className={styles.dayTrack}><span style={{ height: `${Math.max(day.count ? 18 : 4, (day.count / maxDay) * 100)}%` }} /></div><strong>{day.count}</strong><small>{day.label}</small></div>
+              ))}
+            </div>
+          ) : (
+            <div className={styles.emptyActivity}>
+              <strong>Noch keine datierte Aktivität</strong>
+              <p>Der 7-Tage-Verlauf beginnt mit der ersten Session, die auf diesem Speicherbereich abgeschlossen wird.</p>
+            </div>
+          )}
+        </div>
 
-      <p className={styles.notice}>Aktivitätsserie und Tages-/Wochenverlauf werden lokal pro Browser-Domain gespeichert. Vercel-Preview-URLs besitzen technisch getrennte Speicherbereiche; deshalb für dauerhafte Fortschrittswerte dieselbe stabile KogTrain-Adresse verwenden.</p>
-    </section>
+        <p className={styles.notice}>Aktivitätsserie und Tages-/Wochenverlauf werden lokal pro Browser-Domain gespeichert. Vercel-Preview-URLs besitzen technisch getrennte Speicherbereiche; deshalb für dauerhafte Fortschrittswerte dieselbe stabile KogTrain-Adresse verwenden.</p>
+      </section>
+    </>
   );
 }
