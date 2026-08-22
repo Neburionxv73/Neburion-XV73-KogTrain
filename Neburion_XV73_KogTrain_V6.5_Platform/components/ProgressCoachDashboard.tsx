@@ -64,6 +64,14 @@ export function CoachHeroCard() {
 export function ProgressCoachDashboard() {
   const snapshot = useProgressSnapshot();
 
+  useEffect(() => {
+    if (!snapshot || window.location.hash !== "#fortschritt") return;
+    const frame = window.requestAnimationFrame(() => {
+      document.getElementById("fortschritt")?.scrollIntoView({ block: "start", behavior: "auto" });
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [snapshot]);
+
   if (!snapshot) {
     return <section className={styles.dashboard} id="fortschritt"><p className="eyebrow">Progress & Coach 2.1</p><h2>Fortschritt wird geladen.</h2></section>;
   }
