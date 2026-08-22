@@ -8,13 +8,13 @@ export const metadata = {
 
 export default function AttentionLabPage() {
   return (
-    <main className="trainingPage">
+    <main className="trainingPage attentionPage">
       <div className="trainingTopbar">
         <Link className="backLink" href="/#training">← Trainingswelten</Link>
         <span>Attention Lab 2.0 · V6.5</span>
       </div>
       <section className="trainingShell" aria-labelledby="attention-title">
-        <div className="trainingIntro">
+        <div className="trainingIntro" id="attention-start">
           <p className="eyebrow">Attention Lab 2.0</p>
           <h1 id="attention-title">Fokus halten. Regeln wechseln. Störreize kontrollieren.</h1>
           <p>Acht dynamische Aufgaben kombinieren Go/No-Go, visuelle Suche, Regelwechsel, Reaktionshemmung, geteilte Aufmerksamkeit, Tempo und Interferenz. Jede Session wird neu zusammengestellt und an deinen bisherigen Bestwert angepasst.</p>
