@@ -66,10 +66,25 @@ export function ProgressCoachDashboard() {
 
   useEffect(() => {
     if (!snapshot || window.location.hash !== "#fortschritt") return;
-    const frame = window.requestAnimationFrame(() => {
-      document.getElementById("fortschritt")?.scrollIntoView({ block: "start", behavior: "auto" });
+
+    let secondFrame = 0;
+    const firstFrame = window.requestAnimationFrame(() => {
+      secondFrame = window.requestAnimationFrame(() => {
+        const target = document.getElementById("fortschritt");
+        if (!target) return;
+
+        const topbar = document.querySelector<HTMLElement>(".topbar");
+        const headerOffset = (topbar?.getBoundingClientRect().height ?? 88) + 24;
+        const targetTop = target.getBoundingClientRect().top + window.scrollY - headerOffset;
+
+        window.scrollTo({ top: Math.max(0, targetTop), behavior: "auto" });
+      });
     });
-    return () => window.cancelAnimationFrame(frame);
+
+    return () => {
+      window.cancelAnimationFrame(firstFrame);
+      if (secondFrame) window.cancelAnimationFrame(secondFrame);
+    };
   }, [snapshot]);
 
   if (!snapshot) {
