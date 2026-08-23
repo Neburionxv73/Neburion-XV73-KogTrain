@@ -1,16 +1,33 @@
 /* Raptor Delta V9.7 — conservative performance baseline */
 .journeyTeaser,
 .learningLibrary,
-.worlds{
+.worlds,
+.deferredProgressMount{
   content-visibility:auto;
   contain-intrinsic-size:1px 760px;
 }
+
+.deferredProgressMount{min-height:1px}
+.deferredProgressAnchor{height:1px;scroll-margin-top:112px}
 
 img,
 svg{
   max-width:100%;
 }
 
+@media(max-width:640px){
+  body{background:var(--cp-bg,#f5f8fc)!important}
+  .topbar{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+  .learningCard,.worldCard,button,a,[role="button"]{
+    animation:none!important;
+    transition:none!important;
+  }
+}
+
 @media(prefers-reduced-motion:reduce){
   html{scroll-behavior:auto!important}
+  *,*::before,*::after{
+    animation:none!important;
+    transition:none!important;
+  }
 }
