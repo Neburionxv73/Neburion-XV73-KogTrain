@@ -9,7 +9,8 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "validate:brainfit": "node scripts/validate-brainfit.mjs",
-    "validate": "npm run typecheck && node scripts/validate-project.mjs && npm run validate:brainfit",
+    "validate:release": "node scripts/validate-release-baseline.mjs",
+    "validate": "npm run typecheck && node scripts/validate-project.mjs && npm run validate:brainfit && npm run validate:release",
     "quality:core": "npm run validate && npm run build"
   },
   "dependencies": {
