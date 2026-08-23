@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { VisualTraining } from "@/components/VisualTraining";
+import { LabViewportStyle } from "@/components/LabViewportStyle";
 
 export const metadata = {
   title: "Visual Lab 2.0 · Neburion XV73 V6.5",
@@ -8,7 +9,8 @@ export const metadata = {
 
 export default function VisualPage() {
   return (
-    <main className="trainingPage">
+    <main className="trainingPage labPage">
+      <LabViewportStyle />
       <div className="trainingTopbar">
         <Link className="backLink" href="/#training">← Trainingswelten</Link>
         <span>Visual Lab 2.0 · V6.5</span>
