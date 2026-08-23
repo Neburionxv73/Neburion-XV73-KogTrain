@@ -5,6 +5,8 @@ const training = read("components/BrainFitTraining.tsx");
 const trainingCss = read("components/BrainFitTraining.module.css");
 const hardeningCss = read("app/brainfit-functional-hardening.css");
 const responsiveCss = read("app/responsive-a11y-v97.css");
+const interactionCss = read("app/interaction-finish-v97.css");
+const layout = read("app/layout.tsx");
 const journey = read("components/UnifiedTrainingJourney.tsx");
 const progress = read("components/ProgressCoachDashboard.tsx");
 
@@ -21,6 +23,10 @@ const checks = [
   ["no coach recommendation track", !journey.includes("Coach-Empfehlung") && !journey.includes("recommended")],
   ["progress dashboard has no recommendation panel", !progress.includes("Nächster Fokus") && !progress.includes("Heute sinnvoll")],
   ["reduced motion support", trainingCss.includes("prefers-reduced-motion") || responsiveCss.includes("prefers-reduced-motion")],
+  ["keyboard focus styling", interactionCss.includes(":focus-visible") && interactionCss.includes("outline:3px solid")],
+  ["skip link present", layout.includes("className=\"skipLink\"") && layout.includes("href=\"#top\"")],
+  ["interaction finish loaded", layout.includes("interaction-finish-v97.css")],
+  ["tab selection visible", interactionCss.includes("aria-selected=\"true\"")],
 ];
 
 const failed = checks.filter(([, pass]) => !pass);
