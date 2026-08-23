@@ -13,8 +13,10 @@ import "./interaction-finish-v97.css";
 import "./performance-baseline-v97.css";
 
 const isProduction = process.env.VERCEL_ENV === "production";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : undefined);
 
 export const metadata: Metadata = {
+  metadataBase: siteUrl ? new URL(siteUrl) : undefined,
   title: {
     default: "Neburion XV73 · Lern- und Trainingsplattform V6.5",
     template: "%s · Neburion XV73",
@@ -23,6 +25,7 @@ export const metadata: Metadata = {
   description: "Individuelle Lern- und Trainingsplattform mit Mathematik, Sprache, Englisch, Aufmerksamkeit, Reaktion, Gedächtnis, Logik, visuellen Übungen und einem zentralen Trainingsstart.",
   keywords: ["KogTrain", "Lernplattform", "Gedächtnistraining", "Aufmerksamkeit", "Logiktraining", "Sprachtraining", "Gehirnfit"],
   category: "education",
+  alternates: siteUrl ? { canonical: "/" } : undefined,
   robots: isProduction ? { index: true, follow: true } : { index: false, follow: false },
   openGraph: {
     type: "website",
@@ -30,6 +33,7 @@ export const metadata: Metadata = {
     siteName: "Neburion XV73 KogTrain",
     title: "Neburion XV73 · Lern- und Trainingsplattform V6.5",
     description: "Lernen, Spezial-Labs und Gehirnfit in einer klaren Trainingsplattform.",
+    url: siteUrl ? "/" : undefined,
   },
 };
 
