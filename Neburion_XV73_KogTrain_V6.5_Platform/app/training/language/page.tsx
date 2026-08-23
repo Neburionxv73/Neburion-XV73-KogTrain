@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { LanguageTraining } from "@/components/LanguageTraining";
+import { LabViewportStyle } from "@/components/LabViewportStyle";
 
 export const metadata = {
   title: "Language Lab 2.0 · Neburion XV73 V6.5",
@@ -8,7 +9,8 @@ export const metadata = {
 
 export default function LanguagePage() {
   return (
-    <main className="trainingPage">
+    <main className="trainingPage labPage">
+      <LabViewportStyle />
       <div className="trainingTopbar">
         <Link className="backLink" href="/#training">← Trainingswelten</Link>
         <span>Language Lab 2.0 · V6.5</span>
