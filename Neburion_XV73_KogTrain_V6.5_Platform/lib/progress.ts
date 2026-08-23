@@ -1,4 +1,4 @@
-export type LabId = "memory" | "attention" | "logic" | "language" | "visual";
+export type LabId = "memory" | "attention" | "logic" | "language" | "visual" | "brainFit";
 export type StorageScope = "stable" | "preview" | "unknown";
 
 export type LabProgress = {
@@ -52,6 +52,7 @@ const configs: Array<{ id: LabId; label: string; href: string; keys: string[]; a
   { id: "logic", label: "Logic", href: "/training/logic", keys: ["neburion-v65-logic-stats-v3", "neburion-v65-logic-stats-v2"], accent: "Logik" },
   { id: "language", label: "Language", href: "/training/language", keys: ["neburion-v65-language-stats-v3", "neburion-v65-language-stats-v2"], accent: "Sprache" },
   { id: "visual", label: "Visual", href: "/training/visual", keys: ["neburion-v65-visual-stats"], accent: "Visuell" },
+  { id: "brainFit", label: "Gehirnfit", href: "/training/brain-fit", keys: ["neburion-v65-brain-fit-v372"], accent: "Rätsel & Alltag" },
 ];
 
 function readJson(key: string): Record<string, unknown> | null {
@@ -74,6 +75,10 @@ function readLab(config: (typeof configs)[number]): LabProgress {
   } else if (config.id === "attention") {
     sessions = Number(data.sessions ?? 0);
     bestPercent = Number(data.bestAccuracy ?? 0);
+  } else if (config.id === "brainFit") {
+    sessions = Number(data.sessions ?? 0);
+    const totalScore = Number(data.totalScore ?? 0);
+    bestPercent = sessions > 0 ? Math.round(totalScore / sessions) : 0;
   } else {
     sessions = Number(data.sessions ?? 0);
     bestPercent = Math.round((Number(data.bestScore ?? 0) / 8) * 100);
