@@ -2,27 +2,67 @@
    Scope: exact production elements Lighthouse flags for contrast. */
 :root{--muted:#33485f}
 
-/* Legacy safety net. */
+/* High-specificity end state for all small uppercase labels. */
 body p.eyebrow,
-body .eyebrow{
+body .eyebrow,
+body [class*="ProgressCoachDashboard_"] p.eyebrow,
+body [class*="ProgressCoachDashboard_"] .eyebrow{
   color:#06483f!important;
   opacity:1!important;
   filter:none!important;
 }
 
-/* Exact home-page hooks: these classes are applied directly in page.tsx. */
-body .eyebrow.a11yEyebrow{
-  color:#06483f!important;
-  opacity:1!important;
-  filter:none!important;
-}
-body .journeyTeaserMeta small.a11yMetaLabel{
+/* Training-start labels explicitly called out by Lighthouse. */
+body .journeyTeaserMeta small,
+body .journeyTeaserMeta span,
+body .journeyTeaserMeta>span,
+body .journeyTeaserMeta>span small,
+body .journeyTeaser p{
   color:#2f4358!important;
   opacity:1!important;
   filter:none!important;
 }
 
+/* Progress / Coach muted text and labels. */
+body [class*="ProgressCoachDashboard_"] small,
+body [class*="ProgressCoachDashboard_"] span:not([style]),
+body [class*="ProgressCoachDashboard_"] p:not(.eyebrow),
+body [class*="ProgressCoachDashboard_panelHead"]>span,
+body [class*="ProgressCoachDashboard_dayColumn"] small,
+body [class*="ProgressCoachDashboard_notice"]{
+  color:#2f4358!important;
+  opacity:1!important;
+  filter:none!important;
+}
+
+body [class*="ProgressCoachDashboard_heroLink"]{
+  color:#06483f!important;
+  opacity:1!important;
+  filter:none!important;
+}
+
+/* Ensure parent surfaces do not lower descendant contrast through opacity/filter. */
+body [class*="ProgressCoachDashboard_heroCoach"],
+body [class*="ProgressCoachDashboard_panel"],
+body [class*="ProgressCoachDashboard_activityPanel"]{
+  opacity:1!important;
+  filter:none!important;
+}
+
 @media(max-width:640px){
-  body .eyebrow.a11yEyebrow{color:#053f37!important}
-  body .journeyTeaserMeta small.a11yMetaLabel{color:#293c50!important}
+  body p.eyebrow,
+  body .eyebrow,
+  body [class*="ProgressCoachDashboard_"] p.eyebrow,
+  body [class*="ProgressCoachDashboard_"] .eyebrow{
+    color:#053f37!important;
+  }
+
+  body .journeyTeaserMeta small,
+  body .journeyTeaserMeta span,
+  body .journeyTeaser p,
+  body [class*="ProgressCoachDashboard_"] small,
+  body [class*="ProgressCoachDashboard_"] span:not([style]),
+  body [class*="ProgressCoachDashboard_"] p:not(.eyebrow){
+    color:#293c50!important;
+  }
 }
