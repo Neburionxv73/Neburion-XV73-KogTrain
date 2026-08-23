@@ -11,7 +11,7 @@ export function WorldCard({ world, index }: { world: TrainingWorld; index: numbe
   };
   const route = activeRoutes[world.id];
   return (
-    <article className="worldCard" aria-labelledby={`${world.id}-title`}>
+    <article className={`worldCard world-${world.id}`} aria-labelledby={`${world.id}-title`}>
       <div className="cardTopline"><span>0{index + 1}</span><span>{route ? "Aktiv" : "Bereit"}</span></div>
       <div className="worldGlyph" aria-hidden="true">{world.accent}</div>
       <p className="eyebrow">{world.shortTitle}</p>
