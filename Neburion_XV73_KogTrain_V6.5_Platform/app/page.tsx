@@ -11,12 +11,17 @@ export default function Home() {
       <TopNav />
       <section className="hero" aria-labelledby="hero-title">
         <div className="heroCopy">
-          <p className="eyebrow">V6.5 · Learning Expansion 3.7.7</p>
+          <p className="eyebrow">V6.5 · Learning Expansion 3.8</p>
           <h1 id="hero-title">Lernen, das sich nach dir richtet.</h1>
-          <p>Trainiere gezielt oder gemischt: Mathematik, Sprache, Englisch, Aufmerksamkeit, Reaktion, Gedächtnis, Logik und visuelle Fähigkeiten – plus ein vollständig ausgebauter Gehirnfit-&-Alltag-Bereich.</p>
-          <div className="heroActions"><Link className="primary" href="/training/focus">Mein Training zusammenstellen</Link><a className="secondary" href="#lernbereiche">Bereiche entdecken</a></div>
+          <p>Starte heute zentral mit einer 5-, 10- oder 15-Minuten-Einheit oder trainiere gezielt Mathematik, Sprache, Englisch, Aufmerksamkeit, Reaktion, Gedächtnis, Logik, visuelle Fähigkeiten und Gehirnfit & Alltag.</p>
+          <div className="heroActions"><Link className="primary" href="/training/journey">Heute trainieren →</Link><a className="secondary" href="#lernbereiche">Bereiche entdecken</a></div>
         </div>
         <CoachHeroCard />
+      </section>
+
+      <section className="journeyTeaser" aria-labelledby="journey-teaser-title">
+        <div><p className="eyebrow">Neu · Unified Training Journey 3.8</p><h2 id="journey-teaser-title">Ein Startpunkt für dein gesamtes Training.</h2><p>Wähle 5, 10 oder 15 Minuten und entscheide zwischen persönlichem Lernmix, Spezial-Labs, Gehirnfit oder der aktuellen Coach-Empfehlung.</p></div>
+        <div className="journeyTeaserMeta"><span><strong>5 / 10 / 15</strong><small>Minuten</small></span><span><strong>4</strong><small>Trainingswege</small></span><Link className="primary" href="/training/journey">Session zusammenstellen →</Link></div>
       </section>
 
       <section className="learningLibrary" id="lernbereiche" aria-labelledby="learning-title">
@@ -31,13 +36,13 @@ export default function Home() {
       </section>
 
       <section className="learningLibrary" id="gehirnfit" aria-labelledby="brainfit-title">
-        <div className="sectionHead"><div><p className="eyebrow">Learning Expansion 3.7.7</p><h2 id="brainfit-title">Gehirnfit & Alltag.</h2></div><p>Ein ruhiger, zugänglicher Trainingsbereich mit zwölf Übungswelten, Tagesmix, variierenden Inhalten, lokalem Fortschritt, Meilensteinen und erklärbarer adaptiver Schwierigkeit.</p></div>
+        <div className="sectionHead"><div><p className="eyebrow">Gehirnfit & Alltag</p><h2 id="brainfit-title">Ruhig trainieren. Alltag stärken.</h2></div><p>Zwölf Übungswelten, Tagesmix, variierende Inhalte, lokaler Fortschritt, Meilensteine und erklärbare adaptive Schwierigkeit.</p></div>
         <div className="learningCta"><div><strong>12 Bereiche · Tagesmix · adaptiv · Coach integriert</strong><p>Tier-Sudoku, Wortsuche, Begriffe, Memory, Kategorien, Reihen, Alltagsrechnen, Zeit & Reihenfolge sowie fehlende Wörter, Sprichwörter, Bild & Begriff und Alltagswissen.</p></div><Link className="primary" href="/training/brain-fit">Gehirnfit öffnen →</Link></div>
       </section>
 
       <ProgressCoachDashboard />
 
-      <footer><span>Neburion XV73 · V6.5 Learning Expansion 3.7.7</span><span>Raptor Delta V9.7 · DRAFT</span></footer>
+      <footer><span>Neburion XV73 · V6.5 Learning Expansion 3.8</span><span>Raptor Delta V9.7 · DRAFT</span></footer>
     </main>
   );
 }
