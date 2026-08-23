@@ -9,6 +9,7 @@ import "./anti-ai-final-humanization.css";
 import "./clean-palette-v97.css";
 import "./responsive-a11y-v97.css";
 import "./brainfit-functional-hardening.css";
+import "./interaction-finish-v97.css";
 
 export const metadata: Metadata = {
   title: "Neburion XV73 · Lern- und Trainingsplattform V6.5",
@@ -16,5 +17,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="de"><body>{children}</body></html>;
+  return <html lang="de"><body><a className="skipLink" href="#top">Direkt zum Inhalt</a>{children}</body></html>;
 }
