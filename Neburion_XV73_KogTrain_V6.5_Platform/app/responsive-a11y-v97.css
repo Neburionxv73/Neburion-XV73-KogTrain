@@ -1,0 +1,76 @@
+/* Raptor Delta V9.7 · Responsive + A11Y Hardening
+   Stable device composition, touch targets, focus clarity and collision prevention. */
+
+:root{--rd-touch:44px;--rd-content:1240px}
+
+html{scroll-behavior:smooth}
+body{overflow-x:hidden}
+
+:where(button,a.primary,a.secondary,a.primaryButton,a.backLink,a.cardAction,nav a,[role="button"]){min-height:var(--rd-touch)}
+:where(button,a,[role="button"]):focus-visible{outline:3px solid #19bfa4!important;outline-offset:3px!important}
+
+.heroCopy,.sectionHead>div,.sectionHead>p,.learningCard,.worldCard,.learningCta>div{min-width:0}
+.hero h1,.sectionHead h2,.learningCard h3,.worldCard h3{overflow-wrap:anywhere}
+.heroCopy>p:not(.eyebrow),.sectionHead>p,.learningCard>p:not(.eyebrow),.worldCard>p:not(.eyebrow){max-width:72ch}
+
+.learningGrid,.worldGrid{align-items:stretch}
+.learningCard,.worldCard{height:100%}
+.worldCard{display:flex;flex-direction:column}
+.worldCard .cardAction{margin-top:auto}
+
+@media (max-width:1100px){
+  .topbar{width:min(calc(100% - 32px),var(--rd-content));gap:18px}
+  nav{max-width:58vw;overflow-x:auto;overscroll-behavior-inline:contain;scrollbar-width:none;padding:4px}
+  nav::-webkit-scrollbar{display:none}
+  nav a{flex:0 0 auto}
+  .hero{grid-template-columns:minmax(0,1.2fr) minmax(280px,.8fr);gap:28px}
+  .sectionHead{grid-template-columns:minmax(0,1.25fr) minmax(260px,.75fr);gap:30px}
+  .learningGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .worldGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+@media (max-width:820px){
+  html{scroll-padding-top:92px}
+  .topbar{position:sticky;top:0;z-index:50;display:grid;grid-template-columns:1fr;align-items:start;padding:12px 0 10px}
+  .brand{justify-self:start}
+  nav{width:100%;max-width:100%;display:flex;gap:8px;padding:3px 1px 6px}
+  nav a{min-height:46px;padding-inline:15px}
+  .hero{grid-template-columns:1fr;min-height:auto;padding:58px 0 48px}
+  .heroCopy{max-width:760px}
+  .sectionHead{grid-template-columns:1fr;gap:16px}
+  .sectionHead>p{max-width:700px}
+  .learningLibrary,.worlds{padding:68px 0}
+  .learningCta{align-items:flex-start;flex-direction:column}
+  .learningCta .primary{width:100%;justify-content:center}
+  #gehirnfit{margin-inline:auto;padding:42px 24px}
+}
+
+@media (max-width:640px){
+  html{scroll-padding-top:126px}
+  .topbar{width:min(calc(100% - 24px),var(--rd-content))}
+  .brandMark{width:42px;height:42px}
+  .brand strong{font-size:16px}
+  .brand small{font-size:11px}
+  nav a{min-height:44px;padding-inline:13px;font-size:14px;border-radius:12px}
+  .hero,.learningLibrary,.worlds{width:min(calc(100% - 28px),var(--max));margin-inline:auto}
+  .hero{padding-top:44px}
+  .hero h1{font-size:clamp(40px,12vw,56px);line-height:1.02;letter-spacing:-.045em}
+  .heroActions{display:grid;grid-template-columns:1fr;gap:10px}
+  .heroActions>*{width:100%;justify-content:center}
+  .learningGrid,.worldGrid{grid-template-columns:1fr}
+  .learningCard,.worldCard{min-height:0;padding:22px;border-radius:20px}
+  .learningIcon,.worldGlyph{width:58px;height:58px;margin-bottom:20px}
+  .learningCard h3,.worldCard h3{font-size:24px}
+  .learningCta{padding:20px;border-radius:20px}
+  #gehirnfit{width:min(calc(100% - 28px),var(--max));padding:32px 18px;border-radius:22px}
+  footer{width:min(calc(100% - 28px),var(--max));gap:10px;flex-direction:column;align-items:flex-start}
+}
+
+@media (hover:none){
+  .learningCard:hover,.worldCard:hover,button:hover,a:hover,[role="button"]:hover{transform:none!important}
+}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
