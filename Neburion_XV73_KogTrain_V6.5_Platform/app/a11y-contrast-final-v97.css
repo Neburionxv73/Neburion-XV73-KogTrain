@@ -1,41 +1,56 @@
 /* Raptor Delta V9.7 — final AA contrast hardening.
-   Scope: small labels and muted copy that Lighthouse flagged on the production home page. */
+   Scope: exact small labels and muted copy Lighthouse flags on the production home page. */
 :root{
-  --muted:#465d76;
+  --muted:#3d5269;
 }
 
-.eyebrow{
-  color:#075f51!important;
+/* Small uppercase labels: force a high-contrast teal and full opacity. */
+p.eyebrow,
+.eyebrow,
+[class*="ProgressCoachDashboard_"] .eyebrow{
+  color:#06483f!important;
+  opacity:1!important;
 }
 
+/* Training-start meta labels and supporting copy. */
 .journeyTeaser p,
 .journeyTeaserMeta small,
+.journeyTeaserMeta span,
 .journeyTeaserMeta>span,
 .journeyTeaserMeta>span small{
-  color:#435a72!important;
+  color:#33485f!important;
+  opacity:1!important;
 }
 
+/* Progress / Coach small and muted text. */
 [class*="ProgressCoachDashboard_"] small,
 [class*="ProgressCoachDashboard_"] span:not([style]),
 [class*="ProgressCoachDashboard_"] p:not(.eyebrow){
-  color:#435a72!important;
+  color:#33485f!important;
+  opacity:1!important;
 }
 
 [class*="ProgressCoachDashboard_heroLink"]{
-  color:#0e6256!important;
+  color:#07564c!important;
+  opacity:1!important;
 }
 
 [class*="ProgressCoachDashboard_panelHead"]>span,
 [class*="ProgressCoachDashboard_dayColumn"] small,
 [class*="ProgressCoachDashboard_notice"]{
-  color:#3f566e!important;
+  color:#2f4358!important;
+  opacity:1!important;
 }
 
 @media(max-width:640px){
-  .eyebrow{color:#06584b!important}
+  p.eyebrow,
+  .eyebrow,
+  [class*="ProgressCoachDashboard_"] .eyebrow{color:#053f37!important;opacity:1!important}
+
   .journeyTeaser p,
   .journeyTeaserMeta small,
+  .journeyTeaserMeta span,
   [class*="ProgressCoachDashboard_"] small,
   [class*="ProgressCoachDashboard_"] span:not([style]),
-  [class*="ProgressCoachDashboard_"] p:not(.eyebrow){color:#3f566e!important}
+  [class*="ProgressCoachDashboard_"] p:not(.eyebrow){color:#2f4358!important;opacity:1!important}
 }
