@@ -32,7 +32,7 @@ export function CoachHeroCard() {
   if (!snapshot) {
     return (
       <aside className={styles.heroCoach} aria-label="Heutiger Trainingsstand" aria-live="polite">
-        <p className="eyebrow">Heute</p>
+        <p className={`eyebrow ${styles.heroEyebrow}`}>Heute</p>
         <strong>Fortschritt wird geladen</strong>
         <p>Lokale Trainingsdaten werden ausgewertet.</p>
       </aside>
@@ -43,11 +43,11 @@ export function CoachHeroCard() {
 
   return (
     <aside className={styles.heroCoach} aria-label="Heutiger Trainingsstand">
-      <p className="eyebrow">Heute im Blick</p>
+      <p className={`eyebrow ${styles.heroEyebrow}`}>Heute im Blick</p>
       <strong>{snapshot.todaySessions}/{snapshot.dailyGoal} Sessions</strong>
       <p>{dailyPercent >= 100 ? "Tagesziel erreicht. Weitere Einheiten sind freiwillig." : "Dein Tagesziel bleibt bewusst einfach und übersichtlich."}</p>
       <div className={styles.heroProgress} aria-hidden="true"><span style={{ width: `${dailyPercent}%` }} /></div>
-      <small>Level {snapshot.level} · {snapshot.xp} XP gesamt</small>
+      <small className={styles.heroMeta}>Level {snapshot.level} · {snapshot.xp} XP gesamt</small>
       <Link className={styles.heroLink} href="/training/journey">Training öffnen →</Link>
     </aside>
   );
