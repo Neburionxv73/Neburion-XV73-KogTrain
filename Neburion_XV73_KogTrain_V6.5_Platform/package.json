@@ -10,7 +10,8 @@
     "typecheck": "tsc --noEmit",
     "validate:brainfit": "node scripts/validate-brainfit.mjs",
     "validate:release": "node scripts/validate-release-baseline.mjs",
-    "validate": "npm run typecheck && node scripts/validate-project.mjs && npm run validate:brainfit && npm run validate:release",
+    "validate:final": "node scripts/validate-final-gates.mjs",
+    "validate": "npm run typecheck && node scripts/validate-project.mjs && npm run validate:brainfit && npm run validate:release && npm run validate:final",
     "quality:core": "npm run validate && npm run build"
   },
   "dependencies": {
