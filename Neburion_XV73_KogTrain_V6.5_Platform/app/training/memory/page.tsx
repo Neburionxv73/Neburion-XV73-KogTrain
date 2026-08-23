@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { MemoryTraining } from "@/components/MemoryTraining";
+import { LabViewportStyle } from "@/components/LabViewportStyle";
 
 export const metadata = {
   title: "Memory Lab 2.0 · Neburion XV73 V6.5",
@@ -8,12 +9,15 @@ export const metadata = {
 
 export default function MemoryLabPage() {
   return (
-    <main className="trainingPage">
+    <main className="trainingPage labPage">
+      <LabViewportStyle />
       <div className="trainingTopbar">
-        <Link href="/" className="backLink">← Plattform</Link>
+        <Link href="/#training" className="backLink">← Trainingswelten</Link>
         <span>Memory Lab 2.0 · V6.5</span>
       </div>
-      <MemoryTraining />
+      <section className="trainingShell">
+        <MemoryTraining />
+      </section>
     </main>
   );
 }
