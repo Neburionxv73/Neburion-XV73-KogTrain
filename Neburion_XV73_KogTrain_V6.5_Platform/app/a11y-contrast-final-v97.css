@@ -1,0 +1,29 @@
+/* Raptor Delta V9.7 — final AA contrast hardening.
+   Scope: small labels and muted copy that Lighthouse flagged on the production home page. */
+:root{
+  --muted:#52677f;
+}
+
+.eyebrow{
+  color:#0b705f!important;
+}
+
+.journeyTeaserMeta small,
+.journeyTeaserMeta>span,
+.journeyTeaserMeta>span small{
+  color:#52677f!important;
+}
+
+[class*="ProgressCoachDashboard_"] small,
+[class*="ProgressCoachDashboard_"] span:not([style]),
+[class*="ProgressCoachDashboard_"] p:not(.eyebrow){
+  color:#52677f;
+}
+
+[class*="ProgressCoachDashboard_heroLink"]{
+  color:#126c5e!important;
+}
+
+@media(max-width:640px){
+  .eyebrow{color:#0a6859!important}
+}
