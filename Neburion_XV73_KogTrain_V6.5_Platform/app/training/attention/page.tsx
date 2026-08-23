@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AttentionTraining } from "@/components/AttentionTraining";
+import { LabViewportStyle } from "@/components/LabViewportStyle";
 
 export const metadata = {
   title: "Attention Lab 2.0 · Neburion XV73 V6.5",
@@ -8,42 +9,8 @@ export const metadata = {
 
 export default function AttentionLabPage() {
   return (
-    <main className="trainingPage attentionPage">
-      <style>{`
-        .attentionPage .trainingTopbar {
-          position: sticky;
-          top: 0;
-          z-index: 20;
-          background: color-mix(in srgb, var(--bg) 94%, transparent);
-          backdrop-filter: blur(18px);
-        }
-        .attentionPage .trainingShell {
-          padding-top: clamp(64px, 7vw, 92px);
-        }
-        .attentionPage .trainingIntro {
-          scroll-margin-top: 104px;
-          margin-bottom: 44px;
-        }
-        .attentionPage .trainingIntro h1 {
-          max-width: 900px;
-          line-height: .98;
-          text-wrap: balance;
-        }
-        .attentionPage .trainingIntro > p:last-child {
-          margin-bottom: 0;
-        }
-        @media (max-width: 1024px) {
-          .attentionPage .trainingShell { padding-top: 64px; }
-          .attentionPage .trainingIntro { scroll-margin-top: 92px; margin-bottom: 38px; }
-          .attentionPage .trainingIntro h1 { line-height: 1.02; }
-        }
-        @media (max-width: 640px) {
-          .attentionPage .trainingTopbar { min-height: 68px; }
-          .attentionPage .trainingShell { padding-top: 48px; }
-          .attentionPage .trainingIntro { scroll-margin-top: 82px; margin-bottom: 32px; }
-          .attentionPage .trainingIntro h1 { line-height: 1.06; }
-        }
-      `}</style>
+    <main className="trainingPage labPage">
+      <LabViewportStyle />
       <div className="trainingTopbar">
         <Link className="backLink" href="/#training">← Trainingswelten</Link>
         <span>Attention Lab 2.0 · V6.5</span>
