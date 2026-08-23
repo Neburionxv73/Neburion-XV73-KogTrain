@@ -126,6 +126,92 @@ button:focus-visible,a:focus-visible,[role="button"]:focus-visible{
   color:#159d89!important;
 }
 
+/* BrainFit: align with the approved clean learning-card language. */
+[class*="BrainFitTraining_hero"]{
+  background:linear-gradient(135deg,#ffffff 0%,#f7fbff 70%,#f5f1ff 100%)!important;
+  border:1px solid var(--cp-line)!important;
+  box-shadow:var(--cp-shadow)!important;
+}
+[class*="BrainFitTraining_modeRow"] button,
+[class*="BrainFitTraining_tabs"] button{
+  background:#fff!important;
+  border:1px solid #c9d6e3!important;
+  color:#24384f!important;
+  box-shadow:none!important;
+}
+[class*="BrainFitTraining_modeRow"] button[aria-pressed="true"],
+[class*="BrainFitTraining_tabs"] button[aria-selected="true"]{
+  background:#e9f8f4!important;
+  border-color:#55c5b2!important;
+  color:#0c7462!important;
+  box-shadow:inset 0 0 0 1px rgba(25,191,164,.12)!important;
+}
+[class*="BrainFitTraining_hint"]{
+  background:#f4f8fc!important;
+  border-color:#8ca8d6!important;
+  color:#486078!important;
+}
+[class*="BrainFitTraining_progress"]{
+  grid-template-columns:minmax(0,1.3fr) minmax(260px,.7fr)!important;
+  background:#fff!important;
+  border:1px solid var(--cp-line)!important;
+  box-shadow:var(--cp-shadow)!important;
+}
+[class*="BrainFitTraining_metrics"]{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+}
+[class*="BrainFitTraining_metrics"]>div{
+  background:#f8fbfe!important;
+  border-color:#dce5ee!important;
+  box-shadow:none!important;
+}
+[class*="BrainFitTraining_metrics"]>div:nth-child(3){display:none!important}
+[class*="BrainFitTraining_progress"]>div:first-child>p:last-child{
+  font-size:0!important;
+  line-height:0!important;
+}
+[class*="BrainFitTraining_progress"]>div:first-child>p:last-child::after{
+  content:"Die Werte bleiben lokal in diesem Browser und helfen dabei, die Schwierigkeit nachvollziehbar anzupassen.";
+  display:block;
+  font-size:15px;
+  line-height:1.65;
+  color:#5c738b;
+}
+[class*="BrainFitTraining_panel"]{
+  background:#fff!important;
+  border:1px solid var(--cp-line)!important;
+  box-shadow:var(--cp-shadow)!important;
+}
+[class*="BrainFitTraining_panel"]>[class*="BrainFitTraining_actions"]:last-child button:nth-child(2){
+  display:none!important;
+}
+[class*="BrainFitTraining_quizResult"] p{
+  font-size:0!important;
+  line-height:0!important;
+}
+[class*="BrainFitTraining_quizResult"] p::after{
+  content:"Dein Ergebnis wird lokal gespeichert und für die gewählte Schwierigkeit berücksichtigt.";
+  display:block;
+  font-size:16px;
+  line-height:1.65;
+  color:#5b738b;
+}
+
+/* Progress cards stay neutral; accents are reserved for data and active states. */
+[class*="ProgressCoachDashboard_levelCard"],
+[class*="ProgressCoachDashboard_panel"],
+[class*="ProgressCoachDashboard_activityPanel"],
+[class*="ProgressCoachDashboard_metricGrid"] article,
+[class*="ProgressCoachDashboard_heroCoach"]{
+  background:#fff!important;
+  border-color:var(--cp-line)!important;
+  box-shadow:var(--cp-shadow)!important;
+}
+
+@media(max-width:900px){
+  [class*="BrainFitTraining_progress"]{grid-template-columns:1fr!important}
+}
 @media(max-width:640px){
   .learningCard:hover,.worldCard:hover{transform:none!important}
+  [class*="BrainFitTraining_metrics"]{grid-template-columns:1fr 1fr!important}
 }
