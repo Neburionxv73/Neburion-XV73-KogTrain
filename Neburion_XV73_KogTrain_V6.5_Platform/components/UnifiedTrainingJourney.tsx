@@ -18,7 +18,7 @@ const TRACKS: Array<{id:JourneyTrack;icon:string;title:string;description:string
   {id:"focus",icon:"◎",title:"Persönlicher Lernmix",description:"Mathematik, Sprache, Englisch, Aufmerksamkeit, Reaktion und Merkfähigkeit kombinieren.",href:"/training/focus"},
   {id:"labs",icon:"◇",title:"Spezial-Labs",description:"Memory, Attention, Logic, Language und Visual gezielt vertiefen.",href:"/#training"},
   {id:"brainfit",icon:"✦",title:"Gehirnfit & Alltag",description:"Rätsel, Alltag, Sprache und Gedächtnis in ruhigem Tempo trainieren.",href:"/training/brain-fit"},
-  {id:"coach",icon:"↗",title:"Coach-Empfehlung",description:"Mit dem Bereich starten, der anhand deiner lokalen Trainingswerte heute sinnvoll ist.",href:"/#coach"},
+  {id:"coach",icon:"↗",title:"Coach-Empfehlung",description:"Mit dem Bereich starten, der anhand deiner bisherigen Trainingswerte heute sinnvoll ist.",href:"/#coach"},
 ];
 
 function displayName(item:LabProgress|null){
@@ -48,9 +48,9 @@ export function UnifiedTrainingJourney(){
   return <section className={styles.shell} aria-labelledby="journey-title">
     <div className={styles.hero}>
       <div>
-        <p className="eyebrow">Learning Expansion 3.8 · Unified Training Journey</p>
-        <h1 id="journey-title">Heute trainieren – ohne Umwege.</h1>
-        <p>Wähle Dauer und Trainingsweg. KogTrain führt dich von einem zentralen Startpunkt direkt in die passende Einheit und danach wieder zurück in deinen Fortschritt.</p>
+        <p className="eyebrow">Heute trainieren</p>
+        <h1 id="journey-title">Ohne Umwege in deine nächste Einheit.</h1>
+        <p>Wähle Dauer und Trainingsweg. Danach geht es direkt in die passende Einheit und von dort wieder zurück zu deinem Fortschritt.</p>
       </div>
       <div className={styles.todayCard}>
         <span>Heute</span>
@@ -80,9 +80,9 @@ export function UnifiedTrainingJourney(){
 
     <section className={styles.startCard} aria-labelledby="start-title">
       <div>
-        <p className="eyebrow">3 · Session starten</p>
+        <p className="eyebrow">3 · Loslegen</p>
         <h2 id="start-title">{track==="coach"?displayName(recommended):selected.title}</h2>
-        <p>{sessionPlan}. {track==="coach"&&recommended?`Empfohlen aufgrund deines aktuellen lokalen Profils: ${recommended.accent}.`:"Du kannst nach der Einheit direkt zu Progress & Coach zurückkehren."}</p>
+        <p>{sessionPlan}. {track==="coach"&&recommended?`Heute sinnvoll: ${recommended.accent}.`:"Nach der Einheit kannst du direkt deinen Fortschritt ansehen."}</p>
       </div>
       <div className={styles.startActions}>
         <Link className={styles.primaryAction} href={startHref}>Jetzt {duration} Minuten starten →</Link>
@@ -97,6 +97,6 @@ export function UnifiedTrainingJourney(){
       <Link href="/#coach"><span>↗</span><strong>Coach</strong><small>Empfehlung öffnen</small></Link>
     </div>
 
-    <p className={styles.note}>Die Journey speichert keine zusätzlichen personenbezogenen Daten. Sie verwendet ausschließlich die bereits lokal im Browser vorhandenen Trainingswerte.</p>
+    <p className={styles.note}>Die Auswahl nutzt nur die Trainingswerte, die bereits lokal in diesem Browser gespeichert sind.</p>
   </section>;
 }
