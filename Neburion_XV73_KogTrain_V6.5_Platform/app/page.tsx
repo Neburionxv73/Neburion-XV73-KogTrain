@@ -11,38 +11,38 @@ export default function Home() {
       <TopNav />
       <section className="hero" aria-labelledby="hero-title">
         <div className="heroCopy">
-          <p className="eyebrow">V6.5 · Learning Expansion 3.8</p>
+          <p className="eyebrow">Neburion XV73 · V6.5</p>
           <h1 id="hero-title">Lernen, das sich nach dir richtet.</h1>
-          <p>Starte heute zentral mit einer 5-, 10- oder 15-Minuten-Einheit oder trainiere gezielt Mathematik, Sprache, Englisch, Aufmerksamkeit, Reaktion, Gedächtnis, Logik, visuelle Fähigkeiten und Gehirnfit & Alltag.</p>
-          <div className="heroActions"><Link className="primary" href="/training/journey">Heute trainieren →</Link><a className="secondary" href="#lernbereiche">Bereiche entdecken</a></div>
+          <p>Starte mit einer kurzen Einheit oder wähle gezielt, woran du heute arbeiten möchtest. Mathematik, Sprache, Aufmerksamkeit, Gedächtnis, Logik und Gehirnfit bleiben dabei an einem Ort.</p>
+          <div className="heroActions"><Link className="primary" href="/training/journey">Heute trainieren →</Link><a className="secondary" href="#lernbereiche">Bereiche ansehen</a></div>
         </div>
         <CoachHeroCard />
       </section>
 
       <section className="journeyTeaser" aria-labelledby="journey-teaser-title">
-        <div><p className="eyebrow">Neu · Unified Training Journey 3.8</p><h2 id="journey-teaser-title">Ein Startpunkt für dein gesamtes Training.</h2><p>Wähle 5, 10 oder 15 Minuten und entscheide zwischen persönlichem Lernmix, Spezial-Labs, Gehirnfit oder der aktuellen Coach-Empfehlung.</p></div>
-        <div className="journeyTeaserMeta"><span><strong>5 / 10 / 15</strong><small>Minuten</small></span><span><strong>4</strong><small>Trainingswege</small></span><Link className="primary" href="/training/journey">Session zusammenstellen →</Link></div>
+        <div><p className="eyebrow">Dein Trainingsstart</p><h2 id="journey-teaser-title">Ein Einstieg. Danach geht es direkt los.</h2><p>Wähle 5, 10 oder 15 Minuten und entscheide, ob du frei trainierst, einen Spezialbereich öffnest oder der aktuellen Coach-Empfehlung folgst.</p></div>
+        <div className="journeyTeaserMeta"><span><strong>5 / 10 / 15</strong><small>Minuten</small></span><span><strong>4</strong><small>Trainingswege</small></span><Link className="primary" href="/training/journey">Training zusammenstellen →</Link></div>
       </section>
 
       <section className="learningLibrary" id="lernbereiche" aria-labelledby="learning-title">
-        <div className="sectionHead"><div><p className="eyebrow">Individuell lernen</p><h2 id="learning-title">Was möchtest du verbessern?</h2></div><p>Wähle genau die Fähigkeiten, an denen du arbeiten möchtest. KogTrain stellt daraus jedes Mal eine neue Session zusammen.</p></div>
+        <div className="sectionHead"><div><p className="eyebrow">Individuell lernen</p><h2 id="learning-title">Was möchtest du verbessern?</h2></div><p>Wähle die Fähigkeiten, die heute wichtig sind. KogTrain stellt daraus eine passende Einheit zusammen.</p></div>
         <div className="learningGrid">{FOCUS_AREAS.map((area)=><article className={`learningCard learning-${area.id}`} key={area.id}><span className="learningIcon" aria-hidden="true">{area.icon}</span><p className="eyebrow">{area.subtitle}</p><h3>{area.title}</h3><p>{area.description}</p></article>)}</div>
-        <div className="learningCta"><div><strong>Dein persönlicher Trainingsmix</strong><p>Ein Bereich oder mehrere – neue Inhalte bei jedem Start und drei Schwierigkeitsstufen.</p></div><Link className="primary" href="/training/focus">Fokus auswählen →</Link></div>
+        <div className="learningCta"><div><strong>Dein persönlicher Trainingsmix</strong><p>Ein Bereich oder mehrere. Inhalt und Schwierigkeit passen sich der gewählten Session an.</p></div><Link className="primary" href="/training/focus">Fokus auswählen →</Link></div>
       </section>
 
       <section className="worlds" id="training" aria-labelledby="worlds-title">
-        <div className="sectionHead"><div><p className="eyebrow">Spezial-Labs</p><h2 id="worlds-title">Fünf Bereiche für tieferes Training.</h2></div><p>Memory, Attention, Logic, Language und Visual bleiben als vertiefte Trainingswelten erhalten und fließen gemeinsam mit Gehirnfit & Alltag in Progress & Coach ein.</p></div>
+        <div className="sectionHead"><div><p className="eyebrow">Spezial-Labs</p><h2 id="worlds-title">Fünf Bereiche für tieferes Training.</h2></div><p>Memory, Attention, Logic, Language und Visual sind für Einheiten gedacht, bei denen du einen Schwerpunkt bewusst vertiefen möchtest.</p></div>
         <div className="worldGrid">{trainingWorlds.map((world, index) => <WorldCard key={world.id} world={world} index={index} />)}</div>
       </section>
 
       <section className="learningLibrary" id="gehirnfit" aria-labelledby="brainfit-title">
-        <div className="sectionHead"><div><p className="eyebrow">Gehirnfit & Alltag</p><h2 id="brainfit-title">Ruhig trainieren. Alltag stärken.</h2></div><p>Zwölf Übungswelten, Tagesmix, variierende Inhalte, lokaler Fortschritt, Meilensteine und erklärbare adaptive Schwierigkeit.</p></div>
-        <div className="learningCta"><div><strong>12 Bereiche · Tagesmix · adaptiv · Coach integriert</strong><p>Tier-Sudoku, Wortsuche, Begriffe, Memory, Kategorien, Reihen, Alltagsrechnen, Zeit & Reihenfolge sowie fehlende Wörter, Sprichwörter, Bild & Begriff und Alltagswissen.</p></div><Link className="primary" href="/training/brain-fit">Gehirnfit öffnen →</Link></div>
+        <div className="sectionHead"><div><p className="eyebrow">Gehirnfit & Alltag</p><h2 id="brainfit-title">Ruhig trainieren. Alltag stärken.</h2></div><p>Zwölf Übungswelten, ein Tagesmix und viele wechselnde Aufgaben. Ohne unnötigen Zeitdruck und mit klarer Rückmeldung.</p></div>
+        <div className="learningCta"><div><strong>12 Bereiche · Tagesmix · anpassbar</strong><p>Tier-Sudoku, Wortsuche, Memory, Kategorien, Alltagsrechnen, Sprichwörter und weitere Übungen für Alltag und Konzentration.</p></div><Link className="primary" href="/training/brain-fit">Gehirnfit öffnen →</Link></div>
       </section>
 
       <ProgressCoachDashboard />
 
-      <footer><span>Neburion XV73 · V6.5 Learning Expansion 3.8</span><span>Raptor Delta V9.7 · DRAFT</span></footer>
+      <footer><span>Neburion XV73 · V6.5</span><span>Raptor Delta V9.7 · Anti-KI-Look</span></footer>
     </main>
   );
 }
