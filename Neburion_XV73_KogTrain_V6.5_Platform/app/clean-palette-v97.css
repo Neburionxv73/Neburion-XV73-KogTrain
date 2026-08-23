@@ -4,7 +4,7 @@
   --cp-surface-soft:#f8fbff;
   --cp-line:#dbe4ee;
   --cp-ink:#13243a;
-  --cp-muted:#60738a;
+  --cp-muted:#334155;
   --cp-mint:#19bfa4;
   --cp-teal:#14a995;
   --cp-blue:#4f7cf0;
@@ -32,7 +32,7 @@ body{
 nav a{
   background:#fff!important;
   border:1px solid var(--cp-line)!important;
-  color:#52677f!important;
+  color:#334155!important;
   box-shadow:none!important;
 }
 nav a:hover{
@@ -101,7 +101,7 @@ nav a:hover{
 
 .secondary,button.secondary,button[class*="secondary"],a.secondary,.backLink{
   background:#fff!important;
-  color:#24384f!important;
+  color:#1f2937!important;
   border:1px solid #c7d4e1!important;
   box-shadow:none!important;
 }
@@ -122,8 +122,11 @@ button:focus-visible,a:focus-visible,[role="button"]:focus-visible{
   background:linear-gradient(135deg,#fbfffe,#f8fbff 62%,#fbfaff)!important;
 }
 
+p.eyebrow,
 .eyebrow{
-  color:#0f7768!important;
+  color:#064e3b!important;
+  opacity:1!important;
+  filter:none!important;
 }
 
 /* BrainFit: align with the approved clean learning-card language. */
@@ -136,20 +139,20 @@ button:focus-visible,a:focus-visible,[role="button"]:focus-visible{
 [class*="BrainFitTraining_tabs"] button{
   background:#fff!important;
   border:1px solid #c9d6e3!important;
-  color:#24384f!important;
+  color:#1f2937!important;
   box-shadow:none!important;
 }
 [class*="BrainFitTraining_modeRow"] button[aria-pressed="true"],
 [class*="BrainFitTraining_tabs"] button[aria-selected="true"]{
   background:#e9f8f4!important;
   border-color:#55c5b2!important;
-  color:#0c7462!important;
+  color:#064e3b!important;
   box-shadow:inset 0 0 0 1px rgba(25,191,164,.12)!important;
 }
 [class*="BrainFitTraining_hint"]{
   background:#f4f8fc!important;
   border-color:#8ca8d6!important;
-  color:#486078!important;
+  color:#334155!important;
 }
 [class*="BrainFitTraining_progress"]{
   grid-template-columns:minmax(0,1.3fr) minmax(260px,.7fr)!important;
@@ -175,7 +178,7 @@ button:focus-visible,a:focus-visible,[role="button"]:focus-visible{
   display:block;
   font-size:15px;
   line-height:1.65;
-  color:#5c738b;
+  color:#334155;
 }
 [class*="BrainFitTraining_panel"]{
   background:#fff!important;
@@ -194,7 +197,7 @@ button:focus-visible,a:focus-visible,[role="button"]:focus-visible{
   display:block;
   font-size:16px;
   line-height:1.65;
-  color:#5b738b;
+  color:#334155;
 }
 
 /* Progress cards stay neutral; accents are reserved for data and active states. */
