@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { CoachHeroCard, ProgressCoachDashboard } from "@/components/ProgressCoachDashboard";
+import { CoachHeroCard } from "@/components/CoachHeroCard";
+import { DeferredProgressCoachDashboard } from "@/components/DeferredProgressCoachDashboard";
 import { TopNav } from "@/components/TopNav";
 import { WorldCard } from "@/components/WorldCard";
 import { trainingWorlds } from "@/lib/training";
@@ -40,7 +41,7 @@ export default function Home() {
         <div className="learningCta"><div><strong>12 Bereiche · Tagesmix · anpassbar</strong><p>Tier-Sudoku, Wortsuche, Memory, Kategorien, Alltagsrechnen, Sprichwörter und weitere Übungen für Alltag und Konzentration.</p></div><Link className="primary" href="/training/brain-fit">Gehirnfit öffnen →</Link></div>
       </section>
 
-      <ProgressCoachDashboard />
+      <DeferredProgressCoachDashboard />
 
       <footer><span>Neburion XV73 · V6.5</span><span>Raptor Delta V9.7 · Clean Palette</span></footer>
     </main>
