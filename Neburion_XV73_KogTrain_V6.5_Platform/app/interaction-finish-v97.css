@@ -1,0 +1,13 @@
+.skipLink{position:fixed;left:18px;top:14px;z-index:9999;min-height:44px;padding:0 16px;display:inline-flex;align-items:center;border:2px solid #159d89;border-radius:12px;background:#fff;color:#13243a;font-weight:850;box-shadow:0 10px 28px rgba(34,61,91,.14);transform:translateY(-140%);transition:transform .16s ease}.skipLink:focus{transform:translateY(0)}
+
+button,a,input,[role="button"],[role="tab"]{scroll-margin-top:88px}
+button:focus-visible,a:focus-visible,input:focus-visible,[role="button"]:focus-visible,[role="tab"]:focus-visible{outline:3px solid #159d89!important;outline-offset:3px!important}
+
+[role="tablist"] [role="tab"]{position:relative}
+[role="tablist"] [role="tab"][aria-selected="true"]:after{content:"";position:absolute;left:14px;right:14px;bottom:6px;height:2px;border-radius:999px;background:currentColor;opacity:.55}
+
+.bfCrosswordCell input{caret-color:#159d89}
+.bfCrosswordCell input:focus-visible{background:#f8fffd!important}
+
+@media(max-width:640px){.skipLink{left:10px;top:10px}.topbar nav{scroll-padding-inline:14px}}
+@media(prefers-reduced-motion:reduce){.skipLink{transition:none!important}}
