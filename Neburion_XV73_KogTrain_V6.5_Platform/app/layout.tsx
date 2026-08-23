@@ -8,6 +8,7 @@ import "./anti-ai-look-v97.css";
 import "./anti-ai-final-humanization.css";
 import "./clean-palette-v97.css";
 import "./responsive-a11y-v97.css";
+import "./brainfit-functional-hardening.css";
 
 export const metadata: Metadata = {
   title: "Neburion XV73 · Lern- und Trainingsplattform V6.5",
