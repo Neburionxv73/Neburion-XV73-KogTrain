@@ -15,7 +15,7 @@
     "quality:core": "npm run validate && npm run build"
   },
   "dependencies": {
-    "next": "16.2.10",
+    "next": "16.2.11",
     "react": "19.2.7",
     "react-dom": "19.2.7"
   },
