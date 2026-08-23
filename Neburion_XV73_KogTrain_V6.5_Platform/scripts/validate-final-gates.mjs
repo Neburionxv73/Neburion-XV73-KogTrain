@@ -11,6 +11,7 @@ const journeyCss = read("components/UnifiedTrainingJourney.module.css");
 const progressCss = read("components/ProgressCoachDashboard.module.css");
 const brainfit = read("components/BrainFitTraining.tsx");
 const brainfitCss = read("app/brainfit-functional-hardening.css");
+const pkg = JSON.parse(read("package.json"));
 
 const checks = [
   ["responsive: tablet breakpoint", /max-width:\s*(900|980)px/.test(journeyCss + progressCss + responsive)],
@@ -28,6 +29,8 @@ const checks = [
   ["seo: canonical", layout.includes("alternates") && layout.includes("canonical")],
   ["seo: sitemap", sitemap.includes("/training/brain-fit") && sitemap.includes("/training/journey")],
   ["seo: robots sitemap", robots.includes("sitemap:") && robots.includes("VERCEL_ENV")],
+  ["security: Next patched floor", pkg.dependencies?.next === "16.2.11"],
+  ["security: React patched floor", pkg.dependencies?.react === "19.2.8" && pkg.dependencies?.["react-dom"] === "19.2.8"],
   ["security: framework fingerprint disabled", nextConfig.includes("poweredByHeader: false")],
   ["security: baseline headers", nextConfig.includes("X-Content-Type-Options") && nextConfig.includes("Permissions-Policy") && nextConfig.includes("X-Frame-Options")],
 ];
