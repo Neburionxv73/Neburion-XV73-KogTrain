@@ -1,14 +1,14 @@
 const navItems = [
-  ["Lernbereiche", "#lernbereiche"],
-  ["Training", "#training"],
-  ["Fortschritt", "#fortschritt"],
-  ["Coach", "#coach"],
+  ["Lernbereiche", "/#lernbereiche"],
+  ["Training", "/training/journey"],
+  ["Fortschritt", "/#fortschritt"],
+  ["Coach", "/#coach"],
 ] as const;
 
 export function TopNav() {
   return (
     <header className="topbar">
-      <a className="brand" href="#top" aria-label="Neburion XV73 Startseite">
+      <a className="brand" href="/#top" aria-label="Neburion XV73 Startseite">
         <span className="brandMark" aria-hidden="true">N</span>
         <span><strong>Neburion XV73</strong><small>Lern- & Trainingsplattform · V6.5</small></span>
       </a>
