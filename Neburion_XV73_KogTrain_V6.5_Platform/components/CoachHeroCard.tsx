@@ -12,10 +12,18 @@ export function CoachHeroCard() {
   }, []);
 
   useEffect(() => {
-    refresh();
+    let timeoutId: number | undefined;
+    let idleId: number | undefined;
+    const idleWindow = window as Window & { requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number; cancelIdleCallback?: (id: number) => void };
+
+    if (idleWindow.requestIdleCallback) idleId = idleWindow.requestIdleCallback(refresh, { timeout: 500 });
+    else timeoutId = window.setTimeout(refresh, 120);
+
     window.addEventListener("focus", refresh);
     window.addEventListener("storage", refresh);
     return () => {
+      if (timeoutId !== undefined) window.clearTimeout(timeoutId);
+      if (idleId !== undefined) idleWindow.cancelIdleCallback?.(idleId);
       window.removeEventListener("focus", refresh);
       window.removeEventListener("storage", refresh);
     };
