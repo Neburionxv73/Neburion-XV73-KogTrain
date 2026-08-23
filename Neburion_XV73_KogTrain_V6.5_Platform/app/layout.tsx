@@ -11,6 +11,7 @@ import "./responsive-a11y-v97.css";
 import "./brainfit-functional-hardening.css";
 import "./interaction-finish-v97.css";
 import "./performance-baseline-v97.css";
+import "./a11y-contrast-final-v97.css";
 
 const isProduction = process.env.VERCEL_ENV === "production";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : undefined);
