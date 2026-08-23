@@ -1,0 +1,131 @@
+:root{
+  --cp-bg:#f5f8fc;
+  --cp-surface:#ffffff;
+  --cp-surface-soft:#f8fbff;
+  --cp-line:#dbe4ee;
+  --cp-ink:#13243a;
+  --cp-muted:#60738a;
+  --cp-mint:#19bfa4;
+  --cp-teal:#14a995;
+  --cp-blue:#4f7cf0;
+  --cp-violet:#7a5be7;
+  --cp-amber:#e8a126;
+  --cp-orange:#df7c33;
+  --cp-shadow:0 14px 34px rgba(44,70,101,.08);
+  --cp-shadow-hover:0 18px 42px rgba(44,70,101,.12);
+}
+
+body{
+  background:
+    radial-gradient(circle at 88% 5%,rgba(79,124,240,.08),transparent 27%),
+    radial-gradient(circle at 8% 18%,rgba(25,191,164,.07),transparent 24%),
+    var(--cp-bg)!important;
+  color:var(--cp-ink)!important;
+}
+
+.topbar{
+  background:rgba(250,252,255,.94)!important;
+  border-color:var(--cp-line)!important;
+  box-shadow:0 8px 24px rgba(44,70,101,.04)!important;
+}
+
+nav a{
+  background:#fff!important;
+  border:1px solid var(--cp-line)!important;
+  color:#52677f!important;
+  box-shadow:none!important;
+}
+nav a:hover{
+  color:var(--cp-ink)!important;
+  border-color:#bfcddd!important;
+  box-shadow:0 7px 18px rgba(44,70,101,.07)!important;
+}
+
+.hero,.learningLibrary,.worlds,.journeyTeaser{
+  --button-glow-a:var(--cp-mint);
+  --button-glow-b:var(--cp-blue);
+}
+
+.learningCard,.worldCard,.learningCta,#gehirnfit,.trainingStage,.trainingNotice{
+  background:linear-gradient(180deg,#fff,#fbfdff)!important;
+  border-color:var(--cp-line)!important;
+  box-shadow:var(--cp-shadow)!important;
+}
+
+.learningCard:hover,.worldCard:hover{
+  box-shadow:var(--cp-shadow-hover)!important;
+  border-color:#c3d1df!important;
+  transform:translateY(-3px)!important;
+}
+
+.learningIcon,.worldGlyph{
+  box-shadow:none!important;
+}
+
+.learning-math .learningIcon{background:#eef0ff!important;color:#5968d9!important}
+.learning-words .learningIcon{background:#fff0e4!important;color:#c66a25!important}
+.learning-translation .learningIcon{background:#f1edff!important;color:#7257c9!important}
+.learning-attention .learningIcon{background:#e7f8f4!important;color:#138d78!important}
+.learning-reaction .learningIcon{background:#fff5df!important;color:#b4770a!important}
+.learning-memory .learningIcon{background:#ebf4ff!important;color:#3d78bc!important}
+
+.worldCard:before{
+  height:3px!important;
+  opacity:.82!important;
+}
+.world-memory{--lab-a:#18b79d;--lab-b:#55cfbd}
+.world-attention{--lab-a:#4f7cf0;--lab-b:#789cf4}
+.world-logic{--lab-a:#42b866;--lab-b:#74cd88}
+.world-language{--lab-a:#775be2;--lab-b:#9a80eb}
+.world-visual{--lab-a:#2f83dc;--lab-b:#65a5e7}
+
+.cardAction,
+.worldCard .cardAction{
+  background:linear-gradient(110deg,#18b79d,#4f7cf0)!important;
+  color:#fff!important;
+  border:0!important;
+  box-shadow:0 8px 18px rgba(50,102,164,.16)!important;
+}
+.cardAction:hover,
+.worldCard .cardAction:hover{
+  background:linear-gradient(110deg,#16aa92,#456fe0)!important;
+  box-shadow:0 10px 22px rgba(50,102,164,.22)!important;
+}
+
+.primary,.primaryButton,button.primary,button[class*="primary"]{
+  background:linear-gradient(110deg,#18b79d,#4f7cf0)!important;
+  border:1px solid rgba(255,255,255,.68)!important;
+  box-shadow:0 8px 18px rgba(50,102,164,.16)!important;
+  text-shadow:none!important;
+}
+
+.secondary,button.secondary,button[class*="secondary"],a.secondary,.backLink{
+  background:#fff!important;
+  color:#24384f!important;
+  border:1px solid #c7d4e1!important;
+  box-shadow:none!important;
+}
+
+button,nav a,[role="button"],a.primary,a.secondary,a.primaryButton,a.backLink,a.cardAction{
+  box-shadow:none!important;
+}
+button:not(:disabled):hover,nav a:hover,[role="button"]:hover,a.primary:hover,a.secondary:hover,a.primaryButton:hover,a.backLink:hover,a.cardAction:hover{
+  transform:translateY(-1px)!important;
+}
+button:focus-visible,a:focus-visible,[role="button"]:focus-visible{
+  outline:3px solid rgba(25,191,164,.88)!important;
+  outline-offset:3px!important;
+  box-shadow:0 0 0 5px rgba(79,124,240,.14)!important;
+}
+
+#gehirnfit{
+  background:linear-gradient(135deg,#fbfffe,#f8fbff 62%,#fbfaff)!important;
+}
+
+.eyebrow{
+  color:#159d89!important;
+}
+
+@media(max-width:640px){
+  .learningCard:hover,.worldCard:hover{transform:none!important}
+}
