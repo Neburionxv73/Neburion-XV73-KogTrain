@@ -45,6 +45,7 @@ const DAILY_GOAL = 2;
 const WEEKLY_GOAL = 5;
 const XP_PER_SESSION = 80;
 const XP_PER_LEVEL = 500;
+const BRAIN_FIT_COMPLETION_KEY = "neburion-v65-brain-fit-completion-v376";
 
 const configs: Array<{ id: LabId; label: string; href: string; keys: string[]; accent: string }> = [
   { id: "memory", label: "Memory", href: "/training/memory", keys: ["neburion-v65-memory-progress"], accent: "Gedächtnis" },
@@ -76,9 +77,14 @@ function readLab(config: (typeof configs)[number]): LabProgress {
     sessions = Number(data.sessions ?? 0);
     bestPercent = Number(data.bestAccuracy ?? 0);
   } else if (config.id === "brainFit") {
-    sessions = Number(data.sessions ?? 0);
-    const totalScore = Number(data.totalScore ?? 0);
-    bestPercent = sessions > 0 ? Math.round(totalScore / sessions) : 0;
+    const mainSessions = Number(data.sessions ?? 0);
+    const mainTotal = Number(data.totalScore ?? 0);
+    const completion = readJson(BRAIN_FIT_COMPLETION_KEY) ?? {};
+    const completionSessions = Number(completion.sessions ?? 0);
+    const completionTotal = Number(completion.totalScore ?? 0);
+    sessions = mainSessions + completionSessions;
+    const combinedTotal = mainTotal + completionTotal;
+    bestPercent = sessions > 0 ? Math.round(combinedTotal / sessions) : 0;
   } else {
     sessions = Number(data.sessions ?? 0);
     bestPercent = Math.round((Number(data.bestScore ?? 0) / 8) * 100);
