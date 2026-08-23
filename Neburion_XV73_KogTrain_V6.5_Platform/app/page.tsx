@@ -20,8 +20,8 @@ export default function Home() {
       </section>
 
       <section className="journeyTeaser" aria-labelledby="journey-teaser-title">
-        <div><p className="eyebrow">Dein Trainingsstart</p><h2 id="journey-teaser-title">Ein Einstieg. Danach geht es direkt los.</h2><p>Wähle 5, 10 oder 15 Minuten und entscheide, ob du frei trainierst, einen Spezialbereich öffnest oder der aktuellen Coach-Empfehlung folgst.</p></div>
-        <div className="journeyTeaserMeta"><span><strong>5 / 10 / 15</strong><small>Minuten</small></span><span><strong>4</strong><small>Trainingswege</small></span><Link className="primary" href="/training/journey">Training zusammenstellen →</Link></div>
+        <div><p className="eyebrow">Dein Trainingsstart</p><h2 id="journey-teaser-title">Ein Einstieg. Danach geht es direkt los.</h2><p>Wähle 5, 10 oder 15 Minuten und entscheide zwischen persönlichem Lernmix, Spezial-Labs oder Gehirnfit & Alltag.</p></div>
+        <div className="journeyTeaserMeta"><span><strong>5 / 10 / 15</strong><small>Minuten</small></span><span><strong>3</strong><small>Trainingswege</small></span><Link className="primary" href="/training/journey">Training zusammenstellen →</Link></div>
       </section>
 
       <section className="learningLibrary" id="lernbereiche" aria-labelledby="learning-title">
@@ -42,7 +42,7 @@ export default function Home() {
 
       <ProgressCoachDashboard />
 
-      <footer><span>Neburion XV73 · V6.5</span><span>Raptor Delta V9.7 · Anti-KI-Look</span></footer>
+      <footer><span>Neburion XV73 · V6.5</span><span>Raptor Delta V9.7 · Clean Palette</span></footer>
     </main>
   );
 }
