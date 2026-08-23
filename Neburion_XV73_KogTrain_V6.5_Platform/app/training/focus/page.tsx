@@ -5,8 +5,8 @@ export default function FocusTrainingPage() {
   return (
     <main className="trainingPage">
       <div className="trainingTopbar">
-        <Link className="backLink" href="/">← Zur Plattform</Link>
-        <span>Learning & Training Expansion 3.6 · Adaptive Learning Engine</span>
+        <Link className="backLink" href="/training/journey">← Zur Training Journey</Link>
+        <span>Learning Expansion 3.8 · Persönlicher Lernmix</span>
       </div>
       <FocusTraining31 />
     </main>
