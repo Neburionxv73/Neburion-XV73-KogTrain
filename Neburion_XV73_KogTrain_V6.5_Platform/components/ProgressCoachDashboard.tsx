@@ -47,7 +47,7 @@ export function CoachHeroCard() {
   if (!snapshot) {
     return (
       <aside className={styles.heroCoach} aria-label="Heutiger Trainingsstand">
-        <p className={`eyebrow ${styles.heroEyebrow}`}>Heute</p>
+        <p className="eyebrow">Heute</p>
         <strong>Fortschritt wird geladen</strong>
         <p>Lokale Trainingsdaten werden ausgewertet.</p>
       </aside>
@@ -58,11 +58,11 @@ export function CoachHeroCard() {
 
   return (
     <aside className={styles.heroCoach} aria-label="Heutiger Trainingsstand">
-      <p className={`eyebrow ${styles.heroEyebrow}`}>Heute im Blick</p>
+      <p className="eyebrow">Heute im Blick</p>
       <strong>{snapshot.todaySessions}/{snapshot.dailyGoal} Sessions</strong>
       <p>{dailyPercent >= 100 ? "Tagesziel erreicht. Weitere Einheiten sind freiwillig." : "Dein Tagesziel bleibt bewusst einfach und übersichtlich."}</p>
       <div className={styles.heroProgress} aria-hidden="true"><span style={{ width: `${dailyPercent}%` }} /></div>
-      <small className={styles.heroMeta}>Level {snapshot.level} · {snapshot.xp} XP gesamt</small>
+      <small>Level {snapshot.level} · {snapshot.xp} XP gesamt</small>
       <Link className={styles.heroLink} href="/training/journey">Training öffnen →</Link>
     </aside>
   );
@@ -76,7 +76,7 @@ export function ProgressCoachDashboard() {
       <>
         <ProgressAnchor />
         <section className={styles.dashboard}>
-          <p className={`eyebrow ${styles.sectionEyebrow}`}>Fortschritt</p>
+          <p className="eyebrow">Fortschritt</p>
           <h2>Fortschritt wird geladen.</h2>
         </section>
       </>
@@ -94,7 +94,7 @@ export function ProgressCoachDashboard() {
       <section className={styles.dashboard} aria-labelledby="progress-2-title">
         <div className={styles.header}>
           <div>
-            <p className={`eyebrow ${styles.sectionEyebrow}`}>Fortschritt & Übersicht</p>
+            <p className="eyebrow">Fortschritt & Übersicht</p>
             <h2 id="progress-2-title">Dein Training klar im Blick.</h2>
             <p>Hier siehst du deine tatsächlich gespeicherten Trainingswerte aus Spezial-Labs und Gehirnfit & Alltag. Ohne Bewertung und ohne automatische Empfehlungen.</p>
           </div>
@@ -117,7 +117,7 @@ export function ProgressCoachDashboard() {
 
         <div className={styles.twoColumn}>
           <div className={styles.panel}>
-            <div className={styles.panelHead}><div><p className={`eyebrow ${styles.sectionEyebrow}`}>Gesamtprofil</p><h3>Bereiche und Entwicklung</h3></div><span>{snapshot.hasTrainingData ? `${snapshot.averageBest}% Ø` : "noch offen"}</span></div>
+            <div className={styles.panelHead}><div><p className="eyebrow">Gesamtprofil</p><h3>Bereiche und Entwicklung</h3></div><span>{snapshot.hasTrainingData ? `${snapshot.averageBest}% Ø` : "noch offen"}</span></div>
             <div className={styles.labList}>
               {snapshot.labs.map((item) => (
                 <Link href={item.href} className={styles.labRow} key={item.id}>
@@ -129,7 +129,7 @@ export function ProgressCoachDashboard() {
           </div>
 
           <div className={styles.panel} id="coach">
-            <div className={styles.panelHead}><div><p className={`eyebrow ${styles.sectionEyebrow}`}>Trainingsziele</p><h3>Heute und diese Woche</h3></div><span>übersichtlich</span></div>
+            <div className={styles.panelHead}><div><p className="eyebrow">Trainingsziele</p><h3>Heute und diese Woche</h3></div><span>übersichtlich</span></div>
             <div className={styles.goalBlock}>
               <div><span>Tagesziel</span><strong>{snapshot.todaySessions}/{snapshot.dailyGoal}</strong></div>
               <div className={styles.bar}><span style={{ width: `${dailyPercent}%` }} /></div>
@@ -145,7 +145,7 @@ export function ProgressCoachDashboard() {
         </div>
 
         <div className={styles.activityPanel}>
-          <div><p className={`eyebrow ${styles.sectionEyebrow}`}>Letzte 7 Tage</p><h3>Trainingsrhythmus</h3></div>
+          <div><p className="eyebrow">Letzte 7 Tage</p><h3>Trainingsrhythmus</h3></div>
           {snapshot.activityCount > 0 ? (
             <div className={styles.activityChart} aria-label="Sessions der letzten sieben Tage">
               {snapshot.recentDays.map((day) => (
