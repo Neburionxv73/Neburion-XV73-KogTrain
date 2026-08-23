@@ -4,10 +4,11 @@ import "./learning-theme.css";
 import "./button-system.css";
 import "./raptor-v97-ui.css";
 import "./final-polish-378.css";
+import "./anti-ai-look-v97.css";
 
 export const metadata: Metadata = {
   title: "Neburion XV73 · Lern- und Trainingsplattform V6.5",
-  description: "Individuelle Lern- und Trainingsplattform mit Mathematik, Sprache, Englisch, Aufmerksamkeit, Reaktion, Gedächtnis, Logik, visuellen Übungen und Unified Training Journey.",
+  description: "Individuelle Lern- und Trainingsplattform mit Mathematik, Sprache, Englisch, Aufmerksamkeit, Reaktion, Gedächtnis, Logik, visuellen Übungen und einem zentralen Trainingsstart.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
