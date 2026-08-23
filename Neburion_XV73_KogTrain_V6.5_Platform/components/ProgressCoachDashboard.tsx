@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { getProgressSnapshot, type LabProgress, type ProgressSnapshot } from "@/lib/progress";
+import { getProgressSnapshot, type ProgressSnapshot } from "@/lib/progress";
 import styles from "./ProgressCoachDashboard.module.css";
 
 function useProgressSnapshot() {
@@ -26,10 +26,6 @@ function useProgressSnapshot() {
   return snapshot;
 }
 
-function displayTrainingName(item: LabProgress) {
-  return item.id === "brainFit" ? item.label : `${item.label} Lab`;
-}
-
 function ProgressAnchor() {
   return <div id="fortschritt" className={styles.progressAnchor} aria-hidden="true" />;
 }
@@ -47,26 +43,27 @@ function StorageNotice({ snapshot }: { snapshot: ProgressSnapshot }) {
 
 export function CoachHeroCard() {
   const snapshot = useProgressSnapshot();
-  const lab = snapshot?.recommendation ?? null;
 
   if (!snapshot) {
     return (
-      <aside className={styles.heroCoach} aria-label="Heutige Trainingsempfehlung">
-        <p className="eyebrow">Coach 3.7.5</p>
+      <aside className={styles.heroCoach} aria-label="Heutiger Trainingsstand">
+        <p className="eyebrow">Heute</p>
         <strong>Fortschritt wird geladen</strong>
         <p>Lokale Trainingsdaten werden ausgewertet.</p>
       </aside>
     );
   }
 
+  const dailyPercent = Math.min(100, Math.round((snapshot.todaySessions / snapshot.dailyGoal) * 100));
+
   return (
-    <aside className={styles.heroCoach} aria-label="Heutige Trainingsempfehlung">
-      <p className="eyebrow">Coach 3.7.5 · Heute empfohlen</p>
-      <strong>{lab ? displayTrainingName(lab) : "Trainingsbasis aufbauen"}</strong>
-      <p>{lab ? `${lab.accent} · Leistungswert ${lab.bestPercent}%` : "Noch liegen auf dieser Domain keine abgeschlossenen Trainingsdaten vor. Starte mit einem beliebigen Trainingsbereich."}</p>
-      <div className={styles.heroProgress} aria-hidden="true"><span style={{ width: `${Math.min(100, (snapshot.todaySessions / snapshot.dailyGoal) * 100)}%` }} /></div>
-      <small>{snapshot.todaySessions}/{snapshot.dailyGoal} Sessions im Tagesziel · Level {snapshot.level}</small>
-      {lab ? <Link className={styles.heroLink} href={lab.href}>Empfohlenes Training öffnen →</Link> : <a className={styles.heroLink} href="#training">Trainingswelt wählen →</a>}
+    <aside className={styles.heroCoach} aria-label="Heutiger Trainingsstand">
+      <p className="eyebrow">Heute im Blick</p>
+      <strong>{snapshot.todaySessions}/{snapshot.dailyGoal} Sessions</strong>
+      <p>{dailyPercent >= 100 ? "Tagesziel erreicht. Weitere Einheiten sind freiwillig." : "Dein Tagesziel bleibt bewusst einfach und übersichtlich."}</p>
+      <div className={styles.heroProgress} aria-hidden="true"><span style={{ width: `${dailyPercent}%` }} /></div>
+      <small>Level {snapshot.level} · {snapshot.xp} XP gesamt</small>
+      <Link className={styles.heroLink} href="/training/journey">Training öffnen →</Link>
     </aside>
   );
 }
@@ -79,7 +76,7 @@ export function ProgressCoachDashboard() {
       <>
         <ProgressAnchor />
         <section className={styles.dashboard}>
-          <p className="eyebrow">Progress & Coach 3.7.5</p>
+          <p className="eyebrow">Fortschritt</p>
           <h2>Fortschritt wird geladen.</h2>
         </section>
       </>
@@ -90,8 +87,6 @@ export function ProgressCoachDashboard() {
   const weeklyPercent = Math.min(100, Math.round((snapshot.weekSessions / snapshot.weeklyGoal) * 100));
   const levelPercent = Math.min(100, Math.round((snapshot.xpInLevel / snapshot.xpToNextLevel) * 100));
   const maxDay = Math.max(1, ...snapshot.recentDays.map((day) => day.count));
-  const lab = snapshot.recommendation;
-  const strongest = snapshot.strongest;
 
   return (
     <>
@@ -99,9 +94,9 @@ export function ProgressCoachDashboard() {
       <section className={styles.dashboard} aria-labelledby="progress-2-title">
         <div className={styles.header}>
           <div>
-            <p className="eyebrow">Progress & Coach 3.7.5</p>
-            <h2 id="progress-2-title">Dein Training als zusammenhängendes System.</h2>
-            <p>Die Auswertung verbindet die fünf Spezial-Labs mit Gehirnfit & Alltag, zeigt reale lokale Trainingsdaten und leitet daraus nachvollziehbare Empfehlungen ab. Keine medizinische Bewertung, keine versteckte Black-Box-Logik.</p>
+            <p className="eyebrow">Fortschritt & Übersicht</p>
+            <h2 id="progress-2-title">Dein Training klar im Blick.</h2>
+            <p>Hier siehst du deine tatsächlich gespeicherten Trainingswerte aus Spezial-Labs und Gehirnfit & Alltag. Ohne Bewertung und ohne automatische Empfehlungen.</p>
           </div>
           <div className={styles.levelCard}>
             <span>Level {snapshot.level}</span>
@@ -114,7 +109,7 @@ export function ProgressCoachDashboard() {
         <StorageNotice snapshot={snapshot} />
 
         <div className={styles.metricGrid}>
-          <article><span>Gesamtsessions</span><strong>{snapshot.totalSessions}</strong><small>fünf Labs + Gehirnfit</small></article>
+          <article><span>Gesamtsessions</span><strong>{snapshot.totalSessions}</strong><small>Labs + Gehirnfit</small></article>
           <article><span>Ø Leistungswert</span><strong>{snapshot.hasTrainingData ? `${snapshot.averageBest}%` : "–"}</strong><small>{snapshot.hasTrainingData ? "aktive Trainingsbereiche" : "noch keine Trainingsbasis"}</small></article>
           <article><span>Serie</span><strong>{snapshot.streak}</strong><small>{snapshot.streak === 1 ? "Trainingstag" : "Trainingstage"}</small></article>
           <article><span>Wochenziel</span><strong>{snapshot.weekSessions}/{snapshot.weeklyGoal}</strong><small>{weeklyPercent}% erreicht</small></article>
@@ -122,7 +117,7 @@ export function ProgressCoachDashboard() {
 
         <div className={styles.twoColumn}>
           <div className={styles.panel}>
-            <div className={styles.panelHead}><div><p className="eyebrow">Gesamtprofil</p><h3>Stärken und Entwicklung</h3></div><span>{snapshot.hasTrainingData ? `${snapshot.averageBest}% Ø` : "noch offen"}</span></div>
+            <div className={styles.panelHead}><div><p className="eyebrow">Gesamtprofil</p><h3>Bereiche und Entwicklung</h3></div><span>{snapshot.hasTrainingData ? `${snapshot.averageBest}% Ø` : "noch offen"}</span></div>
             <div className={styles.labList}>
               {snapshot.labs.map((item) => (
                 <Link href={item.href} className={styles.labRow} key={item.id}>
@@ -134,31 +129,18 @@ export function ProgressCoachDashboard() {
           </div>
 
           <div className={styles.panel} id="coach">
-            <div className={styles.panelHead}><div><p className="eyebrow">Coach Layer</p><h3>Heute sinnvoll</h3></div><span>erklärbar</span></div>
-            <div className={styles.recommendation}>
-              <span className={styles.recommendationLabel}>Nächster Fokus</span>
-              {lab && strongest ? (
-                <>
-                  <strong>{displayTrainingName(lab)}</strong>
-                  <p>{lab.sessions === 0
-                    ? `Dieser Bereich wurde auf dieser Domain noch nicht trainiert. Dein aktuell stärkster erfasster Bereich ist ${strongest.label} mit ${strongest.bestPercent}%.`
-                    : `Dieser Bereich wird empfohlen, weil sein erfasster Leistungswert mit ${lab.bestPercent}% aktuell unter deinem stärksten Bereich ${strongest.label} (${strongest.bestPercent}%) liegt.`}
-                  </p>
-                  <Link href={lab.href}>Training starten →</Link>
-                </>
-              ) : (
-                <>
-                  <strong>Noch keine Trainingsbasis</strong>
-                  <p>Auf dieser Domain wurden noch keine abgeschlossenen Sessions gefunden. Wähle zuerst einen beliebigen Bereich; danach werden Coach-Empfehlungen aus echten Trainingswerten abgeleitet.</p>
-                  <a href="#training">Trainingswelt wählen →</a>
-                </>
-              )}
-            </div>
+            <div className={styles.panelHead}><div><p className="eyebrow">Trainingsziele</p><h3>Heute und diese Woche</h3></div><span>übersichtlich</span></div>
             <div className={styles.goalBlock}>
               <div><span>Tagesziel</span><strong>{snapshot.todaySessions}/{snapshot.dailyGoal}</strong></div>
               <div className={styles.bar}><span style={{ width: `${dailyPercent}%` }} /></div>
-              <small>{dailyPercent >= 100 ? "Tagesziel erreicht. Weitere Sessions sind optional." : snapshot.hasTrainingData ? "Noch eine kurze Session bringt dich dem Tagesziel näher." : "Deine erste Session startet die heutige Aktivitätsaufzeichnung."}</small>
+              <small>{dailyPercent >= 100 ? "Tagesziel erreicht. Weitere Sessions sind optional." : "Noch eine kurze Session bringt dich dem Tagesziel näher."}</small>
             </div>
+            <div className={styles.goalBlock}>
+              <div><span>Wochenziel</span><strong>{snapshot.weekSessions}/{snapshot.weeklyGoal}</strong></div>
+              <div className={styles.bar}><span style={{ width: `${weeklyPercent}%` }} /></div>
+              <small>{weeklyPercent >= 100 ? "Wochenziel erreicht." : `${weeklyPercent}% des Wochenziels sind geschafft.`}</small>
+            </div>
+            <Link className={styles.heroLink} href="/training/journey">Training starten →</Link>
           </div>
         </div>
 
