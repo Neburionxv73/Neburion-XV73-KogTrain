@@ -1,6 +1,6 @@
 const navItems = [
   ["Lernbereiche", "/#lernbereiche"],
-  ["Training", "/training/journey"],
+  ["Heute trainieren", "/training/journey"],
   ["Fortschritt", "/#fortschritt"],
   ["Coach", "/#coach"],
 ] as const;
