@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "./learning-theme.css";
 import "./button-system.css";
+import "./raptor-v97-ui.css";
 
 export const metadata: Metadata = {
   title: "Neburion XV73 · Lern- und Trainingsplattform V6.5",
