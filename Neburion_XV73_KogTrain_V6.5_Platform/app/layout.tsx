@@ -5,6 +5,7 @@ import "./button-system.css";
 import "./raptor-v97-ui.css";
 import "./final-polish-378.css";
 import "./anti-ai-look-v97.css";
+import "./anti-ai-final-humanization.css";
 
 export const metadata: Metadata = {
   title: "Neburion XV73 · Lern- und Trainingsplattform V6.5",
