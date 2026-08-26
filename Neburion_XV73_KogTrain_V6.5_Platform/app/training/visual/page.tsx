@@ -3,7 +3,7 @@ import { VisualTraining } from "@/components/VisualTraining";
 import { LabViewportStyle } from "@/components/LabViewportStyle";
 
 export const metadata = {
-  title: "Visual Lab 2.0 · Neburion XV73 V6.5",
+  title: "Visual Lab 2.0 · Neburion XV73 V6.6",
   description: "Adaptives visuelles Training mit Rotation, Spiegelung, Musterreihen, Matrizen, Positionswechseln, visueller Suche, Formvergleich und Kurzzeitgedächtnis.",
 };
 
@@ -13,7 +13,7 @@ export default function VisualPage() {
       <LabViewportStyle />
       <div className="trainingTopbar">
         <Link className="backLink" href="/#training">← Trainingswelten</Link>
-        <span>Visual Lab 2.0 · V6.5</span>
+        <span>Visual Lab 2.0 · V6.6</span>
       </div>
       <section className="trainingShell">
         <header className="trainingIntro">
