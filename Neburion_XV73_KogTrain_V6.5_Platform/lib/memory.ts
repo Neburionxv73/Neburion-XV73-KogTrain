@@ -1,4 +1,4 @@
-import { difficultyFromPercent, randomInt, shuffled, type Difficulty } from "@/lib/dynamicTraining";
+import { createSessionSeed, difficultyFromPercent, randomInt, shuffled, type Difficulty } from "@/lib/dynamicTraining";
 
 export type MemoryMode = "digits" | "reverse" | "words" | "symbols" | "positions" | "recognition" | "nback1" | "nback2";
 export type MemoryTask = {
@@ -19,8 +19,11 @@ export type MemorySession = { difficulty: Difficulty; showMs: number; tasks: Mem
 export const MEMORY_STORAGE_KEY = "neburion-v65-memory-progress";
 export const MEMORY_SESSION_LENGTH = 8;
 
-const WORDS = ["Apfel","Mond","Brücke","Fuchs","Kerze","Wolke","Schlüssel","Wald","Fenster","Fluss","Stern","Berg","Feder","Tasse","Blatt","Turm","Regen","Klang","Stein","Pfad","Lampe","Kreis","Nebel","Garten"];
-const SYMBOLS = ["◆","●","▲","■","✦","⬟","★","◇"];
+const WORDS = [
+  "Apfel","Mond","Brücke","Fuchs","Kerze","Wolke","Schlüssel","Wald","Fenster","Fluss","Stern","Berg","Feder","Tasse","Blatt","Turm","Regen","Klang","Stein","Pfad","Lampe","Kreis","Nebel","Garten",
+  "Anker","Brot","Insel","Jacke","Karte","Leiter","Mühle","Orange","Pinsel","Quelle","Ring","Schale","Trommel","Ufer","Vogel","Wiese","Zweig","Messer","Kissen","Schnee","Hafen","Seil","Birne","Komet"
+];
+const SYMBOLS = ["◆","●","▲","■","✦","⬟","★","◇","⬢","✚"];
 
 const normalizeWords = (values: string[]) => values.map((value) => value.toLocaleLowerCase("de-AT")).join("|");
 const digits = (length: number) => Array.from({ length }, () => String(randomInt(0, 9)));
@@ -72,7 +75,7 @@ function recognitionTask(difficulty: Difficulty, seed: number): MemoryTask {
 
 function nbackTask(n: 1 | 2, difficulty: Difficulty, seed: number): MemoryTask {
   const length = difficulty === 3 ? 7 : 6;
-  const stream = Array.from({ length }, () => SYMBOLS[randomInt(0, 5)]);
+  const stream = Array.from({ length }, () => SYMBOLS[randomInt(0, 7)]);
   const match = Math.random() < 0.5;
   const targetIndex = length - 1;
   if (match) stream[targetIndex] = stream[targetIndex - n];
@@ -86,15 +89,16 @@ function nbackTask(n: 1 | 2, difficulty: Difficulty, seed: number): MemoryTask {
 export function createMemorySession(bestScore: number): MemorySession {
   const percent = Math.round((bestScore / MEMORY_SESSION_LENGTH) * 100);
   const difficulty = difficultyFromPercent(percent);
+  const seed = createSessionSeed();
   const factories = [
-    () => sequenceTask("digits", difficulty, randomInt(1000,9999)),
-    () => sequenceTask("reverse", difficulty, randomInt(1000,9999)),
-    () => wordTask(difficulty, randomInt(1000,9999)),
-    () => symbolTask(difficulty, randomInt(1000,9999)),
-    () => positionTask(difficulty, randomInt(1000,9999)),
-    () => recognitionTask(difficulty, randomInt(1000,9999)),
-    () => nbackTask(1, difficulty, randomInt(1000,9999)),
-    () => nbackTask(2, difficulty, randomInt(1000,9999)),
+    () => sequenceTask("digits", difficulty, seed + 1),
+    () => sequenceTask("reverse", difficulty, seed + 2),
+    () => wordTask(difficulty, seed + 3),
+    () => symbolTask(difficulty, seed + 4),
+    () => positionTask(difficulty, seed + 5),
+    () => recognitionTask(difficulty, seed + 6),
+    () => nbackTask(1, difficulty, seed + 7),
+    () => nbackTask(2, difficulty, seed + 8),
   ];
   return { difficulty, showMs: difficulty === 3 ? 3200 : difficulty === 2 ? 3800 : 4400, tasks: shuffled(factories).map((factory) => factory()) };
 }
