@@ -1,54 +1,65 @@
-# Raptor Delta V9.7 — KogTrain V6.5 Release Review
+# Raptor Delta V9.7 — KogTrain V6.6 Release Review
 
 Review branch: `dev/v6.5-platform`
 Review policy: **NO EVIDENCE → NO PASS → NO RELEASE**
-Exact verified head: `010827ec86bb4018b958662d7d9acd9a187e9679`
+Candidate line: **V6.6**
 
 ## Gate matrix
 
 | Gate | Status | Evidence / reason |
 |---|---|---|
-| SPEC | PASS | `PROJECT-SPEC.md` defines scope, constraints, technical baseline and Definition of Done. |
-| BUILD | PASS | Exact head `010827ec86bb4018b958662d7d9acd9a187e9679` reached SUCCESS on Vercel project `neburion-xv-73-kog-train`. |
-| SECURITY | PARTIAL+ | Global security headers, framework fingerprint reduction, dependency hardening and `SECURITY-DECISION.md` are present. Runtime header verification and final CSP decision remain open. |
-| AGENT_READABILITY | PASS | `AGENT-READABILITY.md` maps release identity, routes, modules, storage, validation and exclusions. |
-| RESPONSIVE | PARTIAL+ | Desktop/tablet/mobile recomposition rules and 44px baseline are enforced by static final-gate validation. Rendered evidence on the exact final head is still required. |
-| A11Y | PARTIAL+ | Skip navigation, focus-visible, stateful controls, reduced motion and touch-target baseline are validated statically. Complete runtime keyboard/screen-reader evidence remains open. |
-| PERFORMANCE | PARTIAL | Conservative below-the-fold containment exists. No measured Lighthouse/Web Vitals/profile evidence for the exact final deployment yet. |
-| SEO | PARTIAL+ | Environment-aware robots, preview noindex, metadataBase, production canonical resolution and sitemap implementation are present. Runtime crawl/canonical verification remains open. |
-| VISUAL_QA | PARTIAL+ | Final source-level visual review passed after Journey and Progress/Coach clean-palette polish. Final rendered Desktop/Tablet/Smartphone screenshot evidence is still required. |
-| REVIEW | PARTIAL+ | Syntharion technical source review PASS, Mudrasol source-level visual review PASS, Neburion creative direction PASS. Final release review remains blocked by runtime evidence. |
-| RELEASE | HOLD | Runtime blocking evidence remains incomplete; `main` must not be promoted yet. |
+| SPEC | PASS | `PROJECT-SPEC.md` remains the governing scope/constraint baseline; V6.6 extends training variety, session rotation and progress visibility without changing the security/data boundary. |
+| BUILD | REVALIDATE | V6.6 heads before the latest Logic wiring reached SUCCESS on Vercel project `neburion-xv-73-kog-train`. The newest exact head must reach SUCCESS again before BUILD returns to PASS. |
+| SECURITY | PARTIAL+ | Existing security headers, framework fingerprint reduction, dependency hardening and `SECURITY-DECISION.md` remain present. Runtime header verification and final CSP decision remain open. |
+| AGENT_READABILITY | PASS | Existing route/module/storage documentation remains valid; V6.6 adds `validate-v66-features.mjs` and generative training helpers without changing public route identity. |
+| RESPONSIVE | PARTIAL+ | Responsive source rules remain in place. Exact-head rendered Desktop/Tablet/Smartphone evidence is still required after V6.6 feature changes. |
+| A11Y | PARTIAL+ | Skip navigation, focus-visible, reduced motion and stateful controls remain implemented. Historical Lighthouse accessibility evidence was 95 on the stable V6.5 line; exact V6.6 runtime evidence is still required. |
+| PERFORMANCE | PARTIAL | Historical stable-line Lighthouse mobile median was about 80, with desktop previously reaching 100. V6.6 changes require new exact-head runtime measurement; historical values are not promoted as V6.6 PASS evidence. |
+| SEO | PARTIAL+ | Robots, sitemap, canonical/metadata implementation remain present. Historical runtime SEO reached 100; exact V6.6 runtime revalidation is required. |
+| VISUAL_QA | PARTIAL+ | V6.6 intentionally preserves the established Clean Palette and layout. Rendered exact-head visual QA remains open. |
+| REVIEW | PARTIAL+ | Source review identified and fixed one V6.6 integration defect: `lib/logic.ts` was generative while `LogicTraining.tsx` still used the legacy static pool. The UI is now wired to `createLogicSession()`, and the validator explicitly checks that integration. Final independent exact-head review remains open. |
+| RELEASE | HOLD | `main` must not be promoted until the latest exact V6.6 head has build and runtime evidence and the remaining release gates are reviewed. |
 
-## Reviewer records
-- `reviews/SYNTHARION-TECHNICAL-REVIEW.md`
-- `reviews/MUDRASOL-VISUAL-REVIEW.md`
-- `reviews/NEBURION-CREATIVE-RELEASE-REVIEW.md`
+## V6.6 functional scope now implemented
+- Reusable Dynamic Training Engine helpers with task-history support and session seeding.
+- Expanded Memory generation and content pool.
+- Expanded Attention generation and randomized modes.
+- Generative Logic engine with eight modes, now actually wired into `LogicTraining.tsx`.
+- Language rolling anti-repeat history across sessions.
+- Expanded Visual generation and randomization.
+- Expanded Gehirnfit everyday-language, proverb, symbol and orientation pools.
+- Richer progress metrics: trained areas, active days, last activity and average sessions per active day.
+- Explicit unified session flow copy: Start → Aufgabe → direkte Rückmeldung → nächste Aufgabe → Abschluss & Fortschritt.
+- V6.6 feature validator integrated into the validation chain.
 
-## Verified release-candidate improvements
-- Clean Palette / Anti-KI visual system.
-- Recommendations removed from visible training journey/progress/BrainFit UI.
-- Unified training journey.
-- BrainFit functional hardening: contiguous word search, robust placement, Sudoku variants, crossword grid/intersections.
-- Automated BrainFit/static QA validator integrated into `npm run validate`.
-- Keyboard/focus finish, skip navigation and reduced-motion support.
-- Security response-header baseline and reduced framework fingerprinting.
-- Next.js updated to 16.2.11 and React/React DOM to 19.2.8 as dependency hardening.
-- Preview-safe SEO policy: preview deployments are noindex/disallow; production can be indexable.
-- Production canonical resolution through `NEXT_PUBLIC_SITE_URL` or Vercel production host.
-- Sitemap for all public V6.5 training routes and robots-to-sitemap linkage.
-- Conservative below-the-fold rendering containment.
-- Release-baseline and final-gate validators for Security/SEO/A11Y/responsive implementation checks.
-- Journey and Progress/Coach visually normalized to the restrained Clean Palette system.
+## V6.6 defect record
+### Logic engine integration
+**Finding:** `lib/logic.ts` contained the new generative V6.6 engine, but the rendered `LogicTraining.tsx` still used the legacy static 20-question pool.
 
-## Remaining blocking evidence before release
-1. Rendered Desktop/Tablet/Smartphone QA on exact head `010827ec86bb4018b958662d7d9acd9a187e9679`.
-2. Runtime keyboard walkthrough and screen-reader spot-check if available.
-3. Measured performance evidence (Lighthouse/Web Vitals or equivalent).
-4. Runtime verification of production canonical, robots, sitemap and security headers.
-5. Final release review decision recorded after items 1–4.
+**Correction:** `LogicTraining.tsx` now imports and uses `createLogicSession`, `LOGIC_SESSION_LENGTH`, `LOGIC_STORAGE_KEY` and `LogicMode` from `lib/logic.ts`. The V6.6 validator now fails if the UI is not wired to the generative engine.
+
+**Why this matters:** Presence of a new engine file is not sufficient evidence that production UI executes it. V6.6 validation now checks implementation-to-UI wiring explicitly.
+
+## Historical runtime evidence retained as reference only
+The previous stable line produced the following browser evidence on the production domain:
+- Desktop Performance: up to 100.
+- Mobile Performance: repeated measurements around 79–82, median approximately 80.
+- Accessibility: 95.
+- Best Practices: 100.
+- SEO: 100.
+- Production robots.txt and sitemap.xml were reachable and populated.
+
+These values are **not** treated as exact-head V6.6 PASS evidence after functional code changes.
+
+## Remaining blocking evidence before V6.6 release
+1. Exact latest head reaches SUCCESS on `Vercel – neburion-xv-73-kog-train`.
+2. Smoke test Memory, Attention, Logic, Language, Visual, Gehirnfit and Progress on the deployed V6.6 candidate.
+3. Rendered Desktop/Tablet/Smartphone QA on the exact candidate head.
+4. New Lighthouse/runtime measurement for Performance, Accessibility, Best Practices and SEO.
+5. Runtime verification of robots, sitemap, canonical and security headers on the V6.6 candidate.
+6. Final independent Technical / Visual / Creative release decision on the same candidate identity.
 
 ## Release decision
-**HOLD — RELEASE CANDIDATE, NOT YET READY FOR MAIN.**
+**HOLD — V6.6 FEATURE CANDIDATE, NOT READY FOR MAIN.**
 
-The exact final hardening head has now passed the correct Vercel build. Static/source-level quality and all three reviewer roles are in place. Raptor Delta V9.7 still forbids main promotion until the remaining rendered/runtime evidence is captured against this exact commit.
+`main` remains untouched. No PR or promotion is authorized by this review document.
