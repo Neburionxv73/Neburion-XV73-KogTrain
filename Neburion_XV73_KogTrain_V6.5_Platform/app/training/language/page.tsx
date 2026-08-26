@@ -3,7 +3,7 @@ import { LanguageTraining } from "@/components/LanguageTraining";
 import { LabViewportStyle } from "@/components/LabViewportStyle";
 
 export const metadata = {
-  title: "Language Lab 2.0 · Neburion XV73 V6.5",
+  title: "Language Lab 2.0 · Neburion XV73 V6.6",
   description: "Adaptives Sprachtraining mit Synonymen, Antonymen, Analogien, Kategorien, Wortfeldern, Satzlogik, Bedeutungsbeziehungen und Kontextverständnis.",
 };
 
@@ -13,7 +13,7 @@ export default function LanguagePage() {
       <LabViewportStyle />
       <div className="trainingTopbar">
         <Link className="backLink" href="/#training">← Trainingswelten</Link>
-        <span>Language Lab 2.0 · V6.5</span>
+        <span>Language Lab 2.0 · V6.6</span>
       </div>
       <section className="trainingShell">
         <header className="trainingIntro">
