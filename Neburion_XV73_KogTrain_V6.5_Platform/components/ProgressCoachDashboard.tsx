@@ -41,6 +41,14 @@ function StorageNotice({ snapshot }: { snapshot: ProgressSnapshot }) {
   );
 }
 
+function formatLastSession(value: string | null): string {
+  if (!value) return "–";
+  const date = new Date(value);
+  const today = new Date();
+  const sameDay = date.toDateString() === today.toDateString();
+  return sameDay ? "Heute" : new Intl.DateTimeFormat("de-AT", { day: "2-digit", month: "2-digit" }).format(date);
+}
+
 export function CoachHeroCard() {
   const snapshot = useProgressSnapshot();
 
@@ -110,9 +118,11 @@ export function ProgressCoachDashboard() {
 
         <div className={styles.metricGrid}>
           <article><span>Gesamtsessions</span><strong>{snapshot.totalSessions}</strong><small>Labs + Gehirnfit</small></article>
+          <article><span>Trainierte Bereiche</span><strong>{snapshot.trainedAreas}/6</strong><small>mit gespeicherten Sessions</small></article>
           <article><span>Ø Leistungswert</span><strong>{snapshot.hasTrainingData ? `${snapshot.averageBest}%` : "–"}</strong><small>{snapshot.hasTrainingData ? "aktive Trainingsbereiche" : "noch keine Trainingsbasis"}</small></article>
+          <article><span>Aktive Tage</span><strong>{snapshot.activeDays7}/7</strong><small>in den letzten 7 Tagen</small></article>
           <article><span>Serie</span><strong>{snapshot.streak}</strong><small>{snapshot.streak === 1 ? "Trainingstag" : "Trainingstage"}</small></article>
-          <article><span>Wochenziel</span><strong>{snapshot.weekSessions}/{snapshot.weeklyGoal}</strong><small>{weeklyPercent}% erreicht</small></article>
+          <article><span>Letzte Session</span><strong>{formatLastSession(snapshot.lastSessionAt)}</strong><small>{snapshot.averageSessionsPerActiveDay ? `Ø ${snapshot.averageSessionsPerActiveDay} Sessions je aktivem Tag` : "noch keine Aktivität"}</small></article>
         </div>
 
         <div className={styles.twoColumn}>
