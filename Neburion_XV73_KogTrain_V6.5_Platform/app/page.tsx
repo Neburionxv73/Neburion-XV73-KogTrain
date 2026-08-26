@@ -12,7 +12,7 @@ export default function Home() {
       <TopNav />
       <section className="hero" aria-labelledby="hero-title">
         <div className="heroCopy">
-          <p className="eyebrow">Neburion XV73 · V6.5</p>
+          <p className="eyebrow">Neburion XV73 · V6.6</p>
           <h1 id="hero-title">Lernen, das sich nach dir richtet.</h1>
           <p>Starte mit einer kurzen Einheit oder wähle gezielt, woran du heute arbeiten möchtest. Mathematik, Sprache, Aufmerksamkeit, Gedächtnis, Logik und Gehirnfit bleiben dabei an einem Ort.</p>
           <div className="heroActions"><Link className="primary" href="/training/journey">Heute trainieren →</Link><a className="secondary" href="#lernbereiche">Bereiche ansehen</a></div>
@@ -43,7 +43,7 @@ export default function Home() {
 
       <DeferredProgressCoachDashboard />
 
-      <footer><span>Neburion XV73 · V6.5</span><span>Raptor Delta V9.7 · Clean Palette</span></footer>
+      <footer><span>Neburion XV73 · V6.6</span><span>Raptor Delta V9.7 · Clean Palette</span></footer>
     </main>
   );
 }
