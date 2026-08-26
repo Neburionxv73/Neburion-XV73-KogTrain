@@ -74,7 +74,7 @@ export function UnifiedTrainingJourney(){
       <div>
         <p className="eyebrow">3 · Loslegen</p>
         <h2 id="start-title">{selected.title}</h2>
-        <p>{sessionPlan}. Nach der Einheit kannst du direkt deinen Fortschritt ansehen.</p>
+        <p>{sessionPlan}. Der Ablauf bleibt in allen Bereichen gleich: Aufgabe bearbeiten, direkte Rückmeldung erhalten, weitertrainieren und am Ende den Fortschritt sichern.</p>
       </div>
       <div className={styles.startActions}>
         <Link className={styles.primaryAction} href={selected.href}>Jetzt {duration} Minuten starten →</Link>
@@ -88,6 +88,6 @@ export function UnifiedTrainingJourney(){
       <Link href="/#training"><span>◇</span><strong>Labs</strong><small>Vertieft trainieren</small></Link>
     </div>
 
-    <p className={styles.note}>Die Auswahl nutzt nur die Trainingswerte, die bereits lokal in diesem Browser gespeichert sind.</p>
+    <p className={styles.note}>Session-Ablauf: Start → Aufgabe → direkte Rückmeldung → nächste Aufgabe → Abschluss & Fortschritt. Die Auswahl nutzt nur Trainingswerte, die lokal in diesem Browser gespeichert sind.</p>
   </section>;
 }
