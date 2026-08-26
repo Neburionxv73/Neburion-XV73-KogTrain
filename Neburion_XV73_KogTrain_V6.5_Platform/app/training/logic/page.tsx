@@ -3,7 +3,7 @@ import { LogicTraining2 } from "@/components/LogicTraining2";
 import { LabViewportStyle } from "@/components/LabViewportStyle";
 
 export const metadata = {
-  title: "Logic Lab 2.0 · Neburion XV73 V6.5",
+  title: "Logic Lab 2.0 · Neburion XV73 V6.6",
   description: "Dynamisches Logiktraining mit Zahlenreihen, Regelketten, Analogien, Schlussfolgerungen, Matrizen, Operatoren und Raumlogik.",
 };
 
@@ -13,7 +13,7 @@ export default function LogicPage() {
       <LabViewportStyle />
       <div className="trainingTopbar">
         <Link className="backLink" href="/#training">← Trainingswelten</Link>
-        <span>Logic Lab 2.0 · V6.5</span>
+        <span>Logic Lab 2.0 · V6.6</span>
       </div>
       <section className="trainingShell">
         <header className="trainingIntro">
