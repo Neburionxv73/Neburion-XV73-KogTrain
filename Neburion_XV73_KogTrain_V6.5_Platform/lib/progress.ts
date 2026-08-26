@@ -20,6 +20,7 @@ export type ActivityEvent = {
 export type ProgressSnapshot = {
   labs: LabProgress[];
   totalSessions: number;
+  trainedAreas: number;
   averageBest: number;
   xp: number;
   level: number;
@@ -29,6 +30,9 @@ export type ProgressSnapshot = {
   dailyGoal: number;
   weekSessions: number;
   weeklyGoal: number;
+  activeDays7: number;
+  averageSessionsPerActiveDay: number;
+  lastSessionAt: string | null;
   streak: number;
   recommendation: LabProgress | null;
   strongest: LabProgress | null;
@@ -177,7 +181,8 @@ export function getProgressSnapshot(): ProgressSnapshot {
   const events = syncActivity(labs);
   const totalSessions = labs.reduce((sum, lab) => sum + lab.sessions, 0);
   const activeLabs = labs.filter((lab) => lab.sessions > 0);
-  const hasTrainingData = activeLabs.length > 0;
+  const trainedAreas = activeLabs.length;
+  const hasTrainingData = trainedAreas > 0;
   const averageBest = hasTrainingData
     ? Math.round(activeLabs.reduce((sum, lab) => sum + lab.bestPercent, 0) / activeLabs.length)
     : 0;
@@ -194,7 +199,11 @@ export function getProgressSnapshot(): ProgressSnapshot {
   const weekStart = new Date();
   weekStart.setHours(0, 0, 0, 0);
   weekStart.setDate(weekStart.getDate() - 6);
-  const weekSessions = events.filter((event) => new Date(event.completedAt) >= weekStart).length;
+  const weekEvents = events.filter((event) => new Date(event.completedAt) >= weekStart);
+  const weekSessions = weekEvents.length;
+  const activeDays7 = new Set(weekEvents.map((event) => dateKey(new Date(event.completedAt)))).size;
+  const averageSessionsPerActiveDay = activeDays7 ? Math.round((weekSessions / activeDays7) * 10) / 10 : 0;
+  const lastSessionAt = events.length ? [...events].sort((a, b) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime())[0].completedAt : null;
   const recentDays = Array.from({ length: 7 }, (_, offset) => {
     const date = new Date();
     date.setDate(date.getDate() - (6 - offset));
@@ -211,6 +220,7 @@ export function getProgressSnapshot(): ProgressSnapshot {
   return {
     labs,
     totalSessions,
+    trainedAreas,
     averageBest,
     xp,
     level,
@@ -220,6 +230,9 @@ export function getProgressSnapshot(): ProgressSnapshot {
     dailyGoal: DAILY_GOAL,
     weekSessions,
     weeklyGoal: WEEKLY_GOAL,
+    activeDays7,
+    averageSessionsPerActiveDay,
+    lastSessionAt,
     streak: calculateStreak(events),
     recommendation,
     strongest,
