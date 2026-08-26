@@ -3,7 +3,7 @@ import { AttentionTraining } from "@/components/AttentionTraining";
 import { LabViewportStyle } from "@/components/LabViewportStyle";
 
 export const metadata = {
-  title: "Attention Lab 2.0 · Neburion XV73 V6.5",
+  title: "Attention Lab 2.0 · Neburion XV73 V6.6",
   description: "Dynamisches Aufmerksamkeitstraining mit Regelwechsel, Reaktionshemmung, visueller Suche und adaptivem Tempo.",
 };
 
@@ -13,7 +13,7 @@ export default function AttentionLabPage() {
       <LabViewportStyle />
       <div className="trainingTopbar">
         <Link className="backLink" href="/#training">← Trainingswelten</Link>
-        <span>Attention Lab 2.0 · V6.5</span>
+        <span>Attention Lab 2.0 · V6.6</span>
       </div>
       <section className="trainingShell" aria-labelledby="attention-title">
         <div className="trainingIntro" id="attention-start">
