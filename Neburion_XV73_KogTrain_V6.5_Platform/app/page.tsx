@@ -7,6 +7,7 @@ import { trainingWorlds } from "@/lib/training";
 import { FOCUS_AREAS } from "@/lib/learningExpansion";
 import styles from "./HomeV103.module.css";
 import responsive from "./HomeV103ResponsiveFix.module.css";
+import sectionResponsive from "./HomeResponsiveV103.module.css";
 
 export default function Home() {
   return (
@@ -48,7 +49,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className={`${styles.library} learningLibrary`} id="lernbereiche" aria-labelledby="learning-title">
+      <section className={`${styles.library} ${sectionResponsive.learningSection} learningLibrary`} id="lernbereiche" aria-labelledby="learning-title">
         <div className={`${styles.sectionHead} sectionHead`}>
           <div>
             <p className="eyebrow">02 · Persönlicher Lernmix</p>
@@ -56,18 +57,18 @@ export default function Home() {
           </div>
           <p>Sechs Lernfelder bilden deinen persönlichen Mix. Du bestimmst den Fokus; KogTrain stellt daraus eine verständliche und zusammenhängende Einheit zusammen.</p>
         </div>
-        <div className={`${styles.learningGrid} learningGrid`}>
+        <div className={`${styles.learningGrid} ${sectionResponsive.learningGrid} learningGrid`}>
           {FOCUS_AREAS.map((area)=><article className={`learningCard learning-${area.id}`} key={area.id}><span className="learningIcon" aria-hidden="true">{area.icon}</span><p className="eyebrow">{area.subtitle}</p><h3>{area.title}</h3><p>{area.description}</p></article>)}
         </div>
-        <div className={`${styles.learningCta} learningCta`}><div><strong>Persönlichen Trainingsmix aufbauen</strong><p>Ein Bereich oder mehrere. Inhalt und Schwierigkeit passen sich an deine gewählte Session an.</p></div><Link className="primary" href="/training/focus">Fokus auswählen →</Link></div>
+        <div className={`${styles.learningCta} ${sectionResponsive.learningCta} learningCta`}><div><strong>Persönlichen Trainingsmix aufbauen</strong><p>Ein Bereich oder mehrere. Inhalt und Schwierigkeit passen sich an deine gewählte Session an.</p></div><Link className="primary" href="/training/focus">Fokus auswählen →</Link></div>
       </section>
 
-      <section className={`${styles.worldStage} worlds`} id="training" aria-labelledby="worlds-title">
+      <section className={`${styles.worldStage} ${sectionResponsive.worldSection} worlds`} id="training" aria-labelledby="worlds-title">
         <div className={`${styles.sectionHead} sectionHead`}>
           <div><p className="eyebrow">03 · Spezial-Labs</p><h2 id="worlds-title">Fünf eigenständige Trainingswelten.</h2></div>
           <p>Memory, Attention, Logic, Language und Visual besitzen jeweils einen eigenen Trainingszweck, eine eigene Aufgabenlogik und direkte Rückmeldung.</p>
         </div>
-        <div className={`${styles.worldGrid} worldGrid`}>{trainingWorlds.map((world, index) => <WorldCard key={world.id} world={world} index={index} />)}</div>
+        <div className={`${styles.worldGrid} ${sectionResponsive.worldGrid} worldGrid`}>{trainingWorlds.map((world, index) => <WorldCard key={world.id} world={world} index={index} />)}</div>
       </section>
 
       <section className={`${styles.brainfit} learningLibrary`} id="gehirnfit" aria-labelledby="brainfit-title">
