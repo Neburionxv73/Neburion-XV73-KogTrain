@@ -12,6 +12,7 @@ import "./brainfit-functional-hardening.css";
 import "./interaction-finish-v97.css";
 import "./performance-baseline-v97.css";
 import "./a11y-contrast-final-v97.css";
+import "./raptor-v103-redesign.css";
 
 const isProduction = process.env.VERCEL_ENV === "production";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : undefined);
@@ -19,11 +20,11 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? (process.env.VERCEL_PROJECT_
 export const metadata: Metadata = {
   metadataBase: siteUrl ? new URL(siteUrl) : undefined,
   title: {
-    default: "Neburion XV73 · Lern- und Trainingsplattform V6.5",
+    default: "Neburion XV73 · KogTrain V6.6",
     template: "%s · Neburion XV73",
   },
   applicationName: "Neburion XV73 KogTrain",
-  description: "Individuelle Lern- und Trainingsplattform mit Mathematik, Sprache, Englisch, Aufmerksamkeit, Reaktion, Gedächtnis, Logik, visuellen Übungen und einem zentralen Trainingsstart.",
+  description: "Editorial gestaltete Lern- und Trainingsplattform mit Mathematik, Sprache, Englisch, Aufmerksamkeit, Reaktion, Gedächtnis, Logik, visuellen Übungen und Gehirnfit & Alltag.",
   keywords: ["KogTrain", "Lernplattform", "Gedächtnistraining", "Aufmerksamkeit", "Logiktraining", "Sprachtraining", "Gehirnfit"],
   category: "education",
   alternates: siteUrl ? { canonical: "/" } : undefined,
@@ -32,8 +33,8 @@ export const metadata: Metadata = {
     type: "website",
     locale: "de_AT",
     siteName: "Neburion XV73 KogTrain",
-    title: "Neburion XV73 · Lern- und Trainingsplattform V6.5",
-    description: "Lernen, Spezial-Labs und Gehirnfit in einer klaren Trainingsplattform.",
+    title: "Neburion XV73 · KogTrain V6.6",
+    description: "Persönlicher Lernmix, Spezial-Labs und Gehirnfit in einer klar geführten Trainingsplattform.",
     url: siteUrl ? "/" : undefined,
   },
 };
@@ -42,7 +43,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   colorScheme: "light",
-  themeColor: "#f7f9fc",
+  themeColor: "#f3f0e8",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
