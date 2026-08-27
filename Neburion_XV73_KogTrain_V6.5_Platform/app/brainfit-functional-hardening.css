@@ -106,9 +106,10 @@
   .bfCrosswordClues{grid-template-columns:1fr 1fr}
 }
 @media(max-width:640px){
-  .bfCrosswordGrid{min-width:460px;padding:8px;gap:2px}
+  .bfCrosswordGrid{min-width:600px;padding:8px;gap:2px}
   .bfCrosswordClues{grid-template-columns:1fr}
-  .bfCrosswordCell,.bfCrosswordBlock{min-width:34px;min-height:34px;border-radius:4px}
+  .bfCrosswordCell,.bfCrosswordBlock{min-width:44px;min-height:44px;border-radius:5px}
+  .bfCrosswordCell input{font-size:18px}
   .bfSudokuGrid button:nth-child(2),
   .bfSudokuGrid button:nth-child(6),
   .bfSudokuGrid button:nth-child(10),
