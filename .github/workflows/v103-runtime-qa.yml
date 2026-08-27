@@ -1,0 +1,84 @@
+name: V10.3 Runtime QA
+
+on:
+  push:
+    branches:
+      - dev/v6.5-platform
+    paths:
+      - "Neburion_XV73_KogTrain_V6.5_Platform/**"
+      - ".github/workflows/v103-runtime-qa.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  runtime-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: Neburion_XV73_KogTrain_V6.5_Platform
+
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.13.1
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.x"
+
+      - name: Install application dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Install QA tools for this CI run
+        run: pnpm add --save-dev --lockfile=false @playwright/test@1.55.0 @lhci/cli@0.15.1
+
+      - name: Run V10.3 source gates and production build
+        run: pnpm quality:core
+
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Start production server
+        run: |
+          pnpm start > /tmp/kogtrain-next.log 2>&1 &
+          echo $! > /tmp/kogtrain-next.pid
+
+      - name: Wait for local runtime
+        run: |
+          for i in {1..60}; do
+            if curl -fsS http://127.0.0.1:3000/ > /dev/null; then
+              echo "KogTrain runtime is ready"
+              exit 0
+            fi
+            sleep 2
+          done
+          cat /tmp/kogtrain-next.log
+          exit 1
+
+      - name: Playwright functional and responsive QA
+        env:
+          QA_BASE_URL: http://127.0.0.1:3000
+        run: pnpm exec playwright test tests/runtime-smoke.spec.ts
+
+      - name: Lighthouse mobile release gates
+        run: pnpm exec lhci autorun --config=./lighthouserc.cjs
+
+      - name: Upload runtime evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v103-runtime-evidence-${{ github.sha }}
+          if-no-files-found: warn
+          retention-days: 14
+          path: |
+            Neburion_XV73_KogTrain_V6.5_Platform/test-results/
+            Neburion_XV73_KogTrain_V6.5_Platform/reports/lhci/
+            /tmp/kogtrain-next.log
