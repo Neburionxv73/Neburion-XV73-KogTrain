@@ -13,6 +13,7 @@ import "./interaction-finish-v97.css";
 import "./performance-baseline-v97.css";
 import "./a11y-contrast-final-v97.css";
 import "./raptor-v103-redesign.css";
+import "./v103-typography-collision-fix.css";
 
 const isProduction = process.env.VERCEL_ENV === "production";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : undefined);
