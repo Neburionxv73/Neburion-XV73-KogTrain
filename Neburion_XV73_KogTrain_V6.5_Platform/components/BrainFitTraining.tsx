@@ -188,7 +188,14 @@ function makeCrosswordPuzzle(mode:BrainFitMode):CrosswordPuzzle{
     const puzzle=buildCrossword(shuffled(CROSSWORD_POOL),target);
     if(puzzle&&puzzle.entries.length>=target) return puzzle;
   }
-  return buildCrossword(shuffled(CROSSWORD_POOL),Math.min(4,target))!;
+  const fallback=buildCrossword(shuffled(CROSSWORD_POOL),Math.min(4,target));
+  if(fallback) return fallback;
+  const first=CROSSWORD_POOL[0];
+  const answer=normalizeAnswer(first?.answer??"DENKEN");
+  const clue=first?.clue??"Aktiv den Kopf benutzen";
+  const cells:Record<string,CrosswordCell>={};
+  answer.split("").forEach((char,index)=>{cells[keyOf(0,index)]={answer:char,number:index===0?1:undefined};});
+  return {rows:1,cols:answer.length,entries:[{id:0,number:1,clue,answer,row:0,col:0,direction:"across"}],cells};
 }
 
 function isStraightContiguous(indices:number[]){
@@ -280,13 +287,11 @@ export function BrainFitTraining(){
 
   function toggleWordCell(index:number){
     setMessage("");
-    setSelectedCells(current=>{
-      if(current.length&&current[current.length-1]===index) return current.slice(0,-1);
-      if(current.includes(index)){setMessage("Wähle die Buchstaben der Reihe nach in einer geraden Linie.");return current;}
-      const next=[...current,index];
-      if(!isStraightContiguous(next)){setMessage("Die Wortsuche funktioniert nur waagrecht, senkrecht oder diagonal ohne Sprünge.");return current;}
-      return next;
-    });
+    if(selectedCells.length&&selectedCells[selectedCells.length-1]===index){setSelectedCells(selectedCells.slice(0,-1));return;}
+    if(selectedCells.includes(index)){setMessage("Wähle die Buchstaben der Reihe nach in einer geraden Linie.");return;}
+    const next=[...selectedCells,index];
+    if(!isStraightContiguous(next)){setMessage("Die Wortsuche funktioniert nur waagrecht, senkrecht oder diagonal ohne Sprünge.");return;}
+    setSelectedCells(next);
   }
 
   function checkWordSelection(){
@@ -314,8 +319,7 @@ export function BrainFitTraining(){
   function nextQuiz(){
     if(!currentTask||!quizSelected)return;
     if(quizIndex<quizTasks.length-1){setQuizIndex(value=>value+1);setQuizSelected(null);return;}
-    const finalCorrect=quizCorrect+(quizSelected===currentTask.answer?0:0);
-    const score=Math.round((finalCorrect/quizTasks.length)*100);
+    const score=Math.round((quizCorrect/quizTasks.length)*100);
     setQuizComplete(true);saveResult(area,score);
   }
 
