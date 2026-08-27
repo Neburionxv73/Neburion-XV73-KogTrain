@@ -10,6 +10,7 @@ const layout = read("app/layout.tsx");
 const home = read("app/page.tsx");
 const foundation = read("app/raptor-v103-clean-foundation.css");
 const homeModule = read("app/HomeV103.module.css");
+const homeResponsive = read("app/HomeV103ResponsiveFix.module.css");
 const progressModule = read("components/ProgressCoachDashboard.module.css");
 const nav = read("components/TopNav.tsx");
 const packageJson = JSON.parse(read("package.json"));
@@ -21,6 +22,7 @@ expect("HARD: exactly one global V10.3 foundation", v103Imports.length === 1 && 
 expect("HARD: legacy redesign layer absent", !layout.includes('raptor-v103-redesign.css'));
 expect("HARD: legacy collision patch absent", !layout.includes('v103-typography-collision-fix.css'));
 expect("HARD: component-scoped home art direction", home.includes('HomeV103.module.css') && homeModule.includes('.heroStage') && homeModule.includes('.worldStage'));
+expect("HARD: component-scoped responsive polish", home.includes('HomeV103ResponsiveFix.module.css') && homeResponsive.includes('.responsiveFix'));
 expect("HARD: developer governance hidden from public UI", !home.includes("Raptor Delta") && !nav.includes("Raptor Delta") && !home.includes("Hard Mode"));
 
 expect("HARD: Vitalis exact background", foundation.includes(`--k-bg:${vitalis.bg}`));
@@ -54,6 +56,8 @@ expect("HARD: small-phone density reduced again", homeModule.includes("padding:2
 expect("HARD: smartphone CTA is full width", homeModule.includes("width:100%!important;min-height:52px"));
 expect("HARD: smartphone content grids become one column", homeModule.includes(".learningGrid{display:block!important") && homeModule.includes(".worldGrid{display:block!important"));
 expect("HARD: mobile nav is horizontally safe", foundation.includes("overflow-x:auto!important") && foundation.includes("white-space:nowrap") && foundation.includes("scrollbar-width:none"));
+expect("HARD: mobile nav rail is component-safe", homeResponsive.includes("scroll-snap-type:x proximity!important") && homeResponsive.includes("max-width:100%!important") && homeResponsive.includes("scroll-snap-align:start!important"));
+expect("HARD: mobile footer density is controlled", homeResponsive.includes("padding:26px 0!important") && homeResponsive.includes("padding:22px 0!important") && homeResponsive.includes("overflow-wrap:anywhere!important"));
 expect("HARD: mobile training shell is reprioritized", foundation.includes("padding:38px 0 64px") && foundation.includes("font-size:clamp(36px,10vw,46px)"));
 expect("HARD: training options collapse to one column", foundation.includes('[class*="Training"][class*="options"]{grid-template-columns:1fr!important'));
 expect("HARD: training tasks prevent horizontal overflow", foundation.includes("max-width:100%!important;margin-inline:0!important") && foundation.includes("overflow-wrap:anywhere!important"));
