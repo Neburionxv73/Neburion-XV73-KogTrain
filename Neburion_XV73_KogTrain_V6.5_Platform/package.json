@@ -12,7 +12,8 @@
     "validate:release": "node scripts/validate-release-baseline.mjs",
     "validate:final": "node scripts/validate-final-gates.mjs",
     "validate:v66": "node scripts/validate-v66-features.mjs",
-    "validate": "npm run typecheck && node scripts/validate-project.mjs && npm run validate:brainfit && npm run validate:release && npm run validate:final && npm run validate:v66",
+    "validate:v103": "node scripts/validate-v103-redesign.mjs",
+    "validate": "npm run typecheck && node scripts/validate-project.mjs && npm run validate:brainfit && npm run validate:release && npm run validate:final && npm run validate:v66 && npm run validate:v103",
     "quality:core": "npm run validate && npm run build"
   },
   "dependencies": {
