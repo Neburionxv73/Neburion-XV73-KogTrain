@@ -12,8 +12,7 @@ import "./brainfit-functional-hardening.css";
 import "./interaction-finish-v97.css";
 import "./performance-baseline-v97.css";
 import "./a11y-contrast-final-v97.css";
-import "./raptor-v103-redesign.css";
-import "./v103-typography-collision-fix.css";
+import "./raptor-v103-clean-foundation.css";
 
 const isProduction = process.env.VERCEL_ENV === "production";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : undefined);
@@ -25,7 +24,7 @@ export const metadata: Metadata = {
     template: "%s · Neburion XV73",
   },
   applicationName: "Neburion XV73 KogTrain",
-  description: "Editorial gestaltete Lern- und Trainingsplattform mit Mathematik, Sprache, Englisch, Aufmerksamkeit, Reaktion, Gedächtnis, Logik, visuellen Übungen und Gehirnfit & Alltag.",
+  description: "Freundlich gestaltete Lern- und Trainingsplattform mit Mathematik, Sprache, Englisch, Aufmerksamkeit, Reaktion, Gedächtnis, Logik, visuellen Übungen und Gehirnfit & Alltag.",
   keywords: ["KogTrain", "Lernplattform", "Gedächtnistraining", "Aufmerksamkeit", "Logiktraining", "Sprachtraining", "Gehirnfit"],
   category: "education",
   alternates: siteUrl ? { canonical: "/" } : undefined,
@@ -35,7 +34,7 @@ export const metadata: Metadata = {
     locale: "de_AT",
     siteName: "Neburion XV73 KogTrain",
     title: "Neburion XV73 · KogTrain V6.6",
-    description: "Persönlicher Lernmix, Spezial-Labs und Gehirnfit in einer klar geführten Trainingsplattform.",
+    description: "Persönlicher Lernmix, Spezial-Labs und Gehirnfit in einer klaren, freundlichen Trainingsplattform.",
     url: siteUrl ? "/" : undefined,
   },
 };
@@ -44,7 +43,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   colorScheme: "light",
-  themeColor: "#f3f0e8",
+  themeColor: "#f8f7f2",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
