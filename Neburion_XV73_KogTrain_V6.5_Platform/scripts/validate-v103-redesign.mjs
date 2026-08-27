@@ -46,9 +46,11 @@ expect("HARD: 12-column specialist composition", homeModule.includes("grid-templ
 expect("HARD: tablet breakpoint exists", homeModule.includes("@media(max-width:1100px)") && foundation.includes("@media(max-width:1100px)"));
 expect("HARD: narrow tablet breakpoint exists", homeModule.includes("@media(max-width:820px)") && foundation.includes("@media(max-width:820px)"));
 expect("HARD: smartphone breakpoint exists", homeModule.includes("@media(max-width:600px)") && foundation.includes("@media(max-width:560px)"));
+expect("HARD: small-phone breakpoint exists", homeModule.includes("@media(max-width:420px)"));
 expect("HARD: tablet hero is independently recomposed", homeModule.includes("grid-template-columns:minmax(0,1fr) minmax(300px,.72fr)") && homeModule.includes("min-height:620px"));
 expect("HARD: narrow tablet hero stacks", homeModule.includes("grid-template-columns:1fr!important") && homeModule.includes("max-width:560px"));
 expect("HARD: smartphone hero uses reduced density", homeModule.includes("padding:34px 22px 28px") && homeModule.includes("font-size:clamp(38px,11.4vw,48px)"));
+expect("HARD: small-phone density reduced again", homeModule.includes("padding:28px 18px 22px") && homeModule.includes("font-size:clamp(34px,10.8vw,42px)"));
 expect("HARD: smartphone CTA is full width", homeModule.includes("width:100%!important;min-height:52px"));
 expect("HARD: smartphone content grids become one column", homeModule.includes(".learningGrid{display:block!important") && homeModule.includes(".worldGrid{display:block!important"));
 expect("HARD: mobile nav is horizontally safe", foundation.includes("overflow-x:auto!important") && foundation.includes("white-space:nowrap") && foundation.includes("scrollbar-width:none"));
