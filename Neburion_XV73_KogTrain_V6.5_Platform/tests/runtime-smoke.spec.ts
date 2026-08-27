@@ -18,6 +18,10 @@ const viewports = [
   { name: "mobile", width: 390, height: 844 },
 ] as const;
 
+function fileSafe(route: string) {
+  return route === "/" ? "home" : route.replace(/^\//, "").replaceAll("/", "-");
+}
+
 for (const viewport of viewports) {
   test.describe(`${viewport.name} runtime`, () => {
     test.use({ viewport: { width: viewport.width, height: viewport.height } });
@@ -33,6 +37,11 @@ for (const viewport of viewports) {
           clientWidth: document.documentElement.clientWidth,
         }));
         expect(overflow.scrollWidth).toBeLessThanOrEqual(overflow.clientWidth + 1);
+
+        await page.screenshot({
+          path: `test-results/visual/${viewport.name}/${fileSafe(route)}.png`,
+          fullPage: true,
+        });
       });
     }
   });
@@ -58,7 +67,7 @@ test("BrainFit can start a quiz area", async ({ page }) => {
   await page.getByRole("tab", { name: /Kategorien/ }).click();
   await page.getByRole("button", { name: "Einheit starten" }).click();
   await expect(page.locator("h3").filter({ hasText: /.+/ }).first()).toBeVisible();
-  await expect(page.getByRole("button").filter({ hasText: /.+/ }).first()).toBeVisible();
+  await expect(page.locator("button").filter({ hasText: /.+/ }).first()).toBeVisible();
 });
 
 test("Keyboard focus is visible on the homepage", async ({ page }) => {
