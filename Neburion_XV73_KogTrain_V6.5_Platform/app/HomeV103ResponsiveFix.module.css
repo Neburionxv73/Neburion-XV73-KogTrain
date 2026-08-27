@@ -13,17 +13,29 @@
   .responsiveFix :global(#gehirnfit) :global(.learningCta) :global(.primary){min-width:190px!important;white-space:normal!important;text-align:center!important;}
 }
 
-/* Narrow tablet: stack section and keep CTA full-width */
+/* Narrow tablet: stack section, safe nav rail and full-width CTA */
 @media(max-width:820px){
+  .responsiveFix :global(.topbar){min-width:0!important;max-width:100%!important;}
+  .responsiveFix :global(.brand){min-width:0!important;max-width:100%!important;}
+  .responsiveFix :global(.brand)>span:last-child{min-width:0!important;max-width:100%!important;}
+  .responsiveFix :global(.brand) strong{display:block!important;overflow-wrap:anywhere!important;}
+  .responsiveFix :global(nav){min-width:0!important;max-width:100%!important;scroll-snap-type:x proximity!important;scroll-padding-inline:2px!important;}
+  .responsiveFix :global(nav) a{scroll-snap-align:start!important;}
+
   .responsiveFix :global(.journeyTeaserMeta){max-width:620px!important;}
   .responsiveFix :global(#gehirnfit) :global(.sectionHead){grid-template-columns:1fr!important;gap:16px!important;}
   .responsiveFix :global(#gehirnfit) :global(.sectionHead)>p{max-width:620px!important;}
   .responsiveFix :global(#gehirnfit) :global(.learningCta){grid-template-columns:1fr!important;gap:18px!important;}
   .responsiveFix :global(#gehirnfit) :global(.learningCta) :global(.primary){width:100%!important;min-width:0!important;}
+  .responsiveFix :global(footer){padding:30px 0!important;line-height:1.5!important;}
 }
 
 /* Smartphone: one clear column */
 @media(max-width:600px){
+  .responsiveFix :global(.topbar){gap:8px!important;}
+  .responsiveFix :global(nav){padding-bottom:6px!important;overscroll-behavior-x:contain!important;}
+  .responsiveFix :global(nav) a{min-height:46px!important;}
+
   .responsiveFix :global(.journeyTeaserMeta){grid-template-columns:1fr!important;gap:10px!important;}
   .responsiveFix :global(.journeyTeaserMeta) :global(.primary){grid-column:auto!important;min-height:52px!important;padding:14px 18px!important;}
 
@@ -35,10 +47,15 @@
   .responsiveFix :global(#gehirnfit) :global(.learningCta) strong{display:block!important;font-size:20px!important;line-height:1.25!important;}
   .responsiveFix :global(#gehirnfit) :global(.learningCta) p{font-size:15.5px!important;line-height:1.6!important;margin-top:6px!important;}
   .responsiveFix :global(#gehirnfit) :global(.learningCta) :global(.primary){width:100%!important;min-height:52px!important;}
+
+  .responsiveFix :global(footer){min-height:0!important;padding:26px 0!important;gap:5px!important;overflow-wrap:anywhere!important;}
+  .responsiveFix :global(footer)>span{max-width:100%!important;}
 }
 
-/* Small phones: never clip the long CTA label */
+/* Small phones: never clip long labels or footer copy */
 @media(max-width:420px){
+  .responsiveFix :global(.brand) strong{font-size:12px!important;line-height:1.3!important;}
+  .responsiveFix :global(nav) a{padding-inline:11px!important;font-size:12px!important;}
   .responsiveFix :global(.journeyTeaserMeta) :global(.primary){font-size:15px!important;line-height:1.3!important;padding:13px 14px!important;}
   .responsiveFix :global(#gehirnfit){padding-top:56px!important;padding-bottom:60px!important;}
   .responsiveFix :global(#gehirnfit) :global(.sectionHead){padding:14px 10px 0!important;margin-bottom:22px!important;}
@@ -46,4 +63,5 @@
   .responsiveFix :global(#gehirnfit) :global(.learningCta){margin:0 10px 14px!important;padding:17px!important;}
   .responsiveFix :global(#gehirnfit) :global(.learningCta) strong{font-size:18px!important;}
   .responsiveFix :global(#gehirnfit) :global(.learningCta) :global(.primary){font-size:15px!important;padding-inline:14px!important;}
+  .responsiveFix :global(footer){padding:22px 0!important;font-size:12.5px!important;line-height:1.45!important;}
 }
