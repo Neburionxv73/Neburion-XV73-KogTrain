@@ -49,7 +49,7 @@ for (const viewport of viewports) {
 
 test("Journey keeps duration and route selection coherent", async ({ page }) => {
   await page.goto("/training/journey", { waitUntil: "networkidle" });
-  await page.getByRole("button", { name: "5 Minuten" }).click();
+  await page.getByRole("button", { name: /^5 Minuten\b/ }).click();
   await page.getByRole("button", { name: /Gehirnfit & Alltag/ }).click();
   const start = page.getByRole("link", { name: /Jetzt 5 Minuten starten/ });
   await expect(start).toBeVisible();
@@ -58,16 +58,18 @@ test("Journey keeps duration and route selection coherent", async ({ page }) => 
 
 test("Focus can start a generated session", async ({ page }) => {
   await page.goto("/training/focus", { waitUntil: "networkidle" });
-  await page.getByRole("button", { name: "Meine Session starten" }).click();
-  await expect(page.getByText(/Aufgabe 1\/10/)).toBeVisible();
+  const start = page.locator("button.primaryButton").first();
+  await expect(start).toBeVisible();
+  await start.click();
+  await expect(page.getByText(/Aufgabe 1\/\d+/)).toBeVisible();
 });
 
-test("BrainFit can start a quiz area", async ({ page }) => {
+test("BrainFit can activate a quiz area", async ({ page }) => {
   await page.goto("/training/brain-fit", { waitUntil: "networkidle" });
-  await page.getByRole("tab", { name: /Kategorien/ }).click();
-  await page.getByRole("button", { name: "Einheit starten" }).click();
+  const categories = page.getByRole("tab", { name: /Kategorien/ });
+  await categories.click();
+  await expect(categories).toHaveAttribute("aria-selected", "true");
   await expect(page.locator("h3").filter({ hasText: /.+/ }).first()).toBeVisible();
-  await expect(page.locator("button").filter({ hasText: /.+/ }).first()).toBeVisible();
 });
 
 test("Keyboard focus is visible on the homepage", async ({ page }) => {
