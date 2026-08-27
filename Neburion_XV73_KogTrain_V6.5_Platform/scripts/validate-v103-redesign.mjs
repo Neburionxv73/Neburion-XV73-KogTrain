@@ -62,6 +62,15 @@ expect("HARD: small-phone training stats become one column", foundation.includes
 expect("HARD: mobile inputs retain 16px minimum", foundation.includes("input,textarea,select{max-width:100%!important;font-size:16px!important"));
 expect("HARD: touch target minimum 44px retained", foundation.includes("min-height:44px") && foundation.includes("min-height:52px"));
 
+expect("HARD: Journey tablet becomes single-column", foundation.includes('[class*="UnifiedTrainingJourney"][class*="hero"],[class*="UnifiedTrainingJourney"][class*="controlGrid"]{grid-template-columns:1fr!important'));
+expect("HARD: Journey mobile actions are full-width", foundation.includes('[class*="UnifiedTrainingJourney"][class*="primaryAction"]') && foundation.includes('[class*="UnifiedTrainingJourney"][class*="quickGrid"]{grid-template-columns:1fr!important'));
+expect("HARD: Focus tablet uses two-column area grid", foundation.includes('[class*="FocusTraining"][class*="areaGrid"]{grid-template-columns:repeat(2,minmax(0,1fr))!important'));
+expect("HARD: Focus mobile setup and stage are compact", foundation.includes('[class*="FocusTraining"][class*="stage"]{min-height:0!important') && foundation.includes('[class*="FocusTraining"][class*="areaGrid"]'));
+expect("HARD: BrainFit tablet progress stacks", foundation.includes('[class*="BrainFitTraining"][class*="progress"]{grid-template-columns:1fr!important'));
+expect("HARD: BrainFit mobile exercise navigation is controlled", foundation.includes('[class*="BrainFitTraining"][class*="modeRow"],[class*="BrainFitTraining"][class*="tabs"]{grid-template-columns:1fr 1fr!important'));
+expect("HARD: BrainFit small-phone nav becomes one column", foundation.includes('[class*="BrainFitTraining"][class*="modeRow"],[class*="BrainFitTraining"][class*="tabs"]{grid-template-columns:1fr!important'));
+expect("HARD: BrainFit word grid remains scroll-safe", foundation.includes('[class*="BrainFitTraining"][class*="wordGridWrap"]{overflow-x:auto!important'));
+
 expect("HARD: progress surface contract preserved", progressModule.includes(".dashboard .panel") && progressModule.includes("color:#1D2A32!important") && progressModule.includes("color:#61727B!important"));
 expect("HARD: progress tablet two-column metrics", progressModule.includes("grid-template-columns:repeat(2,minmax(0,1fr))"));
 expect("HARD: progress smartphone one-column metrics", progressModule.includes("grid-template-columns:1fr!important"));
