@@ -1,0 +1,243 @@
+/* RAPTOR DELTA V10.3 — KogTrain Complete Editorial Redesign
+   Final visual layer. Premium editorial, anti-dashboard, responsive recomposition. */
+
+:root{
+  --v103-ink:#101418;
+  --v103-paper:#f3f0e8;
+  --v103-paper-2:#ebe7dd;
+  --v103-white:#fffdf8;
+  --v103-line:rgba(16,20,24,.16);
+  --v103-muted:#5c6570;
+  --v103-accent:#18c59e;
+  --v103-accent-dark:#0b6d5b;
+  --v103-blue:#4b64ff;
+  --v103-violet:#8e67ff;
+  --v103-orange:#ff8a3d;
+  --v103-dark:#101418;
+  --v103-dark-2:#171d22;
+  --v103-dark-line:rgba(255,255,255,.14);
+  --v103-max:1360px;
+  --v103-radius:28px;
+}
+
+html{background:var(--v103-paper);}
+body{
+  background:var(--v103-paper)!important;
+  color:var(--v103-ink)!important;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.18;background-image:radial-gradient(rgba(16,20,24,.13) .55px,transparent .55px);background-size:7px 7px;mix-blend-mode:multiply;z-index:9999;}
+main{overflow:hidden;background:transparent;}
+
+/* Header */
+.topbar{
+  width:min(calc(100% - 64px),var(--v103-max))!important;
+  min-height:102px!important;
+  position:relative!important;
+  top:auto!important;
+  border-bottom:1px solid var(--v103-line)!important;
+  background:transparent!important;
+  backdrop-filter:none!important;
+  color:var(--v103-ink)!important;
+}
+.brandMark{width:46px!important;height:46px!important;border-radius:50%!important;border:1px solid var(--v103-ink)!important;background:var(--v103-ink)!important;color:var(--v103-paper)!important;box-shadow:none!important;}
+.brand strong{font-size:14px;letter-spacing:.12em;text-transform:uppercase;}
+.brand small{color:var(--v103-muted)!important;letter-spacing:.08em;text-transform:uppercase;}
+nav{gap:2px!important;}
+nav a{color:var(--v103-muted)!important;border-radius:999px!important;padding:0 17px!important;font-size:14px;}
+nav a:hover{color:var(--v103-ink)!important;background:rgba(16,20,24,.06)!important;}
+
+/* Typography */
+.eyebrow{color:var(--v103-accent-dark)!important;font-size:12px!important;letter-spacing:.18em!important;font-weight:800!important;}
+h1,h2,h3{color:var(--v103-ink);}
+h1{font-size:clamp(64px,8.7vw,132px)!important;line-height:.86!important;letter-spacing:-.07em!important;font-weight:760!important;}
+h2{font-size:clamp(42px,5.5vw,78px)!important;line-height:.95!important;letter-spacing:-.055em!important;font-weight:730!important;}
+h3{font-size:clamp(24px,2.6vw,36px)!important;line-height:1.02!important;}
+
+/* Home hero */
+.hero{
+  width:min(calc(100% - 64px),var(--v103-max))!important;
+  min-height:760px!important;
+  padding:108px 0 120px!important;
+  grid-template-columns:minmax(0,1.35fr) minmax(300px,.65fr)!important;
+  gap:72px!important;
+  align-items:end!important;
+  position:relative;
+}
+.hero:before{content:"KOGTRAIN / V6.6";position:absolute;right:0;top:76px;font-size:11px;letter-spacing:.2em;color:var(--v103-muted);writing-mode:vertical-rl;}
+.heroCopy{max-width:930px;}
+.heroCopy>p:not(.eyebrow){color:var(--v103-muted)!important;font-size:clamp(18px,1.65vw,23px)!important;line-height:1.55!important;max-width:720px!important;margin-top:34px;}
+.heroActions{margin-top:42px!important;gap:10px!important;}
+.primary,.secondary,.primaryButton,.trainingButton{
+  min-height:54px!important;border-radius:999px!important;padding:0 24px!important;font-weight:780!important;letter-spacing:-.01em!important;
+}
+.primary,.primaryButton{background:var(--v103-ink)!important;color:var(--v103-white)!important;border:1px solid var(--v103-ink)!important;}
+.primary:hover,.primaryButton:hover{transform:translateY(-2px);background:#000!important;}
+.secondary{background:transparent!important;border:1px solid var(--v103-line)!important;color:var(--v103-ink)!important;}
+
+/* Editorial hero coach */
+[class*="ProgressCoachDashboard"][class*="heroCoach"], .heroPanel{
+  border:0!important;border-top:1px solid var(--v103-ink)!important;border-bottom:1px solid var(--v103-line)!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;padding:30px 0 30px!important;color:var(--v103-ink)!important;
+}
+[class*="ProgressCoachDashboard"][class*="heroCoach"] strong{font-size:clamp(40px,4vw,64px)!important;letter-spacing:-.06em!important;line-height:.92!important;color:var(--v103-ink)!important;}
+[class*="ProgressCoachDashboard"][class*="heroCoach"] p,[class*="ProgressCoachDashboard"][class*="heroCoach"] small{color:var(--v103-muted)!important;}
+[class*="ProgressCoachDashboard"][class*="heroProgress"]{height:2px!important;background:var(--v103-line)!important;border-radius:0!important;}
+[class*="ProgressCoachDashboard"][class*="heroProgress"] span{background:var(--v103-accent-dark)!important;}
+[class*="ProgressCoachDashboard"][class*="heroLink"]{color:var(--v103-ink)!important;font-weight:800!important;}
+
+/* New editorial chapters */
+.v103-statusBand{width:100%;background:var(--v103-ink);color:var(--v103-white);border-top:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08);}
+.v103-statusInner{width:min(calc(100% - 64px),var(--v103-max));margin:auto;display:grid;grid-template-columns:1.4fr repeat(3,1fr);}
+.v103-statusInner>div{min-height:132px;padding:28px 30px;border-right:1px solid var(--v103-dark-line);display:flex;flex-direction:column;justify-content:space-between;}
+.v103-statusInner>div:first-child{padding-left:0;}
+.v103-statusInner small{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#b9c2ca;}
+.v103-statusInner strong{font-size:20px;line-height:1.15;}
+.v103-statusInner b{font-size:44px;letter-spacing:-.05em;}
+
+.v103-chapter{width:min(calc(100% - 64px),var(--v103-max));margin:auto;padding:132px 0;border-bottom:1px solid var(--v103-line);}
+.v103-chapterHead{display:grid;grid-template-columns:170px minmax(0,1fr);gap:40px;margin-bottom:72px;}
+.v103-chapterNo{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--v103-muted);padding-top:8px;}
+.v103-chapterHead h2{max-width:980px;margin-bottom:22px!important;}
+.v103-chapterHead p{color:var(--v103-muted);font-size:18px;line-height:1.65;max-width:720px;}
+
+/* Journey teaser -> editorial rail */
+.journeyTeaser{width:min(calc(100% - 64px),var(--v103-max))!important;margin:0 auto!important;padding:84px 0!important;border:0!important;border-bottom:1px solid var(--v103-line)!important;background:transparent!important;display:grid!important;grid-template-columns:1.25fr .75fr!important;gap:80px!important;align-items:end!important;}
+.journeyTeaser h2{font-size:clamp(46px,5vw,74px)!important;}
+.journeyTeaser>div>p:not(.eyebrow){color:var(--v103-muted)!important;font-size:18px!important;line-height:1.6!important;}
+.journeyTeaserMeta{display:grid!important;grid-template-columns:1fr 1fr!important;gap:0!important;border-top:1px solid var(--v103-line)!important;}
+.journeyTeaserMeta>span{padding:24px 0!important;border-bottom:1px solid var(--v103-line)!important;display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;}
+.journeyTeaserMeta>span+span{padding-left:28px!important;border-left:1px solid var(--v103-line)!important;}
+.journeyTeaserMeta strong{font-size:34px!important;letter-spacing:-.05em!important;color:var(--v103-ink)!important;}
+.journeyTeaserMeta small{color:var(--v103-muted)!important;}
+.journeyTeaserMeta .primary{grid-column:1/-1;margin-top:18px;}
+
+/* Learning areas: no repetitive cards */
+.learningLibrary{width:min(calc(100% - 64px),var(--v103-max))!important;margin:auto!important;padding:132px 0!important;background:transparent!important;border:0!important;}
+.learningLibrary .sectionHead{grid-template-columns:170px minmax(0,1fr)!important;gap:40px!important;align-items:start!important;margin-bottom:76px!important;}
+.learningLibrary .sectionHead>div{grid-column:2;}
+.learningLibrary .sectionHead>p{grid-column:2;color:var(--v103-muted)!important;font-size:18px!important;}
+.learningGrid{display:grid!important;grid-template-columns:repeat(12,1fr)!important;gap:14px!important;}
+.learningCard{border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;padding:34px 0!important;min-height:280px!important;border-top:1px solid var(--v103-line)!important;position:relative;}
+.learningCard:nth-child(1),.learningCard:nth-child(4){grid-column:span 5;}
+.learningCard:nth-child(2),.learningCard:nth-child(5){grid-column:span 4;}
+.learningCard:nth-child(3),.learningCard:nth-child(6){grid-column:span 3;}
+.learningIcon{width:auto!important;height:auto!important;background:none!important;border:0!important;border-radius:0!important;font-size:42px!important;display:block!important;margin-bottom:48px!important;color:var(--v103-ink)!important;}
+.learningCard h3{max-width:300px;}
+.learningCard>p:not(.eyebrow){color:var(--v103-muted)!important;line-height:1.55!important;max-width:360px;}
+.learningCta{margin-top:74px!important;border:0!important;border-top:1px solid var(--v103-ink)!important;border-radius:0!important;background:transparent!important;padding:28px 0!important;display:grid!important;grid-template-columns:1fr auto!important;align-items:center!important;}
+.learningCta strong{font-size:26px!important;}
+.learningCta p{color:var(--v103-muted)!important;}
+
+/* Specialist labs = large editorial case studies */
+.worlds{width:100%!important;max-width:none!important;background:var(--v103-dark)!important;color:var(--v103-white)!important;padding:132px max(32px,calc((100vw - var(--v103-max))/2))!important;border:0!important;}
+.worlds .sectionHead{width:min(100%,var(--v103-max));grid-template-columns:170px minmax(0,1fr)!important;gap:40px!important;align-items:start!important;margin-bottom:84px!important;}
+.worlds .sectionHead>div{grid-column:2;}.worlds .sectionHead>p{grid-column:2;max-width:720px!important;color:#aeb8c1!important;font-size:18px!important;}
+.worlds h2,.worlds h3{color:var(--v103-white)!important;}.worlds .eyebrow{color:#8df5d6!important;}
+.worldGrid{display:grid!important;grid-template-columns:repeat(12,1fr)!important;gap:14px!important;}
+.worldCard{border:1px solid var(--v103-dark-line)!important;border-radius:24px!important;background:var(--v103-dark-2)!important;box-shadow:none!important;min-height:520px!important;padding:28px!important;color:var(--v103-white)!important;}
+.worldCard:nth-child(1),.worldCard:nth-child(4){grid-column:span 7;}
+.worldCard:nth-child(2),.worldCard:nth-child(3){grid-column:span 5;}
+.worldCard:nth-child(5){grid-column:span 12;min-height:360px!important;display:grid!important;grid-template-columns:110px 1fr 1fr!important;gap:34px!important;align-items:end!important;}
+.worldCard:hover{transform:translateY(-4px)!important;border-color:rgba(255,255,255,.34)!important;}
+.cardTopline{color:#9aa7b2!important;}
+.worldGlyph{width:72px!important;height:72px!important;border-radius:50%!important;background:transparent!important;border:1px solid rgba(255,255,255,.24)!important;color:#fff!important;margin:64px 0 42px!important;}
+.worldCard h3{font-size:clamp(34px,4vw,58px)!important;max-width:500px;}
+.worldCard>p:not(.eyebrow){color:#aeb8c1!important;font-size:16px!important;max-width:520px;}
+.cardAction{border-top:1px solid var(--v103-dark-line)!important;color:#fff!important;}
+.worldCard:nth-child(5) .worldGlyph{margin:0!important;}.worldCard:nth-child(5) .cardTopline{position:absolute;top:28px;left:28px;right:28px;}
+
+/* Gehirnfit = bright contrasting editorial block */
+#gehirnfit{background:var(--v103-white)!important;width:100%!important;max-width:none!important;padding:132px max(32px,calc((100vw - var(--v103-max))/2))!important;}
+#gehirnfit .sectionHead,#gehirnfit .learningCta{width:min(100%,var(--v103-max));margin-left:auto!important;margin-right:auto!important;}
+
+/* Progress dashboard — system stage, not SaaS cards */
+#fortschritt{scroll-margin-top:24px;}
+[class*="ProgressCoachDashboard"][class*="dashboard"]{width:100%!important;max-width:none!important;background:#14191e!important;color:#f7f5ee!important;padding:132px max(32px,calc((100vw - var(--v103-max))/2))!important;border:0!important;}
+[class*="ProgressCoachDashboard"][class*="dashboard"] h2,[class*="ProgressCoachDashboard"][class*="dashboard"] h3,[class*="ProgressCoachDashboard"][class*="dashboard"] strong{color:#fff!important;}
+[class*="ProgressCoachDashboard"][class*="dashboard"] p,[class*="ProgressCoachDashboard"][class*="dashboard"] small,[class*="ProgressCoachDashboard"][class*="dashboard"] span{color:#adb6be!important;}
+[class*="ProgressCoachDashboard"][class*="dashboard"] .eyebrow{color:#8df5d6!important;}
+[class*="ProgressCoachDashboard"][class*="metricGrid"]{display:grid!important;grid-template-columns:repeat(6,1fr)!important;gap:0!important;border-top:1px solid var(--v103-dark-line)!important;border-bottom:1px solid var(--v103-dark-line)!important;}
+[class*="ProgressCoachDashboard"][class*="metricGrid"] article{background:transparent!important;border:0!important;border-right:1px solid var(--v103-dark-line)!important;border-radius:0!important;padding:28px 22px!important;min-height:170px!important;}
+[class*="ProgressCoachDashboard"][class*="metricGrid"] article strong{font-size:40px!important;letter-spacing:-.05em!important;}
+[class*="ProgressCoachDashboard"][class*="panel"],[class*="ProgressCoachDashboard"][class*="activityPanel"],[class*="ProgressCoachDashboard"][class*="levelCard"]{background:transparent!important;border:1px solid var(--v103-dark-line)!important;border-radius:20px!important;box-shadow:none!important;}
+
+/* Journey */
+[class*="UnifiedTrainingJourney"][class*="shell"]{background:var(--v103-paper)!important;color:var(--v103-ink)!important;}
+[class*="UnifiedTrainingJourney"][class*="panel"],[class*="UnifiedTrainingJourney"][class*="startCard"],[class*="UnifiedTrainingJourney"][class*="todayCard"]{background:transparent!important;border:1px solid var(--v103-line)!important;box-shadow:none!important;}
+[class*="UnifiedTrainingJourney"] button{border-radius:18px!important;}
+
+/* Training routes */
+.trainingPage{background:var(--v103-paper)!important;color:var(--v103-ink)!important;min-height:100vh!important;}
+.trainingTopbar{width:min(calc(100% - 64px),var(--v103-max))!important;min-height:94px!important;border-bottom:1px solid var(--v103-line)!important;color:var(--v103-muted)!important;}
+.backLink{color:var(--v103-ink)!important;}
+.trainingShell{width:min(calc(100% - 64px),1180px)!important;padding:92px 0 120px!important;}
+.trainingIntro{padding-bottom:54px!important;border-bottom:1px solid var(--v103-line)!important;margin-bottom:64px!important;}
+.trainingIntro h1{font-size:clamp(54px,7vw,100px)!important;line-height:.9!important;}
+.trainingIntro>p:not(.eyebrow){color:var(--v103-muted)!important;font-size:18px!important;line-height:1.65!important;max-width:760px!important;}
+.trainingStage,[class*="Training"][class*="stage"]{background:var(--v103-white)!important;border:1px solid var(--v103-line)!important;border-radius:24px!important;box-shadow:none!important;color:var(--v103-ink)!important;}
+.trainingStage h2,[class*="Training"][class*="stage"] h2{color:var(--v103-ink)!important;}
+.trainingStats,[class*="Training"][class*="stats"]{border-top:1px solid var(--v103-line)!important;border-bottom:1px solid var(--v103-line)!important;background:transparent!important;color:var(--v103-muted)!important;}
+.trainingStats strong,[class*="Training"][class*="stats"] strong{color:var(--v103-ink)!important;}
+.trainingNotice,.trainingDisclaimer{background:transparent!important;border-color:var(--v103-line)!important;color:var(--v103-muted)!important;}
+
+/* Footer */
+footer{width:min(calc(100% - 64px),var(--v103-max))!important;min-height:150px!important;border-top:1px solid var(--v103-line)!important;color:var(--v103-muted)!important;}
+
+/* Responsive recomposition — Tablet */
+@media(max-width:1024px){
+  .topbar,.hero,.journeyTeaser,.v103-chapter,.learningLibrary,footer{width:min(calc(100% - 40px),var(--v103-max))!important;}
+  .topbar{position:relative!important;padding:20px 0!important;gap:18px!important;}
+  .hero{grid-template-columns:1fr!important;gap:56px!important;min-height:auto!important;padding:86px 0 92px!important;}
+  .hero:before{display:none;}
+  .v103-statusInner{width:min(calc(100% - 40px),var(--v103-max));grid-template-columns:1fr 1fr!important;}
+  .v103-statusInner>div{border-bottom:1px solid var(--v103-dark-line);}
+  .v103-statusInner>div:nth-child(odd){padding-left:0;}
+  .journeyTeaser{grid-template-columns:1fr!important;gap:42px!important;}
+  .v103-chapterHead,.learningLibrary .sectionHead,.worlds .sectionHead{grid-template-columns:110px 1fr!important;}
+  .learningCard:nth-child(n){grid-column:span 6!important;}
+  .worldCard:nth-child(n){grid-column:span 6!important;min-height:450px!important;display:flex!important;}
+  .worldCard:nth-child(5){grid-column:span 12!important;min-height:380px!important;}
+  [class*="ProgressCoachDashboard"][class*="metricGrid"]{grid-template-columns:repeat(3,1fr)!important;}
+  [class*="ProgressCoachDashboard"][class*="metricGrid"] article:nth-child(3n){border-right:0!important;}
+}
+
+/* Smartphone = reprioritized, not squeezed desktop */
+@media(max-width:640px){
+  body:before{display:none;}
+  .topbar,.hero,.journeyTeaser,.v103-chapter,.learningLibrary,footer,.trainingTopbar,.trainingShell{width:min(calc(100% - 28px),var(--v103-max))!important;}
+  .topbar{min-height:84px!important;}
+  .brand small{display:block!important;font-size:10px!important;}
+  nav{overflow-x:auto!important;width:100%!important;}
+  nav a{min-width:max-content!important;}
+  h1{font-size:clamp(52px,16vw,76px)!important;}
+  h2{font-size:clamp(38px,12vw,56px)!important;}
+  .hero{padding:64px 0 72px!important;gap:42px!important;}
+  .heroCopy>p:not(.eyebrow){font-size:18px!important;}
+  .heroActions{flex-direction:column!important;}
+  .primary,.secondary{width:100%!important;}
+  .v103-statusInner{width:min(calc(100% - 28px),var(--v103-max));grid-template-columns:1fr!important;}
+  .v103-statusInner>div{min-height:108px!important;padding:22px 0!important;border-right:0!important;}
+  .v103-statusInner b{font-size:36px!important;}
+  .journeyTeaser{padding:64px 0!important;}
+  .journeyTeaserMeta{grid-template-columns:1fr!important;}
+  .journeyTeaserMeta>span+span{padding-left:0!important;border-left:0!important;}
+  .v103-chapter,.learningLibrary{padding:88px 0!important;}
+  .v103-chapterHead,.learningLibrary .sectionHead,.worlds .sectionHead{grid-template-columns:1fr!important;gap:14px!important;margin-bottom:52px!important;}
+  .v103-chapterHead>* ,.learningLibrary .sectionHead>* ,.worlds .sectionHead>*{grid-column:1!important;}
+  .learningGrid,.worldGrid{display:grid!important;grid-template-columns:1fr!important;}
+  .learningCard:nth-child(n),.worldCard:nth-child(n){grid-column:1!important;}
+  .learningCard{min-height:220px!important;padding:28px 0!important;}
+  .learningIcon{margin-bottom:28px!important;}
+  .learningCta{grid-template-columns:1fr!important;gap:24px!important;}
+  .worlds,#gehirnfit,[class*="ProgressCoachDashboard"][class*="dashboard"]{padding:88px 14px!important;}
+  .worldCard{min-height:400px!important;border-radius:20px!important;}
+  .worldCard:nth-child(5){min-height:400px!important;}
+  [class*="ProgressCoachDashboard"][class*="metricGrid"]{grid-template-columns:1fr 1fr!important;}
+  [class*="ProgressCoachDashboard"][class*="metricGrid"] article{min-height:140px!important;border-right:1px solid var(--v103-dark-line)!important;}
+  [class*="ProgressCoachDashboard"][class*="metricGrid"] article:nth-child(even){border-right:0!important;}
+  .trainingShell{padding:58px 0 88px!important;}
+  .trainingIntro h1{font-size:clamp(46px,14vw,64px)!important;}
+  .trainingStage,[class*="Training"][class*="stage"]{border-radius:18px!important;padding:24px 18px!important;}
+}
+
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important;}}
