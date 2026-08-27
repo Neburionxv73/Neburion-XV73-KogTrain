@@ -15,15 +15,7 @@ const nav = read("components/TopNav.tsx");
 const packageJson = JSON.parse(read("package.json"));
 
 const v103Imports = [...layout.matchAll(/import\s+"\.\/(?:[^\"]*v103[^\"]*)\.css";/gi)].map((match) => match[0]);
-const vitalis = {
-  bg: "#F8FAFC",
-  mist: "#EAF3F5",
-  teal: "#087F8C",
-  blue: "#2672D8",
-  gold: "#F5B940",
-  ink: "#1D2A32",
-  muted: "#61727B",
-};
+const vitalis = { bg:"#F8FAFC", mist:"#EAF3F5", teal:"#087F8C", blue:"#2672D8", gold:"#F5B940", ink:"#1D2A32", muted:"#61727B" };
 
 expect("HARD: exactly one global V10.3 foundation", v103Imports.length === 1 && layout.includes('import "./raptor-v103-clean-foundation.css";'));
 expect("HARD: legacy redesign layer absent", !layout.includes('raptor-v103-redesign.css'));
@@ -47,17 +39,30 @@ expect("HARD: safe headline line-height", foundation.includes("line-height:1.04!
 expect("HARD: no 100px-plus desktop display", !/--k-display:[^;]*1(?:0[0-9]|[1-9][0-9]{2,})px/.test(foundation));
 
 expect("HARD: home uses Vitalis governed colors", homeModule.includes("#087F8C") && homeModule.includes("#2672D8") && homeModule.includes("#F5B940") && homeModule.includes("#1D2A32") && homeModule.includes("#61727B"));
-expect("HARD: hero whitespace contract", homeModule.includes("min-height:740px") && homeModule.includes("padding:84px 78px") && homeModule.includes("gap:108px"));
+expect("HARD: desktop hero whitespace contract", homeModule.includes("min-height:740px") && homeModule.includes("padding:84px 78px") && homeModule.includes("gap:108px"));
 expect("HARD: editorial section spacing", homeModule.includes("padding:124px 0 132px") && homeModule.includes("padding:128px 0"));
 expect("HARD: 12-column specialist composition", homeModule.includes("grid-template-columns:repeat(12,minmax(0,1fr))"));
-expect("HARD: responsive home recomposition", homeModule.includes("@media(max-width:1100px)") && homeModule.includes("@media(max-width:700px)"));
 
-expect("HARD: progress light-surface contract", progressModule.includes("light cards inside dark dashboard must stay readable") && progressModule.includes(".dashboard .panel"));
+expect("HARD: tablet breakpoint exists", homeModule.includes("@media(max-width:1100px)") && foundation.includes("@media(max-width:1100px)"));
+expect("HARD: narrow tablet breakpoint exists", homeModule.includes("@media(max-width:820px)") && foundation.includes("@media(max-width:820px)"));
+expect("HARD: smartphone breakpoint exists", homeModule.includes("@media(max-width:600px)") && foundation.includes("@media(max-width:560px)"));
+expect("HARD: tablet hero is independently recomposed", homeModule.includes("grid-template-columns:minmax(0,1fr) minmax(300px,.72fr)") && homeModule.includes("min-height:620px"));
+expect("HARD: narrow tablet hero stacks", homeModule.includes("grid-template-columns:1fr!important") && homeModule.includes("max-width:560px"));
+expect("HARD: smartphone hero uses reduced density", homeModule.includes("padding:34px 22px 28px") && homeModule.includes("font-size:clamp(38px,11.4vw,48px)"));
+expect("HARD: smartphone CTA is full width", homeModule.includes("width:100%!important;min-height:52px"));
+expect("HARD: smartphone content grids become one column", homeModule.includes(".learningGrid{display:block!important") && homeModule.includes(".worldGrid{display:block!important"));
+expect("HARD: mobile nav is horizontally safe", foundation.includes("overflow-x:auto!important") && foundation.includes("white-space:nowrap") && foundation.includes("scrollbar-width:none"));
+expect("HARD: mobile training shell is reprioritized", foundation.includes("padding:38px 0 64px") && foundation.includes("font-size:clamp(36px,10vw,46px)"));
+expect("HARD: touch target minimum 44px retained", foundation.includes("min-height:44px") && foundation.includes("min-height:52px"));
+
+expect("HARD: progress surface contract preserved", progressModule.includes(".dashboard .panel") && progressModule.includes("color:#1D2A32!important") && progressModule.includes("color:#61727B!important"));
+expect("HARD: progress tablet two-column metrics", progressModule.includes("grid-template-columns:repeat(2,minmax(0,1fr))"));
+expect("HARD: progress smartphone one-column metrics", progressModule.includes("grid-template-columns:1fr!important"));
+expect("HARD: progress mobile chart overflow handled", progressModule.includes("overflow-x:auto") && progressModule.includes("min-width:38px"));
+
 expect("HARD: public hierarchy preserved", home.includes("01 · Trainingsstart") && home.includes("02 · Persönlicher Lernmix") && home.includes("03 · Spezial-Labs") && home.includes("04 · Gehirnfit & Alltag"));
 expect("HARD: progress dashboard preserved", home.includes("DeferredProgressCoachDashboard"));
 expect("HARD: training routes preserved", home.includes('/training/journey') && home.includes('/training/focus') && home.includes('/training/brain-fit'));
-
-expect("HARD: touch target baseline", foundation.includes("min-height:50px"));
 expect("HARD: reduced motion respected", foundation.includes("prefers-reduced-motion") && homeModule.includes("prefers-reduced-motion"));
 expect("HARD: skip link retained", layout.includes('className="skipLink"'));
 expect("HARD: German document language retained", layout.includes('lang="de"'));
