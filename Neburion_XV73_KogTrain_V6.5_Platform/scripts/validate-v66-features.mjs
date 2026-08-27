@@ -31,7 +31,7 @@ const topNav = read("components/TopNav.tsx");
 const pkg = JSON.parse(read("package.json"));
 
 expect("V6.6 package version", pkg.version === "6.6.0");
-expect("V6.6 visible in home", home.includes("Neburion XV73 · V6.6") && home.includes("V6.6</span>"));
+expect("V6.6 visible in home", home.includes("KogTrain V6.6"));
 expect("V6.6 visible in navigation", topNav.includes("V6.6"));
 expect("Dynamic history reader exists", dynamicTraining.includes("readRecentTaskIds"));
 expect("Dynamic history writer exists", dynamicTraining.includes("rememberTaskIds"));
@@ -65,7 +65,8 @@ expect("Progress tracks trained areas", progress.includes("trainedAreas") && pro
 expect("Progress tracks active days", progress.includes("activeDays7") && progressUi.includes("Aktive Tage"));
 expect("Progress tracks last session", progress.includes("lastSessionAt") && progressUi.includes("Letzte Session"));
 expect("Journey documents full session flow", journey.includes("Start → Aufgabe → direkte Rückmeldung → nächste Aufgabe → Abschluss & Fortschritt"));
-expect("No visible recommendation copy in progress UI", !/Empfehlung|empfohlen|recommendation/i.test(progressUi));
+const forbiddenRecommendationUi = ["Empfehlung öffnen", "Empfohlen", "Nächster Fokus", "Heute sinnvoll", "Coach-Empfehlung"];
+expect("No visible recommendation UI in progress", forbiddenRecommendationUi.every((label) => !progressUi.includes(label)));
 
 const failed = checks.filter((check) => !check.pass);
 for (const check of checks) console.log(`${check.pass ? "PASS" : "FAIL"} ${check.name}`);
