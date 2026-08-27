@@ -46,7 +46,7 @@ expect("HARD: 12-column specialist composition", homeModule.includes("grid-templ
 expect("HARD: tablet breakpoint exists", homeModule.includes("@media(max-width:1100px)") && foundation.includes("@media(max-width:1100px)"));
 expect("HARD: narrow tablet breakpoint exists", homeModule.includes("@media(max-width:820px)") && foundation.includes("@media(max-width:820px)"));
 expect("HARD: smartphone breakpoint exists", homeModule.includes("@media(max-width:600px)") && foundation.includes("@media(max-width:560px)"));
-expect("HARD: small-phone breakpoint exists", homeModule.includes("@media(max-width:420px)"));
+expect("HARD: small-phone breakpoint exists", homeModule.includes("@media(max-width:420px)") && foundation.includes("@media(max-width:420px)"));
 expect("HARD: tablet hero is independently recomposed", homeModule.includes("grid-template-columns:minmax(0,1fr) minmax(300px,.72fr)") && homeModule.includes("min-height:620px"));
 expect("HARD: narrow tablet hero stacks", homeModule.includes("grid-template-columns:1fr!important") && homeModule.includes("max-width:560px"));
 expect("HARD: smartphone hero uses reduced density", homeModule.includes("padding:34px 22px 28px") && homeModule.includes("font-size:clamp(38px,11.4vw,48px)"));
@@ -55,6 +55,11 @@ expect("HARD: smartphone CTA is full width", homeModule.includes("width:100%!imp
 expect("HARD: smartphone content grids become one column", homeModule.includes(".learningGrid{display:block!important") && homeModule.includes(".worldGrid{display:block!important"));
 expect("HARD: mobile nav is horizontally safe", foundation.includes("overflow-x:auto!important") && foundation.includes("white-space:nowrap") && foundation.includes("scrollbar-width:none"));
 expect("HARD: mobile training shell is reprioritized", foundation.includes("padding:38px 0 64px") && foundation.includes("font-size:clamp(36px,10vw,46px)"));
+expect("HARD: training options collapse to one column", foundation.includes('[class*="Training"][class*="options"]{grid-template-columns:1fr!important'));
+expect("HARD: training tasks prevent horizontal overflow", foundation.includes("max-width:100%!important;margin-inline:0!important") && foundation.includes("overflow-wrap:anywhere!important"));
+expect("HARD: training stats compact on smartphone", foundation.includes('[class*="Training"][class*="stats"]{min-height:0!important'));
+expect("HARD: small-phone training stats become one column", foundation.includes('[class*="Training"][class*="modeGrid"],[class*="Training"][class*="modeStats"]{grid-template-columns:1fr!important'));
+expect("HARD: mobile inputs retain 16px minimum", foundation.includes("input,textarea,select{max-width:100%!important;font-size:16px!important"));
 expect("HARD: touch target minimum 44px retained", foundation.includes("min-height:44px") && foundation.includes("min-height:52px"));
 
 expect("HARD: progress surface contract preserved", progressModule.includes(".dashboard .panel") && progressModule.includes("color:#1D2A32!important") && progressModule.includes("color:#61727B!important"));
