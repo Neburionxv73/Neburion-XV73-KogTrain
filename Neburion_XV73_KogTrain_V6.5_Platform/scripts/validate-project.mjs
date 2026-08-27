@@ -5,5 +5,5 @@ const requiredScripts = ["dev", "build", "typecheck", "validate", "quality:core"
 for (const script of requiredScripts) {
   if (!packageJson.scripts?.[script]) throw new Error(`Missing script: ${script}`);
 }
-if (packageJson.version !== "6.5.0") throw new Error("Version must be 6.5.0");
-console.log("V6.5 project validation PASS");
+if (packageJson.version !== "6.6.0") throw new Error("Version must be 6.6.0");
+console.log("V6.6 project validation PASS");
