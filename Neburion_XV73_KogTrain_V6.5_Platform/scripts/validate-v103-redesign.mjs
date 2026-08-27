@@ -12,6 +12,7 @@ const foundation = read("app/raptor-v103-clean-foundation.css");
 const homeModule = read("app/HomeV103.module.css");
 const homeResponsive = read("app/HomeV103ResponsiveFix.module.css");
 const progressModule = read("components/ProgressCoachDashboard.module.css");
+const brainFit = read("components/BrainFitTraining.tsx");
 const nav = read("components/TopNav.tsx");
 const packageJson = JSON.parse(read("package.json"));
 
@@ -74,6 +75,9 @@ expect("HARD: BrainFit tablet progress stacks", foundation.includes('[class*="Br
 expect("HARD: BrainFit mobile exercise navigation is controlled", foundation.includes('[class*="BrainFitTraining"][class*="modeRow"],[class*="BrainFitTraining"][class*="tabs"]{grid-template-columns:1fr 1fr!important'));
 expect("HARD: BrainFit small-phone nav becomes one column", foundation.includes('[class*="BrainFitTraining"][class*="modeRow"],[class*="BrainFitTraining"][class*="tabs"]{grid-template-columns:1fr!important'));
 expect("HARD: BrainFit word grid remains scroll-safe", foundation.includes('[class*="BrainFitTraining"][class*="wordGridWrap"]{overflow-x:auto!important'));
+expect("HARD: BrainFit crossword fallback is null-safe", brainFit.includes("const fallback=buildCrossword") && brainFit.includes("if(fallback) return fallback") && brainFit.includes("Notfallbegriffe"));
+expect("HARD: BrainFit word-selection updater is side-effect free", brainFit.includes("const current=selectedCells;") && !brainFit.includes("setSelectedCells(current=>{"));
+expect("HARD: BrainFit quiz final score uses stable counter", brainFit.includes("const score=Math.round((quizCorrect/quizTasks.length)*100)") && !brainFit.includes("finalCorrect=quizCorrect+"));
 
 expect("HARD: progress surface contract preserved", progressModule.includes(".dashboard .panel") && progressModule.includes("color:#1D2A32!important") && progressModule.includes("color:#61727B!important"));
 expect("HARD: progress tablet two-column metrics", progressModule.includes("grid-template-columns:repeat(2,minmax(0,1fr))"));
