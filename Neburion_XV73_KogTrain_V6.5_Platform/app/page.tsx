@@ -6,10 +6,11 @@ import { WorldCard } from "@/components/WorldCard";
 import { trainingWorlds } from "@/lib/training";
 import { FOCUS_AREAS } from "@/lib/learningExpansion";
 import styles from "./HomeV103.module.css";
+import responsive from "./HomeV103ResponsiveFix.module.css";
 
 export default function Home() {
   return (
-    <main id="top">
+    <main id="top" className={responsive.responsiveFix}>
       <TopNav />
 
       <section className={`${styles.heroStage} hero`} aria-labelledby="hero-title">
