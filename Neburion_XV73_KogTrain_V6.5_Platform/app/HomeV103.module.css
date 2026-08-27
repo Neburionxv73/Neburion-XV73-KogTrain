@@ -146,4 +146,31 @@
   .brainfit .sectionHead{padding:20px 16px 0!important;}
   .brainfit .learningCta{margin:0 16px 18px!important;padding:22px!important;}
 }
+
+/* Small phone: 360–420 px must not inherit tablet density. */
+@media(max-width:420px){
+  .heroStage{width:calc(100% - 16px)!important;margin:8px auto 22px!important;padding:28px 18px 22px!important;border-radius:18px!important;gap:22px!important;}
+  .heroCopy h1{font-size:clamp(34px,10.8vw,42px)!important;line-height:1.1!important;margin-bottom:16px!important;}
+  .heroCopy>p:not(:global(.eyebrow)){font-size:15.5px!important;line-height:1.62!important;}
+  .heroCopy :global(.heroActions){margin-top:22px!important;}
+  .statusInner{width:calc(100% - 16px)!important;grid-template-columns:1fr!important;}
+  .statusInner>div{grid-column:auto!important;min-height:76px!important;padding:14px 0!important;border-right:0!important;}
+  .statusInner b{font-size:28px!important;}
+  .journey,.library,.brainfit{width:calc(100% - 20px)!important;}
+  .journey{padding:56px 0 60px!important;gap:24px!important;}
+  .journey h2,.sectionHead h2{font-size:clamp(30px,8.8vw,36px)!important;line-height:1.13!important;}
+  .library{padding:60px 0!important;}
+  .sectionHead{margin-bottom:28px!important;}
+  .learningGrid :global(.learningCard),.worldGrid :global(.worldCard){padding:19px!important;border-radius:16px!important;}
+  .learningGrid :global(.learningCard) h3{font-size:25px!important;}
+  .learningCta{padding:19px!important;}
+  .worldStage{padding:60px 8px 64px!important;}
+  .worldGrid :global(.worldCard){min-height:270px!important;}
+  .worldGrid :global(.worldCard) h3{font-size:27px!important;}
+  .brainfit{padding:60px 0 64px!important;}
+  .brainfit::before{inset:26px 0 26px 0!important;border-radius:16px!important;}
+  .brainfit .sectionHead{padding:16px 12px 0!important;}
+  .brainfit .learningCta{margin:0 12px 14px!important;padding:18px!important;}
+}
+
 @media(prefers-reduced-motion:reduce){.heroStage,.worldStage,.learningGrid :global(.learningCard),.worldGrid :global(.worldCard){scroll-behavior:auto!important;transition:none!important;}}
