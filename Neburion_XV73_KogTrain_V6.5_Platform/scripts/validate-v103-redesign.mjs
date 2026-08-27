@@ -15,7 +15,15 @@ const nav = read("components/TopNav.tsx");
 const packageJson = JSON.parse(read("package.json"));
 
 const v103Imports = [...layout.matchAll(/import\s+"\.\/(?:[^\"]*v103[^\"]*)\.css";/gi)].map((match) => match[0]);
-const paletteTokens = ["--k-navy", "--k-blue", "--k-teal", "--k-coral", "--k-gold", "--k-violet"];
+const vitalis = {
+  bg: "#F8FAFC",
+  mist: "#EAF3F5",
+  teal: "#087F8C",
+  blue: "#2672D8",
+  gold: "#F5B940",
+  ink: "#1D2A32",
+  muted: "#61727B",
+};
 
 expect("HARD: exactly one global V10.3 foundation", v103Imports.length === 1 && layout.includes('import "./raptor-v103-clean-foundation.css";'));
 expect("HARD: legacy redesign layer absent", !layout.includes('raptor-v103-redesign.css'));
@@ -23,22 +31,28 @@ expect("HARD: legacy collision patch absent", !layout.includes('v103-typography-
 expect("HARD: component-scoped home art direction", home.includes('HomeV103.module.css') && homeModule.includes('.heroStage') && homeModule.includes('.worldStage'));
 expect("HARD: developer governance hidden from public UI", !home.includes("Raptor Delta") && !nav.includes("Raptor Delta") && !home.includes("Hard Mode"));
 
-expect("HARD: disciplined display scale", foundation.includes("--k-display:clamp(58px,6.7vw,88px)"));
-expect("HARD: disciplined H2 scale", foundation.includes("--k-h2:clamp(40px,4.4vw,56px)"));
+expect("HARD: Vitalis exact background", foundation.includes(`--k-bg:${vitalis.bg}`));
+expect("HARD: Vitalis exact secondary surface", foundation.includes(`--k-surface-2:${vitalis.mist}`));
+expect("HARD: Vitalis exact primary teal", foundation.includes(`--k-teal:${vitalis.teal}`));
+expect("HARD: Vitalis exact active blue", foundation.includes(`--k-blue:${vitalis.blue}`));
+expect("HARD: Vitalis exact citrus gold", foundation.includes(`--k-gold:${vitalis.gold}`));
+expect("HARD: Vitalis exact main text", foundation.includes(`--k-ink:${vitalis.ink}`));
+expect("HARD: Vitalis exact secondary text", foundation.includes(`--k-muted:${vitalis.muted}`));
+expect("HARD: no decorative coral/violet token creep", !foundation.includes("--k-coral") && !foundation.includes("--k-violet"));
+
+expect("HARD: disciplined display scale", foundation.includes("--k-display:clamp(56px,6.2vw,84px)"));
+expect("HARD: disciplined H2 scale", foundation.includes("--k-h2:clamp(40px,4.2vw,56px)"));
 expect("HARD: body scale defined", foundation.includes("--k-body:17px") && foundation.includes("--k-lead:20px"));
-expect("HARD: safe headline line-height", foundation.includes("line-height:1.02!important") && foundation.includes("line-height:1.07!important"));
+expect("HARD: safe headline line-height", foundation.includes("line-height:1.04!important") && foundation.includes("line-height:1.08!important"));
 expect("HARD: no 100px-plus desktop display", !/--k-display:[^;]*1(?:0[0-9]|[1-9][0-9]{2,})px/.test(foundation));
 
-expect("HARD: semantic palette present", paletteTokens.every((token) => foundation.includes(token)));
-expect("HARD: vivid governed color", homeModule.includes("linear-gradient") && homeModule.includes("#edf2ff") && homeModule.includes("#def7f2") && homeModule.includes("#fff0e8"));
-expect("HARD: dark stage uses navy not black", foundation.includes("--k-dark:#17365f"));
-
-expect("HARD: hero whitespace contract", homeModule.includes("min-height:720px") && homeModule.includes("padding:76px 74px") && homeModule.includes("gap:96px"));
-expect("HARD: editorial section spacing", homeModule.includes("padding:118px 0 126px") && homeModule.includes("padding:124px 0"));
+expect("HARD: home uses Vitalis governed colors", homeModule.includes("#087F8C") && homeModule.includes("#2672D8") && homeModule.includes("#F5B940") && homeModule.includes("#1D2A32") && homeModule.includes("#61727B"));
+expect("HARD: hero whitespace contract", homeModule.includes("min-height:740px") && homeModule.includes("padding:84px 78px") && homeModule.includes("gap:108px"));
+expect("HARD: editorial section spacing", homeModule.includes("padding:124px 0 132px") && homeModule.includes("padding:128px 0"));
 expect("HARD: 12-column specialist composition", homeModule.includes("grid-template-columns:repeat(12,minmax(0,1fr))"));
 expect("HARD: responsive home recomposition", homeModule.includes("@media(max-width:1100px)") && homeModule.includes("@media(max-width:700px)"));
 
-expect("HARD: progress light-surface contract", progressModule.includes("light cards inside dark dashboard must stay readable") && progressModule.includes(".dashboard .panel") && progressModule.includes("color:#172133!important"));
+expect("HARD: progress light-surface contract", progressModule.includes("light cards inside dark dashboard must stay readable") && progressModule.includes(".dashboard .panel"));
 expect("HARD: public hierarchy preserved", home.includes("01 · Trainingsstart") && home.includes("02 · Persönlicher Lernmix") && home.includes("03 · Spezial-Labs") && home.includes("04 · Gehirnfit & Alltag"));
 expect("HARD: progress dashboard preserved", home.includes("DeferredProgressCoachDashboard"));
 expect("HARD: training routes preserved", home.includes('/training/journey') && home.includes('/training/focus') && home.includes('/training/brain-fit'));
