@@ -24,7 +24,6 @@
 .heroCopy>p:not(:global(.eyebrow)){max-width:610px!important;font-size:19px!important;line-height:1.72!important;color:#61727B!important;}
 .heroCopy :global(.heroActions){margin-top:42px!important;gap:12px!important;}
 .heroStage>[class*="ProgressCoachDashboard"]{position:relative;z-index:2;align-self:center;}
-
 .statusBand{width:100%!important;margin:0!important;background:linear-gradient(90deg,#EAF3F5 0%,#DDEDEF 38%,#E7F0FB 70%,#FFF3D5 100%)!important;border-block:1px solid #C8D9DD!important;}
 .statusInner{width:min(calc(100% - 56px),1280px)!important;margin:0 auto!important;display:grid!important;grid-template-columns:1.35fr repeat(3,1fr)!important;}
 .statusInner>div{min-height:128px!important;padding:28px 30px!important;border-right:1px solid #C8D9DD!important;display:flex!important;flex-direction:column!important;justify-content:space-between!important;}
@@ -32,7 +31,6 @@
 .statusInner small{color:#61727B!important;font-size:11px!important;letter-spacing:.13em!important;}
 .statusInner strong{color:#1D2A32!important;font-size:19px!important;line-height:1.25!important;}
 .statusInner b{color:#2672D8!important;font-size:38px!important;line-height:1!important;}
-
 .journey{width:min(calc(100% - 56px),1280px)!important;margin:0 auto!important;padding:124px 0 132px!important;display:grid!important;grid-template-columns:minmax(0,1.05fr) minmax(340px,.72fr)!important;gap:112px!important;align-items:center!important;border-bottom:1px solid #D6E2E5!important;}
 .journey h2{max-width:13ch!important;margin-bottom:28px!important;color:#1D2A32!important;}
 .journey>div>p:not(:global(.eyebrow)){max-width:650px!important;font-size:18px!important;line-height:1.72!important;color:#61727B!important;}
@@ -41,7 +39,6 @@
 .journey :global(.journeyTeaserMeta)>span:nth-child(2){background:#E7F0FB!important;border-color:#C8DAF3!important;}
 .journey :global(.journeyTeaserMeta) strong{font-size:31px!important;color:#1D2A32!important;}
 .journey :global(.journeyTeaserMeta) :global(.primary){min-height:54px!important;}
-
 .library{width:min(calc(100% - 56px),1280px)!important;margin:0 auto!important;padding:128px 0!important;}
 .sectionHead{display:grid!important;grid-template-columns:minmax(0,1.15fr) minmax(320px,.72fr)!important;gap:88px!important;align-items:end!important;margin-bottom:68px!important;}
 .sectionHead h2{max-width:14ch!important;color:#1D2A32!important;}
@@ -54,12 +51,7 @@
 .learningGrid :global(.learningCard) h3{font-size:clamp(27px,2.1vw,34px)!important;line-height:1.12!important;color:#1D2A32!important;}
 .learningGrid :global(.learningCard)>p:not(:global(.eyebrow)){color:#61727B!important;font-size:16px!important;line-height:1.66!important;}
 .learningCta{margin-top:42px!important;padding:32px 34px!important;border-radius:24px!important;background:linear-gradient(112deg,#FFF3D5 0%,#EAF3F5 58%,#E7F0FB 100%)!important;border:1px solid #D6E2E5!important;box-shadow:0 14px 34px rgba(29,42,50,.06)!important;}
-
-.worldStage{width:100%!important;max-width:none!important;margin:0!important;padding:128px max(28px,calc((100vw - 1280px)/2)) 136px!important;background:
-  radial-gradient(circle at 10% 18%,rgba(38,114,216,.16),transparent 24%),
-  radial-gradient(circle at 90% 76%,rgba(8,127,140,.18),transparent 24%),
-  linear-gradient(128deg,#E7F0FB 0%,#EAF3F5 52%,#DDEDEF 100%)!important;
-  border-block:1px solid #C9DBDF!important;}
+.worldStage{width:100%!important;max-width:none!important;margin:0!important;padding:128px max(28px,calc((100vw - 1280px)/2)) 136px!important;background:radial-gradient(circle at 10% 18%,rgba(38,114,216,.16),transparent 24%),radial-gradient(circle at 90% 76%,rgba(8,127,140,.18),transparent 24%),linear-gradient(128deg,#E7F0FB 0%,#EAF3F5 52%,#DDEDEF 100%)!important;border-block:1px solid #C9DBDF!important;}
 .worldStage .sectionHead{width:min(100%,1280px)!important;margin-inline:auto!important;}
 .worldGrid{width:min(100%,1280px)!important;margin:0 auto!important;display:grid!important;grid-template-columns:repeat(12,minmax(0,1fr))!important;gap:18px!important;}
 .worldGrid :global(.worldCard){min-height:440px!important;padding:32px!important;border-radius:26px!important;background:rgba(255,255,255,.94)!important;border:1px solid #C9DBDF!important;box-shadow:0 18px 44px rgba(29,42,50,.08)!important;}
@@ -69,41 +61,89 @@
 .worldGrid :global(.worldCard) :global(.worldGlyph){background:#EAF3F5!important;color:#087F8C!important;}
 .worldGrid :global(.worldCard):nth-child(2) :global(.worldGlyph),.worldGrid :global(.worldCard):nth-child(5) :global(.worldGlyph){background:#E7F0FB!important;color:#2672D8!important;}
 .worldGrid :global(.worldCard):nth-child(4) :global(.worldGlyph){background:#FFF3D5!important;color:#8A6414!important;}
-
 .brainfit{width:min(calc(100% - 56px),1280px)!important;margin:0 auto!important;padding:128px 0 136px!important;position:relative!important;}
 .brainfit::before{content:"";position:absolute;inset:78px -36px 78px -36px;border-radius:36px;background:linear-gradient(120deg,#FFF3D5 0%,#EAF3F5 48%,#DDEDEF 100%);z-index:0;}
 .brainfit>*{position:relative;z-index:1;}
 .brainfit .sectionHead{padding:38px 40px 0!important;}
 .brainfit .learningCta{margin:0 40px 36px!important;background:rgba(255,255,255,.88)!important;backdrop-filter:blur(10px)!important;border-color:#C9DBDF!important;}
 
+/* Tablet specialist recomposition */
 @media(max-width:1100px){
-  .heroStage{width:min(calc(100% - 40px),1280px)!important;margin-top:34px!important;padding:64px!important;grid-template-columns:1fr!important;gap:52px!important;min-height:auto!important;}
-  .heroCopy{max-width:760px!important;}
-  .statusInner{width:min(calc(100% - 40px),1280px)!important;grid-template-columns:1fr 1fr!important;}
+  .heroStage{width:min(calc(100% - 40px),1280px)!important;margin:30px auto 52px!important;padding:58px 54px!important;grid-template-columns:minmax(0,1fr) minmax(300px,.72fr)!important;gap:48px!important;min-height:620px!important;border-radius:32px!important;}
+  .heroCopy{max-width:620px!important;}
+  .heroCopy h1{font-size:clamp(48px,6.4vw,66px)!important;max-width:10.5ch!important;margin-bottom:26px!important;}
+  .heroCopy>p:not(:global(.eyebrow)){font-size:18px!important;line-height:1.68!important;max-width:560px!important;}
+  .heroCopy :global(.heroActions){margin-top:34px!important;}
+  .statusInner{width:min(calc(100% - 40px),1280px)!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+  .statusInner>div{min-height:108px!important;padding:22px 24px!important;border-bottom:1px solid #C8D9DD!important;}
+  .statusInner>div:nth-child(2){border-right:0!important;}
   .journey,.library,.brainfit{width:min(calc(100% - 40px),1280px)!important;}
-  .journey{padding:100px 0!important;grid-template-columns:1fr!important;gap:50px!important;}
-  .sectionHead{grid-template-columns:1fr!important;gap:22px!important;margin-bottom:52px!important;}
-  .learningGrid :global(.learningCard):nth-child(n){grid-column:span 6!important;}
-  .worldGrid :global(.worldCard):nth-child(n){grid-column:span 6!important;}
-  .worldGrid :global(.worldCard):nth-child(5){grid-column:span 12!important;}
+  .journey{padding:88px 0 96px!important;grid-template-columns:minmax(0,1fr) minmax(300px,.85fr)!important;gap:54px!important;}
+  .sectionHead{grid-template-columns:minmax(0,1.05fr) minmax(280px,.8fr)!important;gap:48px!important;margin-bottom:50px!important;}
+  .library{padding:96px 0!important;}
+  .learningGrid :global(.learningCard):nth-child(n){grid-column:span 6!important;min-height:290px!important;padding:28px!important;}
+  .worldStage{padding:96px 20px 104px!important;}
+  .worldGrid{width:min(calc(100% - 20px),1280px)!important;}
+  .worldGrid :global(.worldCard):nth-child(n){grid-column:span 6!important;min-height:380px!important;padding:28px!important;}
+  .worldGrid :global(.worldCard):nth-child(5){grid-column:span 12!important;min-height:300px!important;}
+  .brainfit{padding:96px 0 104px!important;}
+  .brainfit::before{inset:54px -18px 54px -18px!important;border-radius:30px!important;}
 }
-@media(max-width:700px){
-  .heroStage{width:min(calc(100% - 28px),1280px)!important;margin:22px auto 42px!important;padding:42px 28px!important;border-radius:26px!important;gap:36px!important;}
-  .heroCopy h1{font-size:clamp(42px,11vw,56px)!important;max-width:100%!important;}
-  .heroCopy>p:not(:global(.eyebrow)){font-size:17px!important;line-height:1.66!important;}
-  .statusInner{width:min(calc(100% - 28px),1280px)!important;grid-template-columns:1fr!important;}
-  .statusInner>div{min-height:96px!important;padding:20px 0!important;border-right:0!important;border-bottom:1px solid #C8D9DD!important;}
-  .journey,.library,.brainfit{width:min(calc(100% - 28px),1280px)!important;}
-  .journey{padding:78px 0!important;gap:38px!important;}
-  .library{padding:84px 0!important;}
+
+/* Narrow tablet / large phone */
+@media(max-width:820px){
+  .heroStage{grid-template-columns:1fr!important;gap:34px!important;min-height:auto!important;padding:50px 44px!important;}
+  .heroCopy{max-width:680px!important;}
+  .heroCopy h1{font-size:clamp(46px,8vw,60px)!important;max-width:11ch!important;}
+  .heroStage>[class*="ProgressCoachDashboard"]{max-width:560px!important;width:100%!important;}
+  .journey{grid-template-columns:1fr!important;gap:38px!important;padding:82px 0 88px!important;}
+  .sectionHead{grid-template-columns:1fr!important;gap:18px!important;margin-bottom:42px!important;}
+  .sectionHead>p{max-width:680px!important;}
+  .learningCta{grid-template-columns:1fr!important;gap:18px!important;}
+  .worldGrid :global(.worldCard):nth-child(n){grid-column:span 12!important;min-height:330px!important;}
+}
+
+/* Smartphone specialist reprioritization */
+@media(max-width:600px){
+  .heroStage{width:min(calc(100% - 24px),1280px)!important;margin:14px auto 28px!important;padding:34px 22px 28px!important;border-radius:22px!important;gap:28px!important;box-shadow:0 16px 40px rgba(29,42,50,.08)!important;}
+  .heroStage::after{width:220px!important;height:220px!important;right:-120px!important;bottom:-120px!important;box-shadow:0 0 0 44px rgba(255,255,255,.1)!important;}
+  .heroCopy{padding:2px 0!important;}
+  .heroCopy :global(.eyebrow){font-size:11px!important;margin-bottom:14px!important;letter-spacing:.1em!important;}
+  .heroCopy h1{font-size:clamp(38px,11.4vw,48px)!important;line-height:1.08!important;letter-spacing:-.032em!important;max-width:100%!important;margin-bottom:20px!important;}
+  .heroCopy>p:not(:global(.eyebrow)){font-size:16px!important;line-height:1.64!important;max-width:100%!important;}
+  .heroCopy :global(.heroActions){margin-top:28px!important;gap:10px!important;flex-direction:column!important;}
+  .heroCopy :global(.primary),.heroCopy :global(.secondary){width:100%!important;min-height:52px!important;}
+  .heroStage>[class*="ProgressCoachDashboard"]{max-width:none!important;}
+  .statusInner{width:min(calc(100% - 24px),1280px)!important;grid-template-columns:1fr 1fr!important;}
+  .statusInner>div{min-height:88px!important;padding:18px 14px!important;}
+  .statusInner>div:first-child{grid-column:1/-1!important;padding-left:0!important;padding-right:0!important;}
+  .statusInner>div:nth-child(2){border-right:1px solid #C8D9DD!important;}
+  .statusInner small{font-size:10px!important;letter-spacing:.1em!important;}
+  .statusInner strong{font-size:16px!important;}
+  .statusInner b{font-size:30px!important;}
+  .journey,.library,.brainfit{width:min(calc(100% - 24px),1280px)!important;}
+  .journey{padding:66px 0 72px!important;gap:30px!important;}
+  .journey h2,.sectionHead h2{font-size:clamp(32px,9vw,40px)!important;line-height:1.12!important;max-width:100%!important;margin-bottom:18px!important;}
+  .journey>div>p:not(:global(.eyebrow)),.sectionHead>p{font-size:16px!important;line-height:1.66!important;max-width:100%!important;}
+  .journey :global(.journeyTeaserMeta){grid-template-columns:1fr!important;gap:10px!important;}
+  .journey :global(.journeyTeaserMeta)>span{padding:20px!important;}
+  .journey :global(.journeyTeaserMeta) :global(.primary){grid-column:auto!important;width:100%!important;}
+  .library{padding:72px 0!important;}
+  .sectionHead{margin-bottom:34px!important;}
   .learningGrid{display:block!important;}
-  .learningGrid :global(.learningCard){margin-bottom:14px!important;min-height:0!important;padding:26px!important;}
-  .worldStage{padding:84px 14px 90px!important;}
-  .worldGrid{display:block!important;}
-  .worldGrid :global(.worldCard){margin-bottom:14px!important;min-height:340px!important;padding:26px!important;}
-  .brainfit{padding:84px 0 90px!important;}
-  .brainfit::before{inset:44px -8px 44px -8px;border-radius:24px;}
-  .brainfit .sectionHead{padding:24px 18px 0!important;}
-  .brainfit .learningCta{margin:0 18px 24px!important;}
+  .learningGrid :global(.learningCard){min-height:0!important;margin-bottom:12px!important;padding:22px!important;border-radius:18px!important;}
+  .learningGrid :global(.learningCard) h3{font-size:27px!important;max-width:100%!important;}
+  .learningGrid :global(.learningCard)>p:not(:global(.eyebrow)){font-size:16px!important;line-height:1.62!important;}
+  .learningCta{margin-top:24px!important;padding:22px!important;border-radius:18px!important;}
+  .learningCta :global(.primary){width:100%!important;}
+  .worldStage{padding:72px 12px 78px!important;}
+  .worldStage .sectionHead{padding:0 4px!important;}
+  .worldGrid{display:block!important;width:100%!important;}
+  .worldGrid :global(.worldCard){margin-bottom:12px!important;min-height:300px!important;padding:22px!important;border-radius:20px!important;}
+  .worldGrid :global(.worldCard) h3{font-size:30px!important;line-height:1.12!important;max-width:100%!important;}
+  .brainfit{padding:72px 0 78px!important;}
+  .brainfit::before{inset:34px -4px 34px -4px!important;border-radius:20px!important;}
+  .brainfit .sectionHead{padding:20px 16px 0!important;}
+  .brainfit .learningCta{margin:0 16px 18px!important;padding:22px!important;}
 }
 @media(prefers-reduced-motion:reduce){.heroStage,.worldStage,.learningGrid :global(.learningCard),.worldGrid :global(.worldCard){scroll-behavior:auto!important;transition:none!important;}}
