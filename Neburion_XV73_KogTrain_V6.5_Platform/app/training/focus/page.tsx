@@ -13,7 +13,7 @@ export default function FocusTrainingPage() {
     <main className="trainingPage">
       <div className="trainingTopbar">
         <Link className="backLink" href="/training/journey">← Zur Training Journey</Link>
-        <span>Learning Expansion 3.8 · Persönlicher Lernmix</span>
+        <span>Learning Expansion 3.6 · Persönlicher Lernmix</span>
       </div>
       <FocusTraining31 />
     </main>
