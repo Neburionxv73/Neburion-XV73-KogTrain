@@ -19,7 +19,7 @@ const checks = [
   ["responsive: touch target baseline", responsive.includes("44px") || interaction.includes("44px")],
   ["responsive: journey recomposes", journeyCss.includes("grid-template-columns:1fr") && journeyCss.includes("@media(max-width:640px)")],
   ["responsive: progress recomposes", progressCss.includes("@media(max-width:980px)") && progressCss.includes("@media(max-width:640px)")],
-  ["a11y: skip navigation", layout.includes("className=\"skipLink\"") && layout.includes("href=\"#top\"")],
+  ["a11y: skip navigation", layout.includes("className=\"skipLink\"") && layout.includes("href=\"#main-content\"") && layout.includes("id=\"main-content\"") && layout.includes("tabIndex={-1}")],
   ["a11y: visible focus", interaction.includes(":focus-visible")],
   ["a11y: reduced motion", interaction.includes("prefers-reduced-motion")],
   ["a11y: stateful controls", brainfit.includes("aria-pressed") || journeyCss.includes("aria-pressed")],
