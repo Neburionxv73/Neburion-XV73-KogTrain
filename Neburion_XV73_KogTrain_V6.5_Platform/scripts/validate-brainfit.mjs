@@ -24,7 +24,7 @@ const checks = [
   ["progress dashboard has no recommendation panel", !progress.includes("Nächster Fokus") && !progress.includes("Heute sinnvoll")],
   ["reduced motion support", trainingCss.includes("prefers-reduced-motion") || responsiveCss.includes("prefers-reduced-motion")],
   ["keyboard focus styling", interactionCss.includes(":focus-visible") && interactionCss.includes("outline:3px solid")],
-  ["skip link present", layout.includes("className=\"skipLink\"") && layout.includes("href=\"#top\"")],
+  ["skip link present", layout.includes("className=\"skipLink\"") && layout.includes("href=\"#main-content\"") && layout.includes("id=\"main-content\"") && layout.includes("tabIndex={-1}")],
   ["interaction finish loaded", layout.includes("interaction-finish-v97.css")],
   ["tab selection visible", interactionCss.includes("aria-selected=\"true\"")],
 ];
