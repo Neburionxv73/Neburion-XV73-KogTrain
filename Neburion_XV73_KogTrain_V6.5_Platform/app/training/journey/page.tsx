@@ -1,9 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { UnifiedTrainingJourney } from "@/components/UnifiedTrainingJourney";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Heute trainieren · Unified Training Journey 3.8",
   description: "Zentraler Trainingsstart mit 5-, 10- und 15-Minuten-Modi, persönlichem Lernmix, Spezial-Labs, Gehirnfit und Coach-Empfehlung.",
+  alternates: { canonical: "/training/journey" },
 };
 
 export default function JourneyPage(){

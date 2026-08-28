@@ -27,7 +27,6 @@ export const metadata: Metadata = {
   description: "Freundlich gestaltete Lern- und Trainingsplattform mit Mathematik, Sprache, Englisch, Aufmerksamkeit, Reaktion, Gedächtnis, Logik, visuellen Übungen und Gehirnfit & Alltag.",
   keywords: ["KogTrain", "Lernplattform", "Gedächtnistraining", "Aufmerksamkeit", "Logiktraining", "Sprachtraining", "Gehirnfit"],
   category: "education",
-  alternates: siteUrl ? { canonical: "/" } : undefined,
   robots: isProduction ? { index: true, follow: true } : { index: false, follow: false },
   openGraph: {
     type: "website",
@@ -35,7 +34,6 @@ export const metadata: Metadata = {
     siteName: "Neburion XV73 KogTrain",
     title: "Neburion XV73 · KogTrain V6.6",
     description: "Persönlicher Lernmix, Spezial-Labs und Gehirnfit in einer klaren, freundlichen Trainingsplattform.",
-    url: siteUrl ? "/" : undefined,
   },
 };
 

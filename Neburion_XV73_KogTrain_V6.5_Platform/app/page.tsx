@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { CoachHeroCard } from "@/components/CoachHeroCard";
 import { DeferredProgressCoachDashboard } from "@/components/DeferredProgressCoachDashboard";
@@ -8,6 +9,10 @@ import { FOCUS_AREAS } from "@/lib/learningExpansion";
 import styles from "./HomeV103.module.css";
 import responsive from "./HomeV103ResponsiveFix.module.css";
 import sectionResponsive from "./HomeResponsiveV103.module.css";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 export default function Home() {
   return (

@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { FocusTraining31 } from "@/components/FocusTraining31";
+
+export const metadata: Metadata = {
+  title: "Persönlicher Lernmix · Fokus auswählen",
+  description: "Persönlichen Trainingsfokus auswählen und aus mehreren Lernbereichen eine klare, zusammenhängende Einheit zusammenstellen.",
+  alternates: { canonical: "/training/focus" },
+};
 
 export default function FocusTrainingPage() {
   return (
