@@ -8,7 +8,7 @@ const navItems = [
 export function TopNav() {
   return (
     <header className="topbar">
-      <a className="brand" href="/#top" aria-label="Neburion XV73 KogTrain Startseite">
+      <a className="brand" href="/#top">
         <span className="brandMark" aria-hidden="true">N</span>
         <span><strong>Neburion XV73</strong><small>Lern- & Trainingsplattform · KogTrain V6.6</small></span>
       </a>
