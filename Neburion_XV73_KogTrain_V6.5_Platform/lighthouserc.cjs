@@ -7,7 +7,7 @@ module.exports = {
         "http://127.0.0.1:3000/training/focus",
         "http://127.0.0.1:3000/training/brain-fit",
       ],
-      numberOfRuns: 1,
+      numberOfRuns: 3,
       settings: {
         formFactor: "mobile",
         screenEmulation: {
@@ -21,10 +21,10 @@ module.exports = {
     },
     assert: {
       assertions: {
-        "categories:performance": ["error", { minScore: 0.80 }],
-        "categories:accessibility": ["error", { minScore: 1.00 }],
-        "categories:best-practices": ["error", { minScore: 1.00 }],
-        "categories:seo": ["error", { minScore: 1.00 }],
+        "categories:performance": ["error", { minScore: 0.80, aggregationMethod: "median-run" }],
+        "categories:accessibility": ["error", { minScore: 1.00, aggregationMethod: "pessimistic" }],
+        "categories:best-practices": ["error", { minScore: 1.00, aggregationMethod: "pessimistic" }],
+        "categories:seo": ["error", { minScore: 1.00, aggregationMethod: "pessimistic" }],
       },
     },
     upload: {
