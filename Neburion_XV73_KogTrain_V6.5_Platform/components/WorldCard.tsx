@@ -18,7 +18,7 @@ export function WorldCard({ world, index }: { world: TrainingWorld; index: numbe
       <h3 id={`${world.id}-title`}>{world.title}</h3>
       <p>{world.description}</p>
       {route ? (
-        <Link className="cardAction" href={route}>Training öffnen <span aria-hidden="true">↗</span></Link>
+        <Link prefetch={false} className="cardAction" href={route}>Training öffnen <span aria-hidden="true">↗</span></Link>
       ) : (
         <span className="cardAction mutedAction">Training folgt <span aria-hidden="true">·</span></span>
       )}
