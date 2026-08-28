@@ -47,5 +47,5 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="de"><body><a className="skipLink" href="#top">Direkt zum Inhalt</a>{children}</body></html>;
+  return <html lang="de"><body><a className="skipLink" href="#main-content">Direkt zum Inhalt</a><div id="main-content" tabIndex={-1}>{children}</div></body></html>;
 }
