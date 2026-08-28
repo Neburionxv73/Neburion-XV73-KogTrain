@@ -3,11 +3,11 @@
 .hero h1{margin:4px 0 18px;max-width:790px;font-size:clamp(46px,6vw,76px);line-height:.98;letter-spacing:-.05em}
 .hero>div>p:not(:first-child){max-width:720px;margin:0;color:#66778b;font-size:18px;line-height:1.72}
 .todayCard{padding:22px;border:1px solid #d8e1e8;border-radius:18px;background:#fff;box-shadow:0 10px 28px rgba(39,58,83,.07)}
-.todayCard>span{display:block;color:#718196;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.07em}
+.todayCard>span{display:block;color:#566978;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.07em}
 .todayCard>strong{display:block;margin:8px 0 14px;font-size:25px}
 .bar{height:8px;border-radius:999px;background:#edf1f4;overflow:hidden}
 .bar span{display:block;height:100%;border-radius:inherit;background:#1aa88f}
-.todayCard small{display:block;margin-top:12px;color:#6d7d90;line-height:1.5}
+.todayCard small{display:block;margin-top:12px;color:#566978;line-height:1.5}
 .controlGrid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 .panel{padding:30px;border:1px solid #dbe2e9;border-radius:20px;background:#fff;box-shadow:0 10px 30px rgba(39,58,83,.065)}
 .panel h2{margin:2px 0 22px;font-size:clamp(29px,3.4vw,42px);line-height:1.08;letter-spacing:-.035em}
@@ -15,13 +15,13 @@
 .durationGrid button,.trackGrid button{min-height:86px;padding:16px;border:1px solid #d7e0e8;border-radius:15px;background:#fbfcfd;color:#21364c;text-align:left;font:inherit;cursor:pointer;transition:border-color .16s ease,background .16s ease,box-shadow .16s ease,transform .16s ease}
 .durationGrid button{display:flex;flex-direction:column;justify-content:center}
 .durationGrid strong{font-size:17px}
-.durationGrid span{margin-top:5px;color:#6b7b8e;font-size:13px}
+.durationGrid span{margin-top:5px;color:#566978;font-size:13px}
 .durationGrid button[aria-pressed="true"],.trackGrid button[aria-pressed="true"]{border-color:#63b9a9;background:#f3faf8;box-shadow:0 0 0 2px rgba(26,168,143,.13)!important}
 .trackGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .trackGrid button{display:grid;grid-template-columns:46px 1fr;gap:12px;align-items:center}
 .trackIcon{width:46px;height:46px;display:grid;place-items:center;border-radius:13px;background:#eef6f4;color:#167d6d;font-size:21px;font-weight:900;border:1px solid #d8e8e4}
 .trackGrid strong{display:block;font-size:16px}
-.trackGrid small{display:block;margin-top:5px;color:#697a8d;line-height:1.45}
+.trackGrid small{display:block;margin-top:5px;color:#566978;line-height:1.45}
 .startCard{margin-top:20px;padding:30px 32px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:center;border:1px solid #d6e2de;border-radius:20px;background:#f8fbfa;box-shadow:none}
 .startCard h2{margin:2px 0 8px;font-size:clamp(30px,4vw,46px);letter-spacing:-.04em}
 .startCard p{margin:0;color:#617286;line-height:1.65}
@@ -33,8 +33,8 @@
 .quickGrid a{min-height:118px;padding:18px;border:1px solid #dbe2e9;border-radius:17px;background:#fff;box-shadow:0 8px 24px rgba(39,58,83,.055);display:flex;flex-direction:column;justify-content:center;text-decoration:none;color:#20354a;transition:border-color .16s ease,box-shadow .16s ease,transform .16s ease}
 .quickGrid a>span{font-size:22px;color:#168d7b}
 .quickGrid strong{margin-top:8px;font-size:18px}
-.quickGrid small{margin-top:3px;color:#718196}
-.note{margin:22px 4px 0;color:#6c7d90;font-size:13px;line-height:1.6}
+.quickGrid small{margin-top:3px;color:#566978}
+.note{margin:22px 4px 0;color:#5d6f7d;font-size:13px;line-height:1.6}
 @media(hover:hover) and (pointer:fine){.durationGrid button:hover,.trackGrid button:hover,.quickGrid a:hover{border-color:#b9c7d3;box-shadow:0 12px 28px rgba(39,58,83,.08);transform:translateY(-2px)}.primaryAction:hover{transform:translateY(-1px);box-shadow:0 9px 22px rgba(47,83,137,.22)}.secondaryAction:hover{background:#f4f7f9;border-color:#bcc8d2}}
 @media(max-width:900px){.hero,.controlGrid{grid-template-columns:1fr}.hero{gap:28px}.todayCard{max-width:none}.startCard{grid-template-columns:1fr}.startActions{flex-wrap:wrap}.quickGrid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:640px){.shell{width:min(calc(100% - 28px),1180px);padding:48px 0 70px}.hero{padding:30px 0 28px}.panel{padding:24px 18px;border-radius:18px}.durationGrid{grid-template-columns:1fr}.trackGrid{grid-template-columns:1fr}.startCard{padding:24px 18px;border-radius:18px}.startActions{flex-direction:column;align-items:stretch}.primaryAction,.secondaryAction{width:100%;min-height:50px}.quickGrid{grid-template-columns:1fr 1fr}.quickGrid a{min-height:104px;border-radius:16px}}
