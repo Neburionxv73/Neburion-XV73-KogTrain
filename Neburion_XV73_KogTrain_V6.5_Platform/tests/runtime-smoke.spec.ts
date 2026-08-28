@@ -109,6 +109,46 @@ test("Focus progress survives a full reload", async ({ page }) => {
   await expect(page.getByText("60% · 10 Aufgaben", { exact: true })).toBeVisible();
 });
 
+test("Adaptive engine prioritizes the weakest skill across all six areas", async ({ page }) => {
+  await page.addInitScript(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    localStorage.setItem("neburion-v65-personal-plan-v31", JSON.stringify({
+      areas: ["math", "words", "translation", "attention", "reaction", "memory"],
+      topics: [],
+      difficulty: 1,
+      adaptive: true,
+      mode: "standard",
+      weeklyTarget: 3,
+    }));
+    localStorage.setItem("neburion-v65-personal-stats-v31", JSON.stringify({
+      sessions: 6,
+      lastAccuracy: 82,
+      bestAccuracy: 90,
+      history: [today, today, today, today, today, today],
+      skillStats: {
+        math: { attempts: 10, correct: 9 },
+        words: { attempts: 10, correct: 9 },
+        translation: { attempts: 10, correct: 9 },
+        attention: { attempts: 10, correct: 9 },
+        reaction: { attempts: 10, correct: 9 },
+        memory: { attempts: 10, correct: 2 },
+      },
+      topicStats: {},
+      reactionStats: {},
+      recent: [],
+      xp: 480,
+    }));
+  });
+
+  await page.goto("/training/focus", { waitUntil: "networkidle" });
+  await expect(page.getByRole("heading", { name: "Symbole", exact: true })).toBeVisible();
+  await expect(page.getByText(/Symbole ist in deinem gewählten Lernpfad noch kaum trainiert/)).toBeVisible();
+
+  await page.getByRole("button", { name: "Adaptive Session starten" }).click();
+  await expect(page.getByText("Heute empfohlen · Symbole", { exact: true })).toBeVisible();
+  await expect(page.getByText(/Aufgabe 1\/10/)).toBeVisible();
+});
+
 test("Language lab starts a generated session", async ({ page }) => {
   await page.goto("/training/language", { waitUntil: "networkidle" });
   await page.getByRole("button", { name: "Language Session starten" }).click();
