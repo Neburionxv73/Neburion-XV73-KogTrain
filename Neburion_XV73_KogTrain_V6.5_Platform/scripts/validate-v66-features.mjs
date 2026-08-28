@@ -23,6 +23,7 @@ const visualTraining = read("components/VisualTraining.tsx");
 const visualRoute = read("app/training/visual/page.tsx");
 const brainFitCompletion = read("lib/brainFitCompletion.ts");
 const brainFitRoute = read("app/training/brain-fit/page.tsx");
+const brainFitClient = read("components/BrainFitClient.tsx");
 const progress = read("lib/progress.ts");
 const progressUi = read("components/ProgressCoachDashboard.tsx");
 const journey = read("components/UnifiedTrainingJourney.tsx");
@@ -57,7 +58,16 @@ expect("Visual route wires VisualTraining", visualRoute.includes('VisualTraining
 expect("Visual UI uses generative engine", visualTraining.includes("createVisualSession") && visualTraining.includes("VISUAL_STORAGE_KEY"));
 expect("Visual uses generated session seed", visual.includes("createSessionSeed") && visual.includes("position") && visual.includes("compare"));
 
-expect("BrainFit route wires both training panels", brainFitRoute.includes("BrainFitTraining") && brainFitRoute.includes("BrainFitCompletionPanel") && brainFitRoute.includes("V6.6"));
+expect(
+  "BrainFit route wires client boundary",
+  brainFitRoute.includes("BrainFitClient") && brainFitRoute.includes("<BrainFitClient") && brainFitRoute.includes("V6.6"),
+);
+expect(
+  "BrainFit client boundary wires both training panels",
+  brainFitClient.includes("BrainFitTraining") &&
+    brainFitClient.includes("BrainFitCompletionPanel") &&
+    brainFitClient.includes("ssr: false"),
+);
 expect("BrainFit completion pool expanded", (brainFitCompletion.match(/area:\"missingWords\"/g) ?? []).length >= 10 && (brainFitCompletion.match(/area:\"orientation\"/g) ?? []).length >= 10);
 
 expect("Progress dashboard is mounted on home", home.includes("DeferredProgressCoachDashboard"));
