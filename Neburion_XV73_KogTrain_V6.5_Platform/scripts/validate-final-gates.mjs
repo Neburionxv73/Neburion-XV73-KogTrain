@@ -2,6 +2,10 @@ import { readFileSync } from "node:fs";
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
 const layout = read("app/layout.tsx");
+const home = read("app/page.tsx");
+const journeyPage = read("app/training/journey/page.tsx");
+const focusPage = read("app/training/focus/page.tsx");
+const brainFitPage = read("app/training/brain-fit/page.tsx");
 const robots = read("app/robots.ts");
 const sitemap = read("app/sitemap.ts");
 const nextConfig = read("next.config.ts");
@@ -12,6 +16,9 @@ const progressCss = read("components/ProgressCoachDashboard.module.css");
 const brainfit = read("components/BrainFitTraining.tsx");
 const brainfitCss = read("app/brainfit-functional-hardening.css");
 const pkg = JSON.parse(read("package.json"));
+
+const hasCanonical = (source, route) =>
+  source.includes("alternates") && source.includes(`canonical: \"${route}\"`);
 
 const checks = [
   ["responsive: tablet breakpoint", /max-width:\s*(900|980)px/.test(journeyCss + progressCss + responsive)],
@@ -26,7 +33,11 @@ const checks = [
   ["a11y: crossword focus treatment", interaction.includes("bfCrosswordCell") && interaction.includes(":focus-visible")],
   ["brainfit: mobile crossword target", brainfitCss.includes("min-width:44px") || brainfitCss.includes("min-height:44px")],
   ["seo: metadata base", layout.includes("metadataBase") && layout.includes("VERCEL_PROJECT_PRODUCTION_URL")],
-  ["seo: canonical", layout.includes("alternates") && layout.includes("canonical")],
+  ["seo: canonical home", hasCanonical(home, "/")],
+  ["seo: canonical journey", hasCanonical(journeyPage, "/training/journey")],
+  ["seo: canonical focus", hasCanonical(focusPage, "/training/focus")],
+  ["seo: canonical brain-fit", hasCanonical(brainFitPage, "/training/brain-fit")],
+  ["seo: no global canonical override", !layout.includes("alternates") && !layout.includes("canonical")],
   ["seo: sitemap", sitemap.includes("/training/brain-fit") && sitemap.includes("/training/journey")],
   ["seo: robots sitemap", robots.includes("sitemap:") && robots.includes("VERCEL_ENV")],
   ["security: Next patched floor", pkg.dependencies?.next === "16.2.11"],
