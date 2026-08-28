@@ -64,6 +64,69 @@ test("Focus can start a generated session", async ({ page }) => {
   await expect(page.getByText(/Aufgabe 1\/\d+/)).toBeVisible();
 });
 
+test("Focus exposes all six adaptive skill areas", async ({ page }) => {
+  await page.goto("/training/focus", { waitUntil: "networkidle" });
+  for (const label of [
+    "Mathematik",
+    "Wort & Sprache",
+    "Deutsch ↔ Englisch",
+    "Selektive Aufmerksamkeit",
+    "Reaktion",
+    "Merkfähigkeit",
+  ]) {
+    await expect(page.getByText(label, { exact: true }).first()).toBeVisible();
+  }
+});
+
+test("Focus progress survives a full reload", async ({ page }) => {
+  await page.addInitScript(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    localStorage.setItem("neburion-v65-personal-stats-v31", JSON.stringify({
+      sessions: 1,
+      lastAccuracy: 60,
+      bestAccuracy: 60,
+      history: [today],
+      skillStats: {
+        math: { attempts: 10, correct: 6 },
+        words: { attempts: 0, correct: 0 },
+        translation: { attempts: 0, correct: 0 },
+        attention: { attempts: 0, correct: 0 },
+        reaction: { attempts: 0, correct: 0 },
+        memory: { attempts: 0, correct: 0 },
+      },
+      topicStats: { "math:Plus": { attempts: 10, correct: 6 } },
+      reactionStats: {},
+      recent: [{ date: today, accuracy: 60, label: "Heute empfohlen · Plus", xp: 80 }],
+      xp: 80,
+    }));
+  });
+
+  await page.goto("/training/focus", { waitUntil: "networkidle" });
+  await expect(page.getByText("80 XP gesamt", { exact: true })).toBeVisible();
+  await expect(page.getByText("60% · 10 Aufgaben", { exact: true })).toBeVisible();
+  await page.reload({ waitUntil: "networkidle" });
+  await expect(page.getByText("80 XP gesamt", { exact: true })).toBeVisible();
+  await expect(page.getByText("60% · 10 Aufgaben", { exact: true })).toBeVisible();
+});
+
+test("Language lab starts a generated session", async ({ page }) => {
+  await page.goto("/training/language", { waitUntil: "networkidle" });
+  await page.getByRole("button", { name: "Language Session starten" }).click();
+  await expect(page.getByText(/Aufgabe 1\/\d+/)).toBeVisible();
+});
+
+test("Attention lab starts a generated session", async ({ page }) => {
+  await page.goto("/training/attention", { waitUntil: "networkidle" });
+  await page.getByRole("button", { name: "Attention Session starten" }).click();
+  await expect(page.getByText(/Aufgabe 1\/\d+/)).toBeVisible();
+});
+
+test("Memory lab starts its first multimodal task", async ({ page }) => {
+  await page.goto("/training/memory", { waitUntil: "networkidle" });
+  await page.getByRole("button", { name: "Memory Lab 2.0 starten" }).click();
+  await expect(page.getByText(/Aufgabe 1\/\d+/)).toBeVisible();
+});
+
 test("BrainFit can activate a quiz area", async ({ page }) => {
   await page.goto("/training/brain-fit", { waitUntil: "networkidle" });
   const categories = page.getByRole("tab", { name: /Kategorien/ });
