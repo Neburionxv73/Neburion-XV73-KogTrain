@@ -142,11 +142,56 @@ test("Adaptive engine prioritizes the weakest skill across all six areas", async
 
   await page.goto("/training/focus", { waitUntil: "networkidle" });
   await expect(page.getByRole("heading", { name: "Symbole", exact: true })).toBeVisible();
-  await expect(page.getByText(/Symbole ist in deinem gewählten Lernpfad noch kaum trainiert/)).toBeVisible();
+  await expect(page.getByText(/Symbole ist in deinem gewählten Lernpfad noch untrainiert/)).toBeVisible();
+
+  const priorityText = await page.getByText(/Priorität \d+\/145/).textContent();
+  const match = priorityText?.match(/Priorität (\d+)\/145/);
+  expect(match).not.toBeNull();
+  expect(Number(match?.[1] ?? 999)).toBeLessThanOrEqual(145);
 
   await page.getByRole("button", { name: "Adaptive Session starten" }).click();
   await expect(page.getByText("Heute empfohlen · Symbole", { exact: true })).toBeVisible();
   await expect(page.getByText(/Aufgabe 1\/10/)).toBeVisible();
+});
+
+test("Adaptive engine raises difficulty only with sufficient strong evidence", async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem("neburion-v65-personal-plan-v31", JSON.stringify({
+      areas: ["math"],
+      topics: ["plus"],
+      difficulty: 2,
+      adaptive: true,
+      mode: "standard",
+      weeklyTarget: 3,
+    }));
+    localStorage.setItem("neburion-v65-personal-stats-v31", JSON.stringify({
+      sessions: 8,
+      lastAccuracy: 95,
+      bestAccuracy: 95,
+      history: [],
+      skillStats: {
+        math: { attempts: 20, correct: 18 },
+        words: { attempts: 0, correct: 0 },
+        translation: { attempts: 0, correct: 0 },
+        attention: { attempts: 0, correct: 0 },
+        reaction: { attempts: 0, correct: 0 },
+        memory: { attempts: 0, correct: 0 },
+      },
+      topicStats: { "math:Plus": { attempts: 12, correct: 11 } },
+      reactionStats: {},
+      recent: [],
+      xp: 640,
+    }));
+  });
+
+  await page.goto("/training/focus", { waitUntil: "networkidle" });
+  await expect(page.getByText(/Nächstes Niveau:/).locator("..")).toContainText("Challenge");
+});
+
+test("Focus learning expansion labels are consistent", async ({ page }) => {
+  await page.goto("/training/focus", { waitUntil: "networkidle" });
+  await expect(page.getByText("Learning Expansion 3.6 · Persönlicher Lernmix", { exact: true })).toBeVisible();
+  await expect(page.getByText("Learning Expansion 3.6 · Adaptive Learning Engine", { exact: true })).toBeVisible();
 });
 
 test("Language lab starts a generated session", async ({ page }) => {
