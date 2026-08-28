@@ -1,9 +1,9 @@
-name: V10.3 Runtime QA
+name: V6.7 Runtime QA
 
 on:
   push:
     branches:
-      - dev/v6.5-platform
+      - dev/v6.7-platform
     paths:
       - "Neburion_XV73_KogTrain_V6.5_Platform/**"
       - ".github/workflows/v103-runtime-qa.yml"
@@ -25,7 +25,7 @@ jobs:
 
     steps:
       - name: Checkout exact commit
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -33,9 +33,10 @@ jobs:
           version: 10.13.1
 
       - name: Setup Node 24
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: "24.x"
+          package-manager-cache: false
 
       - name: Install application dependencies
         run: pnpm install --no-frozen-lockfile
@@ -76,9 +77,9 @@ jobs:
 
       - name: Upload runtime evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
-          name: v103-runtime-evidence-${{ github.sha }}
+          name: v67-runtime-evidence-${{ github.sha }}
           if-no-files-found: warn
           retention-days: 14
           path: |
