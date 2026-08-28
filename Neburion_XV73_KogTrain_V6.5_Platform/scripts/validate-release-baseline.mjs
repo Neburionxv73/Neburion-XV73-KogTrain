@@ -16,7 +16,7 @@ const checks = [
   ["seo: environment-aware robots", robots.includes("VERCEL_ENV") && robots.includes("disallow: \"/\"")],
   ["seo: preview noindex metadata", layout.includes("index: false") && layout.includes("follow: false")],
   ["seo: structured metadata", layout.includes("openGraph") && layout.includes("keywords") && layout.includes("applicationName")],
-  ["a11y: skip link", layout.includes("className=\"skipLink\"") && layout.includes("href=\"#top\"")],
+  ["a11y: skip link", layout.includes("className=\"skipLink\"") && layout.includes("href=\"#main-content\"") && layout.includes("id=\"main-content\"") && layout.includes("tabIndex={-1}")],
   ["a11y: visible keyboard focus", interaction.includes(":focus-visible")],
   ["a11y: reduced motion", interaction.includes("prefers-reduced-motion") && performance.includes("prefers-reduced-motion")],
   ["performance: below-fold containment", performance.includes("content-visibility:auto") && performance.includes("contain-intrinsic-size")],
