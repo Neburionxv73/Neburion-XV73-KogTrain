@@ -25,7 +25,7 @@ export default function Home() {
           <h1 id="hero-title">Lernen mit Struktur. Trainieren mit Fokus.</h1>
           <p>KogTrain verbindet Lernbereiche, Spezial-Training und Gehirnfit in einer klar geführten Plattform. Du wählst deinen Schwerpunkt, die Session führt dich Schritt für Schritt durch das Training.</p>
           <div className="heroActions">
-            <Link className="primary" href="/training/journey">Training starten →</Link>
+            <Link prefetch={false} className="primary" href="/training/journey">Training starten →</Link>
             <a className="secondary" href="#lernbereiche">Bereiche ansehen</a>
           </div>
         </div>
@@ -50,7 +50,7 @@ export default function Home() {
         <div className="journeyTeaserMeta">
           <span><strong>5 / 10 / 15</strong><small>Minuten</small></span>
           <span><strong>3</strong><small>Trainingswege</small></span>
-          <Link className="primary" href="/training/journey">Einheit zusammenstellen →</Link>
+          <Link prefetch={false} className="primary" href="/training/journey">Einheit zusammenstellen →</Link>
         </div>
       </section>
 
@@ -65,7 +65,7 @@ export default function Home() {
         <div className={`${styles.learningGrid} ${sectionResponsive.learningGrid} learningGrid`}>
           {FOCUS_AREAS.map((area)=><article className={`learningCard learning-${area.id}`} key={area.id}><span className="learningIcon" aria-hidden="true">{area.icon}</span><p className="eyebrow">{area.subtitle}</p><h3>{area.title}</h3><p>{area.description}</p></article>)}
         </div>
-        <div className={`${styles.learningCta} ${sectionResponsive.learningCta} learningCta`}><div><strong>Persönlichen Trainingsmix aufbauen</strong><p>Ein Bereich oder mehrere. Inhalt und Schwierigkeit passen sich an deine gewählte Session an.</p></div><Link className="primary" href="/training/focus">Fokus auswählen →</Link></div>
+        <div className={`${styles.learningCta} ${sectionResponsive.learningCta} learningCta`}><div><strong>Persönlichen Trainingsmix aufbauen</strong><p>Ein Bereich oder mehrere. Inhalt und Schwierigkeit passen sich an deine gewählte Session an.</p></div><Link prefetch={false} className="primary" href="/training/focus">Fokus auswählen →</Link></div>
       </section>
 
       <section className={`${styles.worldStage} ${sectionResponsive.worldSection} worlds`} id="training" aria-labelledby="worlds-title">
@@ -81,7 +81,7 @@ export default function Home() {
           <div><p className="eyebrow">04 · Gehirnfit & Alltag</p><h2 id="brainfit-title">Ruhiger trainieren. Alltag mitdenken.</h2></div>
           <p>Zwölf Übungswelten verbinden Sprache, Gedächtnis, Orientierung und Alltagslogik. Ohne unnötigen Zeitdruck und ohne medizinische Bewertung.</p>
         </div>
-        <div className={`${styles.learningCta} learningCta`}><div><strong>12 Bereiche · Tagesmix · flexibel</strong><p>Tier-Sudoku, Wortsuche, Memory, Kategorien, Alltagsrechnen, Sprichwörter und weitere Übungen für Alltag und Konzentration.</p></div><Link className="primary" href="/training/brain-fit">Gehirnfit öffnen →</Link></div>
+        <div className={`${styles.learningCta} learningCta`}><div><strong>12 Bereiche · Tagesmix · flexibel</strong><p>Tier-Sudoku, Wortsuche, Memory, Kategorien, Alltagsrechnen, Sprichwörter und weitere Übungen für Alltag und Konzentration.</p></div><Link prefetch={false} className="primary" href="/training/brain-fit">Gehirnfit öffnen →</Link></div>
       </section>
 
       <DeferredProgressCoachDashboard />
