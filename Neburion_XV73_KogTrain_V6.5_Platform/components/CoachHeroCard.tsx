@@ -48,7 +48,7 @@ export function CoachHeroCard() {
       <p>{dailyPercent >= 100 ? "Tagesziel erreicht. Weitere Einheiten sind freiwillig." : "Dein Tagesziel bleibt bewusst einfach und übersichtlich."}</p>
       <div className={styles.heroProgress} aria-hidden="true"><span style={{ width: `${dailyPercent}%` }} /></div>
       <small>Level {snapshot.level} · {snapshot.xp} XP gesamt</small>
-      <Link className={styles.heroLink} href="/training/journey">Training öffnen →</Link>
+      <Link prefetch={false} className={styles.heroLink} href="/training/journey">Training öffnen →</Link>
     </aside>
   );
 }
