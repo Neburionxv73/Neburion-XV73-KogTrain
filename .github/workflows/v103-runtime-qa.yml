@@ -16,6 +16,9 @@ jobs:
   runtime-qa:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      VERCEL_ENV: production
+      NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
     defaults:
       run:
         working-directory: Neburion_XV73_KogTrain_V6.5_Platform
