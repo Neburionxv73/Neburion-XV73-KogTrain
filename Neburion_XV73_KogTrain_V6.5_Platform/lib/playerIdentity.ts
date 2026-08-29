@@ -5,6 +5,13 @@ export type PlayerIdentity = {
   schemaVersion: 1;
 };
 
+export type PlayerCloudState = {
+  schemaVersion: 1;
+  player: PlayerIdentity;
+  progress: Record<string, string | null>;
+  exportedAt: string;
+};
+
 const ACTIVE_PLAYER_KEY = "neburion-v67-active-player";
 const PLAYER_LIST_KEY = "neburion-v67-player-list";
 const LEGACY_PLAYER_ID = "legacy-primary";
@@ -138,4 +145,30 @@ export function createAndActivatePlayer(name: string): PlayerIdentity {
   const identity = setActivePlayer(id, cleanName);
   MANAGED_PROGRESS_KEYS.forEach((key) => localStorage.removeItem(key));
   return identity;
+}
+
+export function exportActivePlayerState(): PlayerCloudState {
+  const player = getActivePlayer();
+  snapshotActivePlayerProgress(player.id);
+  const progress: Record<string, string | null> = {};
+  MANAGED_PROGRESS_KEYS.forEach((key) => { progress[key] = localStorage.getItem(key); });
+  return { schemaVersion: 1, player, progress, exportedAt: new Date().toISOString() };
+}
+
+export function importPlayerState(state: PlayerCloudState): void {
+  if (!state || state.schemaVersion !== 1 || !state.player?.id || !state.player?.name || typeof state.progress !== "object") throw new Error("Ungültiger Cloud-Spielstand");
+  const identity: PlayerIdentity = { ...state.player, id: safeId(state.player.id), schemaVersion: 1 };
+  registerPlayer(identity);
+  localStorage.setItem(ACTIVE_PLAYER_KEY, JSON.stringify(identity));
+  MANAGED_PROGRESS_KEYS.forEach((key) => {
+    const value = state.progress[key];
+    const scoped = playerStorageKey(identity.id, key);
+    if (typeof value === "string") {
+      localStorage.setItem(key, value);
+      localStorage.setItem(scoped, value);
+    } else {
+      localStorage.removeItem(key);
+      localStorage.removeItem(scoped);
+    }
+  });
 }
