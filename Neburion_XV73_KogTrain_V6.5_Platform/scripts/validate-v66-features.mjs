@@ -28,60 +28,58 @@ const progress = read("lib/progress.ts");
 const progressUi = read("components/ProgressCoachDashboard.tsx");
 const journey = read("components/UnifiedTrainingJourney.tsx");
 const home = read("app/page.tsx");
-const topNav = read("components/TopNav.tsx");
-const pkg = JSON.parse(read("package.json"));
 
-expect("V6.6 package version", pkg.version === "6.6.0");
-expect("V6.6 visible in home", home.includes("KogTrain V6.6"));
-expect("V6.6 visible in navigation", topNav.includes("V6.6"));
-expect("Dynamic history reader exists", dynamicTraining.includes("readRecentTaskIds"));
-expect("Dynamic history writer exists", dynamicTraining.includes("rememberTaskIds"));
-expect("Fresh task selection helper exists", dynamicTraining.includes("chooseFresh"));
-expect("Session seed uses crypto fallback", dynamicTraining.includes("createSessionSeed") && dynamicTraining.includes("crypto.getRandomValues"));
+// V6.6 is now a frozen regression baseline. These checks verify that the
+// functionality introduced in V6.6 is still present in later development
+// versions without requiring the active package/UI version label to stay V6.6.
+expect("V6.6 baseline: dynamic history reader exists", dynamicTraining.includes("readRecentTaskIds"));
+expect("V6.6 baseline: dynamic history writer exists", dynamicTraining.includes("rememberTaskIds"));
+expect("V6.6 baseline: fresh task selection helper exists", dynamicTraining.includes("chooseFresh"));
+expect("V6.6 baseline: session seed uses crypto fallback", dynamicTraining.includes("createSessionSeed") && dynamicTraining.includes("crypto.getRandomValues"));
 
-expect("Memory route wires MemoryTraining", memoryRoute.includes('MemoryTraining') && memoryRoute.includes('V6.6'));
-expect("Memory UI uses generative engine", memoryTraining.includes("createMemorySession") && memoryTraining.includes("MEMORY_STORAGE_KEY"));
-expect("Memory pool expanded", (memory.match(/\"[^\"]+\"/g) ?? []).length > 70 && memory.includes("createSessionSeed"));
+expect("V6.6 baseline: Memory route wires MemoryTraining", memoryRoute.includes("MemoryTraining"));
+expect("V6.6 baseline: Memory UI uses generative engine", memoryTraining.includes("createMemorySession") && memoryTraining.includes("MEMORY_STORAGE_KEY"));
+expect("V6.6 baseline: Memory pool expanded", (memory.match(/\"[^\"]+\"/g) ?? []).length > 70 && memory.includes("createSessionSeed"));
 
-expect("Attention route wires AttentionTraining", attentionRoute.includes('AttentionTraining') && attentionRoute.includes('V6.6'));
-expect("Attention UI uses generative engine", attentionTraining.includes("createAttentionSession") && attentionTraining.includes("neburion-v65-attention-stats"));
-expect("Attention uses generated session seed", attention.includes("createSessionSeed") && attention.includes("visual-search") && attention.includes("interference"));
+expect("V6.6 baseline: Attention route wires AttentionTraining", attentionRoute.includes("AttentionTraining"));
+expect("V6.6 baseline: Attention UI uses generative engine", attentionTraining.includes("createAttentionSession") && attentionTraining.includes("neburion-v65-attention-stats"));
+expect("V6.6 baseline: Attention uses generated session seed", attention.includes("createSessionSeed") && attention.includes("visual-search") && attention.includes("interference"));
 
-expect("Logic route wires LogicTraining2", logicRoute.includes('LogicTraining2') && logicRoute.includes('V6.6'));
-expect("Logic UI uses generative engine", logicTraining.includes("createLogicSession") && logicTraining.includes("LOGIC_STORAGE_KEY"));
-expect("Logic has expanded variants", logic.includes("Thermometer : Temperatur") && logic.includes("Kubikzahlen") && logic.includes("createSessionSeed"));
+expect("V6.6 baseline: Logic route wires LogicTraining2", logicRoute.includes("LogicTraining2"));
+expect("V6.6 baseline: Logic UI uses generative engine", logicTraining.includes("createLogicSession") && logicTraining.includes("LOGIC_STORAGE_KEY"));
+expect("V6.6 baseline: Logic has expanded variants", logic.includes("Thermometer : Temperatur") && logic.includes("Kubikzahlen") && logic.includes("createSessionSeed"));
 
-expect("Language route wires LanguageTraining", languageRoute.includes('LanguageTraining') && languageRoute.includes('V6.6'));
-expect("Language persists rolling history", languageTraining.includes("readRecentTaskIds") && languageTraining.includes("rememberTaskIds") && languageTraining.includes("32"));
+expect("V6.6 baseline: Language route wires LanguageTraining", languageRoute.includes("LanguageTraining"));
+expect("V6.6 baseline: Language persists rolling history", languageTraining.includes("readRecentTaskIds") && languageTraining.includes("rememberTaskIds") && languageTraining.includes("32"));
 
-expect("Visual route wires VisualTraining", visualRoute.includes('VisualTraining') && visualRoute.includes('V6.6'));
-expect("Visual UI uses generative engine", visualTraining.includes("createVisualSession") && visualTraining.includes("VISUAL_STORAGE_KEY"));
-expect("Visual uses generated session seed", visual.includes("createSessionSeed") && visual.includes("position") && visual.includes("compare"));
+expect("V6.6 baseline: Visual route wires VisualTraining", visualRoute.includes("VisualTraining"));
+expect("V6.6 baseline: Visual UI uses generative engine", visualTraining.includes("createVisualSession") && visualTraining.includes("VISUAL_STORAGE_KEY"));
+expect("V6.6 baseline: Visual uses generated session seed", visual.includes("createSessionSeed") && visual.includes("position") && visual.includes("compare"));
 
 expect(
-  "BrainFit route wires client boundary",
+  "V6.6 baseline: BrainFit route wires client boundary",
   brainFitRoute.includes("BrainFitClient") && brainFitRoute.includes("<BrainFitClient"),
 );
 expect(
-  "BrainFit client boundary wires both training panels",
+  "V6.6 baseline: BrainFit client boundary wires both training panels",
   brainFitClient.includes("BrainFitTraining") &&
     brainFitClient.includes("BrainFitCompletionPanel") &&
     brainFitClient.includes("ssr: false"),
 );
-expect("BrainFit completion pool expanded", (brainFitCompletion.match(/area:\"missingWords\"/g) ?? []).length >= 10 && (brainFitCompletion.match(/area:\"orientation\"/g) ?? []).length >= 10);
+expect("V6.6 baseline: BrainFit completion pool expanded", (brainFitCompletion.match(/area:\"missingWords\"/g) ?? []).length >= 10 && (brainFitCompletion.match(/area:\"orientation\"/g) ?? []).length >= 10);
 
-expect("Progress dashboard is mounted on home", home.includes("DeferredProgressCoachDashboard"));
-expect("Progress tracks trained areas", progress.includes("trainedAreas") && progressUi.includes("Trainierte Bereiche"));
-expect("Progress tracks active days", progress.includes("activeDays7") && progressUi.includes("Aktive Tage"));
-expect("Progress tracks last session", progress.includes("lastSessionAt") && progressUi.includes("Letzte Session"));
-expect("Journey documents full session flow", journey.includes("Start → Aufgabe → direkte Rückmeldung → nächste Aufgabe → Abschluss & Fortschritt"));
+expect("V6.6 baseline: Progress dashboard is mounted on home", home.includes("DeferredProgressCoachDashboard"));
+expect("V6.6 baseline: Progress tracks trained areas", progress.includes("trainedAreas") && progressUi.includes("Trainierte Bereiche"));
+expect("V6.6 baseline: Progress tracks active days", progress.includes("activeDays7") && progressUi.includes("Aktive Tage"));
+expect("V6.6 baseline: Progress tracks last session", progress.includes("lastSessionAt") && progressUi.includes("Letzte Session"));
+expect("V6.6 baseline: Journey documents full session flow", journey.includes("Start → Aufgabe → direkte Rückmeldung → nächste Aufgabe → Abschluss & Fortschritt"));
 const forbiddenRecommendationUi = ["Empfehlung öffnen", "Empfohlen", "Nächster Fokus", "Heute sinnvoll", "Coach-Empfehlung"];
-expect("No visible recommendation UI in progress", forbiddenRecommendationUi.every((label) => !progressUi.includes(label)));
+expect("V6.6 baseline: No visible recommendation UI in progress", forbiddenRecommendationUi.every((label) => !progressUi.includes(label)));
 
 const failed = checks.filter((check) => !check.pass);
 for (const check of checks) console.log(`${check.pass ? "PASS" : "FAIL"} ${check.name}`);
 if (failed.length) {
-  console.error(`\nV6.6 validation failed: ${failed.length}/${checks.length} checks failed.`);
+  console.error(`\nV6.6 regression baseline failed: ${failed.length}/${checks.length} checks failed.`);
   process.exit(1);
 }
-console.log(`\nV6.6 validation passed: ${checks.length}/${checks.length} checks.`);
+console.log(`\nV6.6 regression baseline passed: ${checks.length}/${checks.length} checks.`);
