@@ -13,12 +13,13 @@ export default function ProfilePage() {
     <main className="trainingPage">
       <div className="trainingTopbar">
         <Link className="backLink" href="/">← Zur Plattform</Link>
-        <span>KogTrain V6.7 · Multi-User Foundation</span>
+        <span>KogTrain V6.7 · Spielerprofile</span>
       </div>
       <section style={{ width: "min(1180px, calc(100% - 2rem))", margin: "4rem auto 6rem" }}>
         <p style={{ fontWeight: 900, letterSpacing: ".1em", textTransform: "uppercase", color: "#087f82" }}>V6.7 · Spielerprofile</p>
         <h1 style={{ fontSize: "clamp(2.8rem, 7vw, 6rem)", lineHeight: ".98", maxWidth: "12ch", margin: ".5rem 0 1.5rem" }}>Dein Lernen. Dein Spielstand.</h1>
-        <p style={{ fontSize: "1.1rem", lineHeight: 1.7, maxWidth: "68ch", marginBottom: "3rem", color: "#425d6d" }}>Jedes Profil erhält einen getrennten lokalen Lernstand. Beim Wechsel werden die Trainingsdaten des aktuellen Profils gesichert und ausschließlich die Daten des gewählten Profils geladen.</p>
+        <p style={{ fontSize: "1.1rem", lineHeight: 1.7, maxWidth: "68ch", marginBottom: "1.25rem", color: "#425d6d" }}>Jedes Profil erhält einen getrennten lokalen Lernstand. Beim Wechsel werden die Trainingsdaten des aktuellen Profils gesichert und ausschließlich die Daten des gewählten Profils geladen.</p>
+        <p style={{ marginBottom: "3rem" }}><Link href="/account" style={{ display: "inline-block", minHeight: 48, padding: ".8rem 1.1rem", borderRadius: 12, background: "#0b9296", color: "white", fontWeight: 900, textDecoration: "none" }}>Konto & Cloud-Sync einrichten →</Link></p>
         <PlayerProfileManager />
       </section>
     </main>
