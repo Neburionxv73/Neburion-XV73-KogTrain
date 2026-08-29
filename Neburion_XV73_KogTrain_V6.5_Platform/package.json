@@ -13,12 +13,14 @@
     "validate:final": "node scripts/validate-final-gates.mjs",
     "validate:v66": "node scripts/validate-v66-features.mjs",
     "validate:v67": "node scripts/validate-v67-player-isolation.mjs",
+    "validate:v67cloud": "node scripts/validate-v67-cloud-foundation.mjs",
     "validate:v103": "node scripts/validate-v103-redesign.mjs",
-    "validate": "npm run typecheck && node scripts/validate-project.mjs && npm run validate:brainfit && npm run validate:release && npm run validate:final && npm run validate:v66 && npm run validate:v67 && npm run validate:v103",
+    "validate": "npm run typecheck && node scripts/validate-project.mjs && npm run validate:brainfit && npm run validate:release && npm run validate:final && npm run validate:v66 && npm run validate:v67 && npm run validate:v67cloud && npm run validate:v103",
     "quality:core": "npm run validate && npm run build"
   },
   "dependencies": {
     "next": "16.2.11",
+    "postgres": "^3.4.7",
     "react": "19.2.8",
     "react-dom": "19.2.8"
   },
