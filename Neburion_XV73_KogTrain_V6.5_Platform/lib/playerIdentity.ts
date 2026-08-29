@@ -21,6 +21,9 @@ export const MANAGED_PROGRESS_KEYS = [
   "neburion-v65-visual-stats",
   "neburion-v65-brain-fit-v372",
   "neburion-v65-brain-fit-completion-v376",
+  "neburion-v65-focus-preferences",
+  "neburion-v65-personal-plan-v31",
+  "neburion-v65-personal-stats-v31",
 ] as const;
 
 function safeId(value: string): string {
