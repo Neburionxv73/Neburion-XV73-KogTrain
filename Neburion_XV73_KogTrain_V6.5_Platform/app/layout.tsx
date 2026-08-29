@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { PlayerStorageBridge } from "@/components/PlayerStorageBridge";
 import "./globals.css";
 import "./learning-theme.css";
 import "./button-system.css";
@@ -20,7 +21,7 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? (process.env.VERCEL_PROJECT_
 export const metadata: Metadata = {
   metadataBase: siteUrl ? new URL(siteUrl) : undefined,
   title: {
-    default: "Neburion XV73 · KogTrain V6.6",
+    default: "Neburion XV73 · KogTrain V6.7",
     template: "%s · Neburion XV73",
   },
   applicationName: "Neburion XV73 KogTrain",
@@ -32,8 +33,8 @@ export const metadata: Metadata = {
     type: "website",
     locale: "de_AT",
     siteName: "Neburion XV73 KogTrain",
-    title: "Neburion XV73 · KogTrain V6.6",
-    description: "Persönlicher Lernmix, Spezial-Labs und Gehirnfit in einer klaren, freundlichen Trainingsplattform.",
+    title: "Neburion XV73 · KogTrain V6.7",
+    description: "Persönlicher Lernmix, getrennte Spielerprofile, Spezial-Labs und Gehirnfit in einer klaren Trainingsplattform.",
   },
 };
 
@@ -45,5 +46,5 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="de"><body><a className="skipLink" href="#main-content">Direkt zum Inhalt</a><div id="main-content" tabIndex={-1}>{children}</div></body></html>;
+  return <html lang="de"><body><PlayerStorageBridge /><a className="skipLink" href="#main-content">Direkt zum Inhalt</a><div id="main-content" tabIndex={-1}>{children}</div></body></html>;
 }

@@ -3,6 +3,7 @@ const navItems = [
   ["Spezial-Labs", "/#training"],
   ["Heute trainieren", "/training/journey"],
   ["Fortschritt", "/#fortschritt"],
+  ["Profil", "/profile"],
 ] as const;
 
 export function TopNav() {
@@ -10,7 +11,7 @@ export function TopNav() {
     <header className="topbar">
       <a className="brand" href="/#top">
         <span className="brandMark" aria-hidden="true">N</span>
-        <span><strong>Neburion XV73</strong><small>Lern- & Trainingsplattform · KogTrain V6.6</small></span>
+        <span><strong>Neburion XV73</strong><small>Lern- & Trainingsplattform · KogTrain V6.7</small></span>
       </a>
       <nav aria-label="Hauptnavigation">
         {navItems.map(([label, href]) => <a key={label} href={href}>{label}</a>)}
