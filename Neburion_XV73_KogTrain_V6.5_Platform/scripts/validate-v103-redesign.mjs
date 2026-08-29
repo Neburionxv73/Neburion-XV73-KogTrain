@@ -94,7 +94,7 @@ expect("HARD: reduced motion respected", foundation.includes("prefers-reduced-mo
 expect("HARD: skip link retained", layout.includes('className="skipLink"'));
 expect("HARD: German document language retained", layout.includes('lang="de"'));
 expect("HARD: production robots policy retained", layout.includes("VERCEL_ENV") && layout.includes("robots:"));
-expect("HARD: V6.6 product version retained", packageJson.version === "6.6.0");
+expect("HARD: active V6.7 product version retained", packageJson.version === "6.7.0-dev");
 
 const failed = checks.filter((check) => !check.pass);
 for (const check of checks) console.log(`${check.pass ? "PASS" : "FAIL"} ${check.name}`);
