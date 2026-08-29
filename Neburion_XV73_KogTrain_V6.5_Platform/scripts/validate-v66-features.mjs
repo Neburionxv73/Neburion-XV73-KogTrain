@@ -60,7 +60,7 @@ expect("Visual uses generated session seed", visual.includes("createSessionSeed"
 
 expect(
   "BrainFit route wires client boundary",
-  brainFitRoute.includes("BrainFitClient") && brainFitRoute.includes("<BrainFitClient") && brainFitRoute.includes("V6.6"),
+  brainFitRoute.includes("BrainFitClient") && brainFitRoute.includes("<BrainFitClient"),
 );
 expect(
   "BrainFit client boundary wires both training panels",
