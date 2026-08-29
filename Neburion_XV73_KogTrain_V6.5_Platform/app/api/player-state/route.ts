@@ -28,9 +28,13 @@ export async function PUT(request: NextRequest) {
     const body = await request.json() as { state?: unknown };
     const serialized = JSON.stringify(body.state ?? null);
     if (!body.state || serialized.length > 750_000) return NextResponse.json({ error: "Ungültiger oder zu großer Spielstand." }, { status: 400 });
+
+    // Normalize through JSON serialization so postgres receives a valid JSONValue
+    // instead of an unconstrained Record<string, unknown>.
+    const jsonState = JSON.parse(serialized);
     const sql = getSql();
     await sql`insert into kogtrain_player_state (user_id, payload, updated_at)
-      values (${userId}, ${sql.json(body.state as Record<string, unknown>)}, now())
+      values (${userId}, ${sql.json(jsonState)}, now())
       on conflict (user_id) do update set payload = excluded.payload, updated_at = now()`;
     return NextResponse.json({ saved: true, updatedAt: new Date().toISOString() });
   } catch (error) {
