@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { PlayerStorageBridge } from "@/components/PlayerStorageBridge";
+import { CloudPlayerBridge } from "@/components/CloudPlayerBridge";
 import "./globals.css";
 import "./learning-theme.css";
 import "./button-system.css";
@@ -20,31 +21,17 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? (process.env.VERCEL_PROJECT_
 
 export const metadata: Metadata = {
   metadataBase: siteUrl ? new URL(siteUrl) : undefined,
-  title: {
-    default: "Neburion XV73 · KogTrain V6.7",
-    template: "%s · Neburion XV73",
-  },
+  title: { default: "Neburion XV73 · KogTrain V6.7", template: "%s · Neburion XV73" },
   applicationName: "Neburion XV73 KogTrain",
   description: "Freundlich gestaltete Lern- und Trainingsplattform mit Mathematik, Sprache, Englisch, Aufmerksamkeit, Reaktion, Gedächtnis, Logik, visuellen Übungen und Gehirnfit & Alltag.",
   keywords: ["KogTrain", "Lernplattform", "Gedächtnistraining", "Aufmerksamkeit", "Logiktraining", "Sprachtraining", "Gehirnfit"],
   category: "education",
   robots: isProduction ? { index: true, follow: true } : { index: false, follow: false },
-  openGraph: {
-    type: "website",
-    locale: "de_AT",
-    siteName: "Neburion XV73 KogTrain",
-    title: "Neburion XV73 · KogTrain V6.7",
-    description: "Persönlicher Lernmix, getrennte Spielerprofile, Spezial-Labs und Gehirnfit in einer klaren Trainingsplattform.",
-  },
+  openGraph: { type: "website", locale: "de_AT", siteName: "Neburion XV73 KogTrain", title: "Neburion XV73 · KogTrain V6.7", description: "Persönlicher Lernmix, getrennte Spielerprofile, Cloud-Spielstände, Spezial-Labs und Gehirnfit in einer klaren Trainingsplattform." },
 };
 
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  colorScheme: "light",
-  themeColor: "#F8FAFC",
-};
+export const viewport: Viewport = { width: "device-width", initialScale: 1, colorScheme: "light", themeColor: "#F8FAFC" };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="de"><body><PlayerStorageBridge /><a className="skipLink" href="#main-content">Direkt zum Inhalt</a><div id="main-content" tabIndex={-1}>{children}</div></body></html>;
+  return <html lang="de"><body><PlayerStorageBridge /><CloudPlayerBridge /><a className="skipLink" href="#main-content">Direkt zum Inhalt</a><div id="main-content" tabIndex={-1}>{children}</div></body></html>;
 }
