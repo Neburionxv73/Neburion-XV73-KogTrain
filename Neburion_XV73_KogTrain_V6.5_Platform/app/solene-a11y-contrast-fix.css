@@ -1,0 +1,125 @@
+/* Solene Editorial Luxury — WCAG contrast guard
+   Loaded last. Keeps the requested palette while preventing legacy Mudrasol
+   colors and low-contrast gold/stone text from leaking onto light surfaces. */
+
+:root{
+  --solene-text-safe:#25272B;
+  --solene-accent-safe:#172333;
+}
+
+/* Light editorial surfaces: small display text must use Night Navy, not
+   Antique Gold / Lunar Blue. Normal body copy uses Charcoal because Stone Grey
+   on Pearl White sits just below the 4.5:1 normal-text threshold. */
+main#top [class*="journey"] .eyebrow,
+main#top #lernbereiche .eyebrow,
+main#top [class*="sectionHead"] .eyebrow,
+main#top [class*="journey"] [class*="eyebrow"],
+main#top #lernbereiche [class*="eyebrow"],
+main#top [class*="sectionHead"] [class*="eyebrow"],
+section[class*="UnifiedTrainingCoach"] .eyebrow,
+section[class*="UnifiedTrainingCoach"] [class*="eyebrow"],
+[class*="UnifiedTrainingCoach"] p[class*="eyebrow"]{
+  color:var(--solene-navy)!important;
+}
+
+main#top #lernbereiche [class*="sectionHead"] > p,
+main#top [class*="journey"] > div > p:not(.eyebrow),
+main#top [class*="journey"] > div > p:not([class*="eyebrow"]){
+  color:var(--solene-charcoal)!important;
+}
+
+/* Keep navigation comfortably above AA on Pearl White. */
+.topbar nav a,
+.trainingTopbar nav a,
+nav a{
+  color:var(--solene-navy)!important;
+}
+
+/* Training/world stage: dark navy canvas with clearly defined light cards.
+   This removes the legacy combination of Moon White text on white cards. */
+.worldStage{
+  background:linear-gradient(135deg,var(--solene-navy),var(--solene-navy-2))!important;
+}
+.worldStage > [class*="sectionHead"] h2,
+.worldStage > [class*="sectionHead"] h3,
+.worldStage > [class*="sectionHead"] strong{
+  color:#FFFFFF!important;
+}
+.worldStage > [class*="sectionHead"] > p{
+  color:var(--solene-sand)!important;
+}
+.worldStage > [class*="sectionHead"] .eyebrow,
+.worldStage > [class*="sectionHead"] [class*="eyebrow"]{
+  color:var(--solene-gold)!important;
+}
+
+section#training article.worldCard,
+section#training [class*="worldCard"],
+.worldStage article.worldCard,
+.worldStage [class*="worldCard"]{
+  background:linear-gradient(160deg,#FFFFFF 0%,var(--solene-pearl) 100%)!important;
+  color:var(--solene-charcoal)!important;
+  border-color:rgba(184,138,74,.34)!important;
+}
+section#training article.worldCard h3,
+section#training article.worldCard strong,
+section#training [class*="worldCard"] h3,
+section#training [class*="worldCard"] strong,
+.worldStage [class*="worldCard"] h3,
+.worldStage [class*="worldCard"] strong{
+  color:var(--solene-charcoal)!important;
+}
+section#training article.worldCard p,
+section#training [class*="worldCard"] p,
+.worldStage [class*="worldCard"] p{
+  color:var(--solene-stone)!important;
+}
+section#training article.worldCard .eyebrow,
+section#training article.worldCard [class*="eyebrow"],
+section#training [class*="worldCard"] .eyebrow,
+section#training [class*="worldCard"] [class*="eyebrow"],
+.worldStage [class*="worldCard"] .eyebrow,
+.worldStage [class*="worldCard"] [class*="eyebrow"]{
+  color:var(--solene-navy)!important;
+}
+
+/* Unified coach cards are light; gold remains decoration, Night Navy is the
+   accessible small-text accent. */
+section[class*="UnifiedTrainingCoach"],
+[class*="UnifiedTrainingCoach"][class*="wrap"]{
+  color:var(--solene-charcoal)!important;
+}
+section[class*="UnifiedTrainingCoach"] p,
+[class*="UnifiedTrainingCoach"] p{
+  color:var(--solene-charcoal)!important;
+}
+section[class*="UnifiedTrainingCoach"] p[class*="eyebrow"],
+[class*="UnifiedTrainingCoach"] p[class*="eyebrow"]{
+  color:var(--solene-navy)!important;
+}
+
+/* General safety net for legacy Mudrasol values on explicitly light Solene
+   components. Attribute selectors cover CSS-module generated class names. */
+.heroStage [class*="eyebrow"],
+.hero [class*="eyebrow"],
+[class*="learningCard"] [class*="eyebrow"],
+[class*="metric"] [class*="eyebrow"],
+[class*="trainingNotice"] [class*="eyebrow"]{
+  color:var(--solene-navy)!important;
+}
+.heroStage p:not([class*="eyebrow"]),
+.hero p:not([class*="eyebrow"]){
+  color:var(--solene-charcoal)!important;
+}
+
+/* Antique Gold remains a luxury accent where it has sufficient contrast. */
+.worldStage > [class*="sectionHead"] [class*="eyebrow"]{
+  color:var(--solene-gold)!important;
+}
+
+@media(max-width:820px){
+  main#top [class*="sectionHead"] > p,
+  main#top [class*="journey"] > div > p:not([class*="eyebrow"]){
+    color:var(--solene-charcoal)!important;
+  }
+}
