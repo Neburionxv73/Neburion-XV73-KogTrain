@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { FocusTraining31 } from "@/components/FocusTraining31";
+import { UnifiedTrainingCoach } from "@/components/UnifiedTrainingCoach";
 
 export const metadata: Metadata = {
   title: "Persönlicher Lernmix · Fokus auswählen",
@@ -16,6 +17,7 @@ export default function FocusTrainingPage() {
         <span>Learning Expansion 3.6 · Persönlicher Lernmix</span>
       </div>
       <FocusTraining31 />
+      <UnifiedTrainingCoach />
     </main>
   );
 }
