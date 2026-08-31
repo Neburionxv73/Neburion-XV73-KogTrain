@@ -1,0 +1,40 @@
+:root{
+  --cosmic-night:#090619;
+  --astral-violet:#18102E;
+  --mudrasol-purple:#8157FF;
+  --solar-magenta:#D64DFF;
+  --lunar-blue:#57B9FF;
+  --moon-white:#F8F5FF;
+  --lavender-mist:#B8ADD2;
+}
+
+html{background:var(--cosmic-night);color-scheme:dark}
+body{background:radial-gradient(circle at 82% 8%,rgba(129,87,255,.16),transparent 30%),radial-gradient(circle at 12% 32%,rgba(87,185,255,.09),transparent 28%),var(--cosmic-night);color:var(--moon-white)}
+
+/* V6.7 global Mudrasol color layer: deliberately loaded last so every platform area inherits one coherent palette. */
+:where(header,nav,main,section,article,aside,footer){border-color:rgba(184,173,210,.2)}
+:where(h1,h2,h3,h4,h5,h6,strong){color:var(--moon-white)}
+:where(p,li,small,label){color:var(--lavender-mist)}
+:where(a){color:var(--lunar-blue)}
+:where(a:hover){color:var(--moon-white)}
+
+:where(button,[role="button"],input,select,textarea){border-color:rgba(184,173,210,.32)}
+:where(input,select,textarea){background:var(--astral-violet);color:var(--moon-white)}
+:where(input,select,textarea)::placeholder{color:var(--lavender-mist)}
+:where(button,[role="button"]){accent-color:var(--mudrasol-purple)}
+
+::selection{background:var(--solar-magenta);color:var(--cosmic-night)}
+:focus-visible{outline:3px solid var(--lunar-blue);outline-offset:3px}
+
+/* Common platform surfaces and legacy utility classes. */
+:where(.card,.panel,.tile,.module,.exercise,.exerciseCard,.trainingCard,.worldCard,.metric,.stat,.modal,.dialog){background:var(--astral-violet);color:var(--moon-white);border-color:rgba(129,87,255,.38)}
+
+/* Primary actions stay dark-text-on-purple for reliable contrast. */
+:where(.primary,.primaryButton,.cta,.ctaButton,[data-variant="primary"]){background:var(--mudrasol-purple);color:var(--cosmic-night);border-color:var(--mudrasol-purple)}
+:where(.primary,.primaryButton,.cta,.ctaButton,[data-variant="primary"]):hover{background:var(--lunar-blue);color:var(--cosmic-night)}
+
+/* Semantic accents. */
+:where(.eyebrow,.kicker,.overline,.accent){color:var(--lunar-blue)}
+:where(.highlight,.active,.selected){border-color:var(--solar-magenta)}
+
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
