@@ -1,4 +1,4 @@
-import { createSessionSeed, difficultyFromPercent, randomInt, shuffled, type Difficulty } from "@/lib/dynamicTraining";
+import { createSessionSeed, difficultyFromPercent, finalizeSessionTasks, randomInt, shuffled, type Difficulty } from "@/lib/dynamicTraining";
 
 export type AttentionMode = "go-no-go" | "visual-search" | "rule-switch" | "inhibition" | "divided" | "speed" | "interference";
 
@@ -20,7 +20,7 @@ export type AttentionSession = {
   targetMs: number;
 };
 
-const symbols = ["◆", "●", "▲", "■", "✦", "⬟", "★", "✚", "◇", "⬢"];
+const symbols = ["◆", "●", "▲", "■", "✦", "⬟", "★", "✚", "◇", "⬢", "⬣", "◈"];
 
 function withAnswer(task: Omit<AttentionTask, "options" | "answer">, correct: string, distractors: string[]): AttentionTask {
   const options = shuffled([correct, ...distractors.filter((item) => item !== correct)]).slice(0, 4);
@@ -38,7 +38,7 @@ function visualSearch(seed: number, difficulty: Difficulty): AttentionTask {
   const target = shuffled(symbols)[0];
   const distractorPool = symbols.filter((item) => item !== target);
   const targetCount = randomInt(1, difficulty === 3 ? 4 : 3);
-  const total = difficulty === 3 ? 16 : difficulty === 2 ? 13 : 10;
+  const total = difficulty === 3 ? 18 : difficulty === 2 ? 14 : 10;
   const visual = shuffled([
     ...Array.from({length:targetCount},()=>target),
     ...Array.from({length:total-targetCount},(_,i)=>distractorPool[(i+seed)%distractorPool.length]),
@@ -57,7 +57,7 @@ function ruleSwitch(seed: number): AttentionTask {
 }
 
 function inhibition(seed: number): AttentionTask {
-  const pairs = [["◆","◇"],["●","○"],["■","□"],["▲","△"]];
+  const pairs = [["◆","◇"],["●","○"],["■","□"],["▲","△"],["⬢","⬡"]];
   const [filled, outline] = pairs[seed%pairs.length];
   const showFilled = seed % 2 === 0;
   return withAnswer({ id:`inhibit-${seed}-${filled}`, mode:"inhibition", label:"Reaktionshemmung", prompt:`Reagiere nur auf die gefüllte Form ${filled}`, instruction:"Ähnliche Konturen sind Distraktoren.", visual:[showFilled ? filled : outline], explanation:showFilled ? "Die Form war gefüllt: reagieren." : "Die Kontur war ungefüllt: Reaktion hemmen." }, showFilled ? "Reagieren" : "Ignorieren", [showFilled ? "Ignorieren" : "Reagieren"]);
@@ -96,6 +96,7 @@ export function createAttentionSession(bestAccuracy: number): AttentionSession {
     ()=>ruleSwitch(seed+5), ()=>ruleSwitch(seed+6), ()=>inhibition(seed+7), ()=>divided(seed+8,difficulty),
     ()=>speed(seed+9,difficulty), ()=>speed(seed+10,difficulty), ()=>interference(seed+11), ()=>interference(seed+12),
   ];
-  const tasks = shuffled(factories).slice(0,8).map((factory)=>factory());
+  const candidates = shuffled(factories).map((factory)=>factory());
+  const tasks = finalizeSessionTasks("attention-v2", candidates, 56).slice(0,8);
   return { difficulty, tasks, targetMs: difficulty===3 ? 650 : difficulty===2 ? 800 : 950 };
 }
