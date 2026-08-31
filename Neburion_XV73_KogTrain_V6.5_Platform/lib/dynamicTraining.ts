@@ -1,5 +1,11 @@
 export type Difficulty = 1 | 2 | 3;
 
+export type TrainingEvidence = {
+  percent: number;
+  attempts?: number;
+  recentPercent?: number;
+};
+
 export function shuffled<T>(items: readonly T[]): T[] {
   const copy = [...items];
   for (let index = copy.length - 1; index > 0; index -= 1) {
@@ -23,6 +29,20 @@ export function difficultyFromPercent(percent: number): Difficulty {
   return 1;
 }
 
+/**
+ * Dynamic Training Engine V2: difficulty only rises when enough evidence exists.
+ * A single strong session must not immediately force the hardest level.
+ */
+export function difficultyFromEvidence({ percent, attempts = 0, recentPercent }: TrainingEvidence): Difficulty {
+  const stablePercent = Number.isFinite(recentPercent) && attempts >= 3
+    ? Math.round(percent * 0.65 + (recentPercent as number) * 0.35)
+    : percent;
+  const raw = difficultyFromPercent(stablePercent);
+  if (attempts < 2) return 1;
+  if (attempts < 5 && raw === 3) return 2;
+  return raw;
+}
+
 export function shuffleOptions<T extends { options: string[]; answer: number }>(question: T): T {
   const correct = question.options[question.answer];
   const options = shuffled(question.options);
@@ -31,7 +51,7 @@ export function shuffleOptions<T extends { options: string[]; answer: number }>(
 
 const HISTORY_PREFIX = "neburion-v66-task-history:";
 
-export function readRecentTaskIds(scope: string, max = 24): string[] {
+export function readRecentTaskIds(scope: string, max = 32): string[] {
   if (typeof window === "undefined") return [];
   try {
     const parsed = JSON.parse(window.localStorage.getItem(`${HISTORY_PREFIX}${scope}`) ?? "[]");
@@ -41,7 +61,7 @@ export function readRecentTaskIds(scope: string, max = 24): string[] {
   }
 }
 
-export function rememberTaskIds(scope: string, ids: readonly string[], max = 24): void {
+export function rememberTaskIds(scope: string, ids: readonly string[], max = 32): void {
   if (typeof window === "undefined") return;
   try {
     const previous = readRecentTaskIds(scope, max);
@@ -57,6 +77,45 @@ export function chooseFresh<T extends { id: string }>(items: readonly T[], count
   const fresh = shuffled(items.filter((item) => !recent.has(item.id)));
   const fallback = shuffled(items.filter((item) => recent.has(item.id)));
   return [...fresh, ...fallback].slice(0, Math.min(count, items.length));
+}
+
+/**
+ * Reorders a generated session so unseen tasks come first and persists the
+ * delivered IDs. Generated domains can use this without changing their UI.
+ */
+export function finalizeSessionTasks<T extends { id: string }>(scope: string, tasks: readonly T[], maxHistory = 32): T[] {
+  const recentIds = readRecentTaskIds(scope, maxHistory);
+  const recent = new Set(recentIds);
+  const fresh = shuffled(tasks.filter((task) => !recent.has(task.id)));
+  const repeated = shuffled(tasks.filter((task) => recent.has(task.id)));
+  const result = [...fresh, ...repeated];
+  rememberTaskIds(scope, result.map((task) => task.id), maxHistory);
+  return result;
+}
+
+/** Keeps mode coverage broad instead of allowing one task type to dominate. */
+export function balancedByMode<T extends { mode: string }>(items: readonly T[], count: number): T[] {
+  const groups = new Map<string, T[]>();
+  shuffled(items).forEach((item) => groups.set(item.mode, [...(groups.get(item.mode) ?? []), item]));
+  const modes = shuffled([...groups.keys()]);
+  const result: T[] = [];
+  let cursor = 0;
+  while (result.length < Math.min(count, items.length) && modes.length) {
+    const mode = modes[cursor % modes.length];
+    const group = groups.get(mode) ?? [];
+    const next = group.shift();
+    if (next) result.push(next);
+    if (!group.length) {
+      groups.delete(mode);
+      const index = modes.indexOf(mode);
+      modes.splice(index, 1);
+      if (!modes.length) break;
+      cursor %= modes.length;
+    } else {
+      cursor += 1;
+    }
+  }
+  return result;
 }
 
 export function createSessionSeed(): number {
