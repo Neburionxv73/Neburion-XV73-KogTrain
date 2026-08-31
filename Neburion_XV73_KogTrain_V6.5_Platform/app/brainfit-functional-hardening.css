@@ -37,7 +37,9 @@
   border-radius:18px;
   background:#eef3f8;
   box-shadow:0 12px 28px rgba(45,69,96,.06);
+  box-sizing:border-box;
 }
+.bfCrosswordGrid>*{min-width:0;max-width:100%;box-sizing:border-box}
 .bfCrosswordCell,
 .bfCrosswordBlock{
   position:relative;
@@ -45,6 +47,7 @@
   min-width:38px;
   min-height:38px;
   border-radius:6px;
+  box-sizing:border-box;
 }
 .bfCrosswordBlock{background:#dfe7ef}
 .bfCrosswordCell{
@@ -65,11 +68,15 @@
   pointer-events:none;
 }
 .bfCrosswordCell input{
-  width:100%;
+  display:block;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
   height:100%;
   padding:7px 2px 2px;
   border:0;
   outline:0;
+  box-sizing:border-box!important;
   background:transparent;
   color:#13243a;
   text-align:center;
@@ -134,7 +141,7 @@
   .bfCrosswordClues p{font-size:15px;line-height:1.55}
   .bfCrosswordCell,.bfCrosswordBlock{min-width:0;min-height:0;border-radius:4px}
   .bfCrosswordCell>span{top:1px;left:2px;font-size:8px}
-  .bfCrosswordCell input{padding:6px 1px 1px;font-size:16px;min-width:0}
+  .bfCrosswordCell input{padding:6px 1px 1px;font-size:16px!important;min-width:0!important;max-width:100%!important}
   .bfSudokuGrid button:nth-child(2),
   .bfSudokuGrid button:nth-child(6),
   .bfSudokuGrid button:nth-child(10),
