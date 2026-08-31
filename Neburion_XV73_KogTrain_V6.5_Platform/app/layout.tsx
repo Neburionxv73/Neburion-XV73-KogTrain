@@ -15,6 +15,7 @@ import "./interaction-finish-v97.css";
 import "./performance-baseline-v97.css";
 import "./a11y-contrast-final-v97.css";
 import "./raptor-v103-clean-foundation.css";
+import "./mudrasol-cosmic-theme.css";
 
 const isProduction = process.env.VERCEL_ENV === "production";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : undefined);
@@ -30,7 +31,7 @@ export const metadata: Metadata = {
   openGraph: { type: "website", locale: "de_AT", siteName: "Neburion XV73 KogTrain", title: "Neburion XV73 · KogTrain V6.7", description: "Persönlicher Lernmix, getrennte Spielerprofile, Cloud-Spielstände, Spezial-Labs und Gehirnfit in einer klaren Trainingsplattform." },
 };
 
-export const viewport: Viewport = { width: "device-width", initialScale: 1, colorScheme: "light", themeColor: "#F8FAFC" };
+export const viewport: Viewport = { width: "device-width", initialScale: 1, colorScheme: "dark", themeColor: "#090619" };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return <html lang="de"><body><PlayerStorageBridge /><CloudPlayerBridge /><a className="skipLink" href="#main-content">Direkt zum Inhalt</a><div id="main-content" tabIndex={-1}>{children}</div></body></html>;
