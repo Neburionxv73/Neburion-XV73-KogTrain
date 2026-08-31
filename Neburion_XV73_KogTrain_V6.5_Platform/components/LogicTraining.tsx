@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createLogicSession, LOGIC_SESSION_LENGTH, LOGIC_STORAGE_KEY, type LogicMode, type LogicSession } from "@/lib/logic";
+import { createLogicSession, LOGIC_SESSION_LENGTH, LOGIC_STORAGE_KEY, type LogicMode, type LogicSession } from "@/lib/logicV2";
 import styles from "./LogicTraining.module.css";
 
 type ModeStat = { attempts: number; correct: number };
@@ -107,14 +107,14 @@ export function LogicTraining() {
       <div className="trainingStats">
         <span>Sessions {stats.sessions}</span>
         <span>Bestwert {stats.bestScore} / {LOGIC_SESSION_LENGTH}</span>
-        <span>{session ? `Level ${session.difficulty}` : "Logic Lab 2.1"}</span>
+        <span>{session ? `Level ${session.difficulty}` : "Logic Lab 2.2 · Dynamic V2"}</span>
       </div>
 
       {phase === "intro" && (
         <div className="trainingStage">
-          <p className="eyebrow">8 generative Logikmodi</p>
+          <p className="eyebrow">8 dynamische Logikmodi · V2</p>
           <h2>Regeln erkennen. Schlüsse ziehen. Muster weiterdenken.</h2>
-          <p>Jede Session erzeugt neue Zahlenfolgen, Regeln, Analogien, Schlussfolgerungen, Matrizen, Operatoren, Ausschluss- und Raumaufgaben. Die Schwierigkeit passt sich deinem bisherigen Bestwert an.</p>
+          <p>Dynamic Engine V2 erzeugt deutlich mehr Varianten pro Modus: steigende und fallende Folgen, mehrstufige Regeln, wechselnde Analogien, Deduktionen, Matrizen, Operatoren, Ausschlussmuster und mehrstufige Raumdrehungen. Die Schwierigkeit passt sich deinem bisherigen Bestwert an.</p>
           <button className="primary trainingButton" type="button" onClick={start}>Logic Session starten</button>
         </div>
       )}
