@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createVisualSession, VISUAL_SESSION_LENGTH, VISUAL_STORAGE_KEY, type VisualMode, type VisualSession } from "@/lib/visual";
+import { createVisualSession, VISUAL_SESSION_LENGTH, VISUAL_STORAGE_KEY, type VisualMode, type VisualSession } from "@/lib/visualV2";
 import styles from "./VisualTraining.module.css";
 
 type ModeStat = { attempts: number; correct: number };
@@ -68,7 +68,7 @@ export function VisualTraining() {
   }
 
   function start() {
-    const nextSession = createVisualSession(stats.bestScore);
+    const nextSession = createVisualSession(stats.bestScore, stats.sessions);
     setSession(nextSession);
     setOutcomes([]);
     enterTask(nextSession, 0);
@@ -116,14 +116,14 @@ export function VisualTraining() {
       <div className={styles.stats}>
         <span>Sessions <strong>{stats.sessions}</strong></span>
         <span>Bestwert <strong>{stats.bestScore}/{VISUAL_SESSION_LENGTH}</strong></span>
-        <span>{session ? `Level ${session.difficulty}` : "Visual Lab 2.0"}</span>
+        <span>{session ? `Level ${session.difficulty}` : "Visual Lab V2"}</span>
       </div>
 
       {phase === "intro" && (
         <div className={styles.stage}>
-          <p className="eyebrow">8 visuelle Trainingsmodi</p>
+          <p className="eyebrow">8 visuelle Trainingsmodi · Dynamic Engine V2</p>
           <h2>Sehen. Vergleichen. Erinnern. Räumlich denken.</h2>
-          <p>Jede Session kombiniert genau einmal Rotation, Spiegelung, Muster, Matrix, Positionswechsel, visuelle Suche, Formvergleich und Kurzzeitgedächtnis.</p>
+          <p>Jede Session kombiniert Rotation, Spiegelung, Muster, Matrix, Positionswechsel, visuelle Suche, Formvergleich und Kurzzeitgedächtnis. Die Reize rotieren über Sessions und das Niveau steigt erst mit belastbarer Trainingsevidenz.</p>
           <div className={styles.modeGrid}>{Object.values(labels).map((label) => <span key={label}>{label}</span>)}</div>
           <button className="primary trainingButton" type="button" onClick={start}>Visual Session starten</button>
         </div>
@@ -177,7 +177,7 @@ export function VisualTraining() {
               <div key={mode}><span>{labels[mode]}</span><strong>{value.attempts ? Math.round((value.correct / value.attempts) * 100) : 0}%</strong></div>
             ))}
           </div>
-          <p>Die nächste Session erzeugt neue Reize und passt die Schwierigkeit an deinen bisherigen Bestwert an.</p>
+          <p>Die nächste Session erzeugt neue Reize, priorisiert frische Varianten und passt die Schwierigkeit evidenzbasiert an.</p>
           <button className="primary trainingButton" type="button" onClick={start}>Neue Visual Session</button>
         </div>
       )}
