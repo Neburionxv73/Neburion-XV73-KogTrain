@@ -1,0 +1,92 @@
+/* Mudrasol readability correction: loaded after all legacy and V10.3 layers. */
+
+/* Dark editorial sections on the home page */
+.journeyTeaser,
+.learningLibrary:not(.hero),
+.worlds,
+#training,
+#gehirnfit{
+  color:var(--moon-white)!important;
+}
+
+.journeyTeaser h1,
+.journeyTeaser h2,
+.journeyTeaser h3,
+.learningLibrary h1,
+.learningLibrary h2,
+.learningLibrary h3,
+.worlds h1,
+.worlds h2,
+.worlds h3,
+#training h1,
+#training h2,
+#training h3,
+#gehirnfit h1,
+#gehirnfit h2,
+#gehirnfit h3{
+  color:var(--moon-white)!important;
+  opacity:1!important;
+}
+
+.journeyTeaser > div > p:not(.eyebrow),
+.learningLibrary .sectionHead > p,
+.worlds .sectionHead > p,
+#training .sectionHead > p,
+#gehirnfit .sectionHead > p{
+  color:var(--lavender-mist)!important;
+  opacity:1!important;
+}
+
+.journeyTeaser .eyebrow,
+.learningLibrary .eyebrow,
+.worlds .eyebrow,
+#training .eyebrow,
+#gehirnfit .eyebrow{
+  color:var(--lunar-blue)!important;
+  opacity:1!important;
+  font-weight:800!important;
+}
+
+/* Raise body-copy contrast on all dark sections. */
+.journeyTeaser p,
+.learningLibrary > .sectionHead p,
+.worlds > .sectionHead p{
+  text-shadow:0 1px 0 rgba(0,0,0,.12);
+}
+
+/* Preserve readable dark typography on intentionally light cards and bands. */
+.v103-statusBand,
+.v103-statusBand strong,
+.v103-statusBand b,
+.journeyTeaserMeta > span,
+.journeyTeaserMeta > span strong{
+  color:#1D2A32!important;
+}
+.v103-statusBand small,
+.journeyTeaserMeta > span small{
+  color:#526879!important;
+}
+
+/* Home hero intentionally remains light. */
+.hero .heroCopy h1{color:#1D2A32!important}
+.hero .heroCopy > p:not(.eyebrow){color:#526879!important}
+.hero .heroCopy .eyebrow{color:#087F8C!important}
+
+/* Ensure generic section headings do not inherit obsolete dark ink on cosmic backgrounds. */
+body :where(.journeyTeaser,.learningLibrary,.worlds) :where(h1,h2,h3,h4,h5,h6){
+  color:var(--moon-white)!important;
+}
+body :where(.journeyTeaser,.learningLibrary,.worlds) :where(.eyebrow,.kicker,.overline){
+  color:var(--lunar-blue)!important;
+}
+body :where(.journeyTeaser,.learningLibrary,.worlds) :where(.sectionHead>p){
+  color:var(--lavender-mist)!important;
+}
+
+@media(max-width:820px){
+  .journeyTeaser h2,
+  .learningLibrary h2,
+  .worlds h2{
+    color:var(--moon-white)!important;
+  }
+}
