@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { createLanguageSession, LANGUAGE_SESSION_LENGTH, LANGUAGE_STORAGE_KEY, type LanguageMode, type LanguageSession } from "@/lib/language";
+import { createLanguageSession, LANGUAGE_SESSION_LENGTH, LANGUAGE_STORAGE_KEY, type LanguageMode, type LanguageSession } from "@/lib/languageV2";
 import { readRecentTaskIds, rememberTaskIds } from "@/lib/dynamicTraining";
 import styles from "./LanguageTraining.module.css";
 
@@ -60,7 +60,7 @@ export function LanguageTraining() {
   function start() {
     const sharedHistory = readRecentTaskIds(HISTORY_SCOPE, 32);
     const mergedHistory = [...new Set([...stats.recentIds, ...sharedHistory])].slice(-32);
-    setSession(createLanguageSession(stats.bestScore, mergedHistory));
+    setSession(createLanguageSession(stats.bestScore, mergedHistory, stats.sessions));
     setIndex(0);
     setSelected(null);
     setOutcomes([]);
@@ -115,14 +115,14 @@ export function LanguageTraining() {
       <div className={styles.stats}>
         <span>Sessions <strong>{stats.sessions}</strong></span>
         <span>Bestwert <strong>{stats.bestScore}/{LANGUAGE_SESSION_LENGTH}</strong></span>
-        <span>{session ? `Level ${session.difficulty}` : "Language Lab 2.1"}</span>
+        <span>{session ? `Level ${session.difficulty}` : "Language Lab V2"}</span>
       </div>
 
       {phase === "intro" && (
         <div className={styles.stage}>
-          <p className="eyebrow">8 Sprachmodi</p>
+          <p className="eyebrow">8 Sprachmodi · Dynamic Engine V2</p>
           <h2>Wörter verstehen. Beziehungen erkennen. Kontext deuten.</h2>
-          <p>Jede Session kombiniert acht verschiedene Sprachbereiche. Ein rollierendes Aufgabenfenster vermeidet Wiederholungen über mehrere Sessions hinweg; die Schwierigkeit passt sich deinem bisherigen Bestwert an.</p>
+          <p>Jede Session kombiniert acht verschiedene Sprachbereiche. Das rollierende Aufgabenfenster reduziert Wiederholungen; die Schwierigkeit steigt erst mit ausreichend Trainingsdaten und bleibt damit nachvollziehbar.</p>
           <div className={styles.modeGrid}>{Object.values(labels).map((label) => <span key={label}>{label}</span>)}</div>
           <button className="primary trainingButton" type="button" onClick={start}>Language Session starten</button>
         </div>
@@ -162,7 +162,7 @@ export function LanguageTraining() {
               <div key={mode}><span>{labels[mode]}</span><strong>{value.attempts ? Math.round((value.correct / value.attempts) * 100) : 0}%</strong></div>
             ))}
           </div>
-          <p>Die nächste Session bevorzugt andere Varianten aus dem rollierenden Verlauf und nutzt deinen Bestwert für die Schwierigkeitsstufe.</p>
+          <p>Die nächste Session bevorzugt andere Varianten aus dem rollierenden Verlauf und passt das Niveau evidenzbasiert an.</p>
           <button className="primary trainingButton" type="button" onClick={start}>Neue Language Session</button>
         </div>
       )}
