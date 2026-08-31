@@ -20,6 +20,16 @@ const pkg = JSON.parse(read("package.json"));
 const hasCanonical = (source, route) =>
   source.includes("alternates") && source.includes(`canonical: \"${route}\"`);
 
+const crosswordPortraitReady =
+  brainfitCss.includes(".bfCrosswordWrap") &&
+  brainfitCss.includes("overflow-x:auto") &&
+  brainfitCss.includes("-webkit-overflow-scrolling:touch") &&
+  brainfitCss.includes("@media(max-width:430px)") &&
+  brainfitCss.includes("@media(max-width:390px)") &&
+  brainfitCss.includes("min-width:440px") &&
+  brainfitCss.includes("min-width:420px") &&
+  brainfitCss.includes("touch-action:manipulation");
+
 const checks = [
   ["responsive: tablet breakpoint", /max-width:\s*(900|980)px/.test(journeyCss + progressCss + responsive)],
   ["responsive: mobile breakpoint", /max-width:\s*640px/.test(journeyCss + progressCss + responsive)],
@@ -31,7 +41,7 @@ const checks = [
   ["a11y: reduced motion", interaction.includes("prefers-reduced-motion")],
   ["a11y: stateful controls", brainfit.includes("aria-pressed") || journeyCss.includes("aria-pressed")],
   ["a11y: crossword focus treatment", interaction.includes("bfCrosswordCell") && interaction.includes(":focus-visible")],
-  ["brainfit: mobile crossword target", brainfitCss.includes("min-width:44px") || brainfitCss.includes("min-height:44px")],
+  ["brainfit: portrait crossword usability", crosswordPortraitReady],
   ["seo: metadata base", layout.includes("metadataBase") && layout.includes("VERCEL_PROJECT_PRODUCTION_URL")],
   ["seo: canonical home", hasCanonical(home, "/")],
   ["seo: canonical journey", hasCanonical(journeyPage, "/training/journey")],
