@@ -44,6 +44,19 @@ function makeSudokuRound(mode:BrainFitMode):SudokuRound{
   return {solution:mapped,cells:mapped.map((value,index)=>({value:fixed.has(index)?value:"",fixed:fixed.has(index)}))};
 }
 
+function isValidSudokuGrid(cells:Cell[]){
+  const values=cells.map(cell=>cell.value);
+  if(values.length!==16||values.some(value=>!ANIMALS.includes(value))) return false;
+  const groups:number[][]=[];
+  for(let row=0;row<4;row++) groups.push([0,1,2,3].map(col=>row*4+col));
+  for(let col=0;col<4;col++) groups.push([0,1,2,3].map(row=>row*4+col));
+  for(let blockRow=0;blockRow<2;blockRow++) for(let blockCol=0;blockCol<2;blockCol++){
+    const startRow=blockRow*2,startCol=blockCol*2;
+    groups.push([0,1,2,3].map(offset=>(startRow+Math.floor(offset/2))*4+startCol+(offset%2)));
+  }
+  return groups.every(group=>new Set(group.map(index=>values[index])).size===4);
+}
+
 function makeMemory(mode:BrainFitMode):MemoryCard[]{
   const pairs=mode==="relaxed"?4:mode==="normal"?6:8;
   const values=MEMORY_POOL.slice(0,pairs);
@@ -240,7 +253,8 @@ export function BrainFitTraining(){
     }catch{}
   },[]);
 
-  const sudokuDone=useMemo(()=>sudokuRound.cells.every((cell,index)=>cell.value===sudokuRound.solution[index]),[sudokuRound]);
+  const sudokuFilled=useMemo(()=>sudokuRound.cells.every(cell=>Boolean(cell.value)),[sudokuRound]);
+  const sudokuDone=useMemo(()=>isValidSudokuGrid(sudokuRound.cells),[sudokuRound]);
   const wordDone=wordPuzzle.words.length>0&&foundWords.length===wordPuzzle.words.length;
   const crosswordDone=useMemo(()=>Object.entries(crossword.cells).every(([key,cell])=>normalizeAnswer(crossValues[key]??"")===cell.answer),[crossword,crossValues]);
   const memoryDone=memory.length>0&&memory.every(card=>card.matched);
@@ -352,10 +366,11 @@ export function BrainFitTraining(){
       <div className={styles.areaMeta}><span>{areaInfo.subtitle}</span><span>{stats.areaStats[area].sessions?`${areaAverage(stats.areaStats[area])}% Ø · ${stats.areaStats[area].sessions} Sessions`:"Noch untrainiert"}</span></div>
 
       {area==="sudoku"&&<>
-        <div className={styles.panelHead}><div><p className="eyebrow">Rätsel</p><h2>Tier-Sudoku 4×4</h2><p>Jedes Tier darf in jeder Zeile, Spalte und jedem markierten 2×2-Bereich nur einmal vorkommen. Jede neue Variante verwendet eine neu gemischte gültige Lösung.</p></div><span className={styles.status}>{sudokuDone?"Gelöst ✓":effectiveMode}</span></div>
+        <div className={styles.panelHead}><div><p className="eyebrow">Rätsel</p><h2>Tier-Sudoku 4×4</h2><p>Jedes Tier darf in jeder Zeile, Spalte und jedem markierten 2×2-Bereich nur einmal vorkommen. Jede vollständige regelkonforme Lösung wird akzeptiert – auch wenn das Rätsel mehrere mögliche Lösungen hat.</p></div><span className={styles.status}>{sudokuDone?"Gelöst ✓":effectiveMode}</span></div>
         <div className={`${styles.sudoku} bfSudokuGrid`}>{sudokuRound.cells.map((cell,index)=><button key={index} type="button" data-fixed={cell.fixed} aria-label={`Feld ${index+1}${cell.value?`, ${cell.value}`:""}`} onClick={()=>!cell.fixed&&setActiveSudoku(index)} style={activeSudoku===index?{outline:"4px solid #18b696",outlineOffset:"2px"}:undefined}>{cell.value||"·"}</button>)}</div>
         <div className={styles.palette}>{ANIMALS.map(animal=><button key={animal} type="button" onClick={()=>setSudokuValue(animal)} aria-label={`${animal} einsetzen`}>{animal}</button>)}<button type="button" onClick={()=>setSudokuValue("")} aria-label="Feld leeren">×</button></div>
-        {sudokuDone&&<div className={styles.success}>Sehr gut – das Tier-Sudoku ist vollständig gelöst. ✓</div>}
+        {sudokuFilled&&!sudokuDone&&<div className={styles.hint}>Das Raster ist vollständig, aber noch nicht regelkonform. Prüfe Zeilen, Spalten und die vier 2×2-Bereiche.</div>}
+        {sudokuDone&&<div className={styles.success}>Sehr gut – das Tier-Sudoku ist vollständig und regelkonform gelöst. ✓</div>}
       </>}
 
       {area==="words"&&<>
