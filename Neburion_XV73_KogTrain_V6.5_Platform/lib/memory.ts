@@ -1,4 +1,4 @@
-import { createSessionSeed, difficultyFromPercent, randomInt, shuffled, type Difficulty } from "@/lib/dynamicTraining";
+import { createSessionSeed, difficultyFromPercent, finalizeSessionTasks, randomInt, shuffled, type Difficulty } from "@/lib/dynamicTraining";
 
 export type MemoryMode = "digits" | "reverse" | "words" | "symbols" | "positions" | "recognition" | "nback1" | "nback2";
 export type MemoryTask = {
@@ -21,9 +21,10 @@ export const MEMORY_SESSION_LENGTH = 8;
 
 const WORDS = [
   "Apfel","Mond","Brücke","Fuchs","Kerze","Wolke","Schlüssel","Wald","Fenster","Fluss","Stern","Berg","Feder","Tasse","Blatt","Turm","Regen","Klang","Stein","Pfad","Lampe","Kreis","Nebel","Garten",
-  "Anker","Brot","Insel","Jacke","Karte","Leiter","Mühle","Orange","Pinsel","Quelle","Ring","Schale","Trommel","Ufer","Vogel","Wiese","Zweig","Messer","Kissen","Schnee","Hafen","Seil","Birne","Komet"
+  "Anker","Brot","Insel","Jacke","Karte","Leiter","Mühle","Orange","Pinsel","Quelle","Ring","Schale","Trommel","Ufer","Vogel","Wiese","Zweig","Messer","Kissen","Schnee","Hafen","Seil","Birne","Komet",
+  "Kompass","Laterne","Muschel","Rucksack","Zeder","Felsen","Segel","Tunnel","Kranich","Würfel","Atlas","Brunnen","Kiesel","Wimpel","Schmiede","Kuppel"
 ];
-const SYMBOLS = ["◆","●","▲","■","✦","⬟","★","◇","⬢","✚"];
+const SYMBOLS = ["◆","●","▲","■","✦","⬟","★","◇","⬢","✚","⬣","◈"];
 
 const normalizeWords = (values: string[]) => values.map((value) => value.toLocaleLowerCase("de-AT")).join("|");
 const digits = (length: number) => Array.from({ length }, () => String(randomInt(0, 9)));
@@ -100,7 +101,8 @@ export function createMemorySession(bestScore: number): MemorySession {
     () => nbackTask(1, difficulty, seed + 7),
     () => nbackTask(2, difficulty, seed + 8),
   ];
-  return { difficulty, showMs: difficulty === 3 ? 3200 : difficulty === 2 ? 3800 : 4400, tasks: shuffled(factories).map((factory) => factory()) };
+  const tasks = finalizeSessionTasks("memory-v2", shuffled(factories).map((factory) => factory()), 48);
+  return { difficulty, showMs: difficulty === 3 ? 3200 : difficulty === 2 ? 3800 : 4400, tasks };
 }
 
 export function normalizeMemoryInput(task: MemoryTask, value: string): string {
