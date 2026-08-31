@@ -70,7 +70,7 @@ jobs:
       - name: Playwright functional and responsive QA
         env:
           QA_BASE_URL: http://127.0.0.1:3000
-        run: pnpm exec playwright test tests/runtime-smoke.spec.ts
+        run: pnpm exec playwright test tests/runtime-smoke.spec.ts tests/mobile-brainfit.spec.ts
 
       - name: Lighthouse mobile release gates
         run: pnpm exec lhci autorun --config=./lighthouserc.cjs
