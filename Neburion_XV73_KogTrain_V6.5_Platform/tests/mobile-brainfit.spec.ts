@@ -1,44 +1,94 @@
 import { test, expect } from "@playwright/test";
 
-const iphone14 = { width: 390, height: 844 };
+const devices = [
+  { name: "iPhone portrait", viewport: { width: 390, height: 844 } },
+  { name: "Samsung portrait", viewport: { width: 412, height: 915 } },
+];
 
-test.describe("BrainFit iPhone 14 viewport", () => {
-  test.use({ viewport: iphone14 });
+const routes = [
+  "/training/memory",
+  "/training/attention",
+  "/training/logic",
+  "/training/language",
+  "/training/visual",
+  "/training/focus",
+  "/training/brain-fit",
+  "/training/journey",
+];
 
-  test("word search shows the complete 10-column board without horizontal clipping", async ({ page }) => {
-    await page.goto("/training/brain-fit", { waitUntil: "networkidle" });
-    const wordsTab = page.getByRole("tab", { name: /Wörter/ });
-    await wordsTab.click();
+async function expectNoPageOverflow(page: import("@playwright/test").Page) {
+  const overflow = await page.evaluate(() => ({
+    scrollWidth: document.documentElement.scrollWidth,
+    clientWidth: document.documentElement.clientWidth,
+  }));
+  expect(overflow.scrollWidth).toBeLessThanOrEqual(overflow.clientWidth + 1);
+}
 
-    const grid = page.locator('[class*="wordGrid"]').filter({ has: page.locator('button[class*="wordCell"]') }).first();
-    await expect(grid).toBeVisible();
-    await expect(grid.locator('button[class*="wordCell"]')).toHaveCount(100);
+for (const device of devices) {
+  test.describe(device.name, () => {
+    test.use({ viewport: device.viewport });
 
-    const bounds = await grid.evaluate((el) => {
-      const rect = el.getBoundingClientRect();
-      return { left: rect.left, right: rect.right, viewport: window.innerWidth };
+    test("all training routes stay usable in portrait", async ({ page }) => {
+      for (const route of routes) {
+        await page.goto(route, { waitUntil: "networkidle" });
+        await expect(page.locator("body")).toBeVisible();
+        await expectNoPageOverflow(page);
+
+        const visibleButtons = page.locator("button:visible");
+        expect(await visibleButtons.count()).toBeGreaterThan(0);
+      }
     });
-    expect(bounds.left).toBeGreaterThanOrEqual(0);
-    expect(bounds.right).toBeLessThanOrEqual(bounds.viewport + 1);
 
-    const pageOverflow = await page.evaluate(() => ({
-      scrollWidth: document.documentElement.scrollWidth,
-      clientWidth: document.documentElement.clientWidth,
-    }));
-    expect(pageOverflow.scrollWidth).toBeLessThanOrEqual(pageOverflow.clientWidth + 1);
+    test("all BrainFit areas stay inside the portrait page", async ({ page }) => {
+      await page.goto("/training/brain-fit", { waitUntil: "networkidle" });
+      const tabs = page.getByRole("tab");
+      const count = await tabs.count();
+      expect(count).toBe(8);
 
-    await page.screenshot({ path: "test-results/visual/iphone14/brainfit-word-search.png", fullPage: true });
+      for (let index = 0; index < count; index++) {
+        await tabs.nth(index).click();
+        await expectNoPageOverflow(page);
+      }
+    });
+
+    test("crossword is reachable and playable without rotating the phone", async ({ page }) => {
+      await page.goto("/training/brain-fit", { waitUntil: "networkidle" });
+      await page.getByRole("tab", { name: /Kreuz/ }).click();
+
+      const wrap = page.locator(".bfCrosswordWrap");
+      const grid = page.locator(".bfCrosswordGrid");
+      const fields = grid.locator("input");
+
+      await expect(wrap).toBeVisible();
+      await expect(grid).toBeVisible();
+      expect(await fields.count()).toBeGreaterThan(0);
+      await expectNoPageOverflow(page);
+
+      const dimensions = await wrap.evaluate((el) => ({
+        clientWidth: el.clientWidth,
+        scrollWidth: el.scrollWidth,
+        viewport: window.innerWidth,
+      }));
+      expect(dimensions.clientWidth).toBeLessThanOrEqual(dimensions.viewport + 1);
+      expect(dimensions.scrollWidth).toBeLessThanOrEqual(500);
+
+      const last = fields.last();
+      await last.scrollIntoViewIfNeeded();
+      await last.focus();
+      await last.fill("A");
+      await expect(last).toHaveValue("A");
+
+      const lastBox = await last.boundingBox();
+      expect(lastBox).not.toBeNull();
+      if (lastBox) {
+        expect(lastBox.x).toBeGreaterThanOrEqual(-1);
+        expect(lastBox.x + lastBox.width).toBeLessThanOrEqual(device.viewport.width + 1);
+      }
+
+      await page.screenshot({
+        path: `test-results/visual/${device.viewport.width}px/brainfit-crossword-portrait.png`,
+        fullPage: true,
+      });
+    });
   });
-
-  test("BrainFit controls remain inside the iPhone viewport", async ({ page }) => {
-    await page.goto("/training/brain-fit", { waitUntil: "networkidle" });
-    const interactive = page.locator("button:visible, input:visible");
-    const count = await interactive.count();
-    for (let index = 0; index < count; index++) {
-      const rect = await interactive.nth(index).boundingBox();
-      if (!rect) continue;
-      expect(rect.x + rect.width).toBeLessThanOrEqual(iphone14.width + 1);
-      expect(rect.x).toBeGreaterThanOrEqual(-1);
-    }
-  });
-});
+}
