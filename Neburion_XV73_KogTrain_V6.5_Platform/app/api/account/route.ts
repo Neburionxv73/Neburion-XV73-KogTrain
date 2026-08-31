@@ -16,13 +16,16 @@ export async function GET(request: NextRequest) {
   try {
     await ensureSchema();
     const userId = verifySessionToken(request.cookies.get(SESSION_COOKIE)?.value);
-    if (!userId) return NextResponse.json({ authenticated: false }, { status: 401 });
+    if (!userId) return NextResponse.json({ authenticated: false, cloudConfigured: true });
     const sql = getSql();
     const rows = await sql`select id, email, display_name from kogtrain_users where id = ${userId} limit 1`;
-    if (!rows[0]) return NextResponse.json({ authenticated: false }, { status: 401 });
-    return NextResponse.json({ authenticated: true, user: { id: rows[0].id, email: rows[0].email, name: rows[0].display_name } });
+    if (!rows[0]) return NextResponse.json({ authenticated: false, cloudConfigured: true });
+    return NextResponse.json({ authenticated: true, cloudConfigured: true, user: { id: rows[0].id, email: rows[0].email, name: rows[0].display_name } });
   } catch (error) {
-    return NextResponse.json({ error: configurationError(error) ? "Cloud-Speicher ist noch nicht konfiguriert." : "Account konnte nicht geladen werden." }, { status: configurationError(error) ? 503 : 500 });
+    if (configurationError(error)) {
+      return NextResponse.json({ authenticated: false, cloudConfigured: false });
+    }
+    return NextResponse.json({ error: "Account konnte nicht geladen werden." }, { status: 500 });
   }
 }
 
@@ -50,7 +53,7 @@ export async function POST(request: NextRequest) {
       if (!row || !verifyPassword(password, row.password_hash)) return NextResponse.json({ error: "E-Mail oder Passwort ist falsch." }, { status: 401 });
       user = { id: row.id, email: row.email, name: row.display_name };
     }
-    const response = NextResponse.json({ authenticated: true, user });
+    const response = NextResponse.json({ authenticated: true, cloudConfigured: true, user });
     response.cookies.set(SESSION_COOKIE, createSessionToken(user.id), cookieOptions());
     return response;
   } catch (error) {
