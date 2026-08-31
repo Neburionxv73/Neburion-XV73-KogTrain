@@ -12,11 +12,17 @@ const BrainFitCompletionPanel = dynamic(
   { ssr: false },
 );
 
+const UnifiedTrainingCoach = dynamic(
+  () => import("./UnifiedTrainingCoach").then((module) => module.UnifiedTrainingCoach),
+  { ssr: false },
+);
+
 export function BrainFitClient() {
   return (
     <>
       <BrainFitTraining />
       <BrainFitCompletionPanel />
+      <UnifiedTrainingCoach />
     </>
   );
 }
