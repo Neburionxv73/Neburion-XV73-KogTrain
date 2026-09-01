@@ -1,4 +1,4 @@
-import { createSessionSeed, difficultyFromPercent, finalizeSessionTasks, randomInt, shuffled, type Difficulty } from "@/lib/dynamicTraining";
+import { createSessionSeed, difficultyFromPercent, finalizeBalancedSessionTasks, randomInt, shuffled, type Difficulty } from "@/lib/dynamicTraining";
 
 export type AttentionMode = "go-no-go" | "visual-search" | "rule-switch" | "inhibition" | "divided" | "speed" | "interference";
 
@@ -14,13 +14,10 @@ export type AttentionTask = {
   explanation: string;
 };
 
-export type AttentionSession = {
-  difficulty: Difficulty;
-  tasks: AttentionTask[];
-  targetMs: number;
-};
+export type AttentionSession = { difficulty: Difficulty; tasks: AttentionTask[]; targetMs: number };
 
-const symbols = ["◆", "●", "▲", "■", "✦", "⬟", "★", "✚", "◇", "⬢", "⬣", "◈"];
+const symbols = ["◆", "●", "▲", "■", "✦", "⬟", "★", "✚", "◇", "⬢", "⬣", "◈", "○", "□", "△", "⬡"];
+const stableId = (mode: AttentionMode, content: string) => `${mode}:${content}`;
 
 function withAnswer(task: Omit<AttentionTask, "options" | "answer">, correct: string, distractors: string[]): AttentionTask {
   const options = shuffled([correct, ...distractors.filter((item) => item !== correct)]).slice(0, 4);
@@ -31,21 +28,18 @@ function goNoGo(seed: number): AttentionTask {
   const [target, shown] = shuffled(symbols).slice(0, 2);
   const isTarget = seed % 3 !== 0;
   const stimulus = isTarget ? target : shown;
-  return withAnswer({ id:`gng-${seed}-${target}-${stimulus}`, mode:"go-no-go", label:"Go / No-Go", prompt:`Zielreiz: ${target}`, instruction:"Reagiere nur, wenn der gezeigte Reiz dem Zielreiz entspricht.", visual:[stimulus], explanation:isTarget ? "Der gezeigte Reiz war der Zielreiz." : "Der gezeigte Reiz war ein Distraktor und sollte ignoriert werden." }, isTarget ? "Reagieren" : "Ignorieren", [isTarget ? "Ignorieren" : "Reagieren"]);
+  return withAnswer({ id:stableId("go-no-go", `${target}-${stimulus}`), mode:"go-no-go", label:"Go / No-Go", prompt:`Zielreiz: ${target}`, instruction:"Reagiere nur, wenn der gezeigte Reiz dem Zielreiz entspricht.", visual:[stimulus], explanation:isTarget ? "Der gezeigte Reiz war der Zielreiz." : "Der gezeigte Reiz war ein Distraktor und sollte ignoriert werden." }, isTarget ? "Reagieren" : "Ignorieren", [isTarget ? "Ignorieren" : "Reagieren"]);
 }
 
 function visualSearch(seed: number, difficulty: Difficulty): AttentionTask {
   const target = shuffled(symbols)[0];
   const distractorPool = symbols.filter((item) => item !== target);
-  const targetCount = randomInt(1, difficulty === 3 ? 4 : 3);
-  const total = difficulty === 3 ? 18 : difficulty === 2 ? 14 : 10;
-  const visual = shuffled([
-    ...Array.from({length:targetCount},()=>target),
-    ...Array.from({length:total-targetCount},(_,i)=>distractorPool[(i+seed)%distractorPool.length]),
-  ]);
+  const targetCount = randomInt(1, difficulty === 3 ? 5 : 3);
+  const total = difficulty === 3 ? 20 : difficulty === 2 ? 15 : 10;
+  const visual = shuffled([...Array.from({length:targetCount},()=>target), ...Array.from({length:total-targetCount},(_,i)=>distractorPool[(i+seed)%distractorPool.length])]);
   const correct = String(targetCount);
-  const distractors = shuffled(["0","1","2","3","4","5"].filter((value)=>value!==correct)).slice(0,3);
-  return withAnswer({ id:`search-${seed}-${target}-${targetCount}`, mode:"visual-search", label:"Visuelle Suche", prompt:`Wie oft erscheint ${target}?`, instruction:"Scanne das Feld und zähle nur den Zielreiz.", visual, explanation:`${target} erscheint ${targetCount}-mal im Reizfeld.` }, correct, distractors);
+  const distractors = shuffled(["0","1","2","3","4","5","6"].filter((value)=>value!==correct)).slice(0,3);
+  return withAnswer({ id:stableId("visual-search", `${target}-${targetCount}-${visual.join("")}`), mode:"visual-search", label:"Visuelle Suche", prompt:`Wie oft erscheint ${target}?`, instruction:"Scanne das Feld und zähle nur den Zielreiz.", visual, explanation:`${target} erscheint ${targetCount}-mal im Reizfeld.` }, correct, distractors);
 }
 
 function ruleSwitch(seed: number): AttentionTask {
@@ -53,30 +47,28 @@ function ruleSwitch(seed: number): AttentionTask {
   const useFirstRule = seed % 2 === 0;
   const shown = seed % 4 < 2 ? a : b;
   const correct = useFirstRule ? (shown===a ? "Reagieren" : "Ignorieren") : (shown===b ? "Reagieren" : "Ignorieren");
-  return withAnswer({ id:`switch-${seed}-${a}-${b}-${shown}`, mode:"rule-switch", label:"Regelwechsel", prompt:useFirstRule ? `Regel A: Reagiere auf ${a}` : `Regel B: Reagiere auf ${b}`, instruction:"Achte auf die aktuelle Regel – nicht auf die Regel der vorherigen Aufgabe.", visual:[shown], explanation:`Für diese Aufgabe galt ${useFirstRule ? "Regel A" : "Regel B"}.` }, correct, [correct==="Reagieren" ? "Ignorieren" : "Reagieren"]);
+  return withAnswer({ id:stableId("rule-switch", `${useFirstRule?"A":"B"}-${a}-${b}-${shown}`), mode:"rule-switch", label:"Regelwechsel", prompt:useFirstRule ? `Regel A: Reagiere auf ${a}` : `Regel B: Reagiere auf ${b}`, instruction:"Achte auf die aktuelle Regel – nicht auf die Regel der vorherigen Aufgabe.", visual:[shown], explanation:`Für diese Aufgabe galt ${useFirstRule ? "Regel A" : "Regel B"}.` }, correct, [correct==="Reagieren" ? "Ignorieren" : "Reagieren"]);
 }
 
 function inhibition(seed: number): AttentionTask {
   const pairs = [["◆","◇"],["●","○"],["■","□"],["▲","△"],["⬢","⬡"]];
   const [filled, outline] = pairs[seed%pairs.length];
   const showFilled = seed % 2 === 0;
-  return withAnswer({ id:`inhibit-${seed}-${filled}`, mode:"inhibition", label:"Reaktionshemmung", prompt:`Reagiere nur auf die gefüllte Form ${filled}`, instruction:"Ähnliche Konturen sind Distraktoren.", visual:[showFilled ? filled : outline], explanation:showFilled ? "Die Form war gefüllt: reagieren." : "Die Kontur war ungefüllt: Reaktion hemmen." }, showFilled ? "Reagieren" : "Ignorieren", [showFilled ? "Ignorieren" : "Reagieren"]);
+  return withAnswer({ id:stableId("inhibition", `${filled}-${showFilled?"filled":"outline"}`), mode:"inhibition", label:"Reaktionshemmung", prompt:`Reagiere nur auf die gefüllte Form ${filled}`, instruction:"Ähnliche Konturen sind Distraktoren.", visual:[showFilled ? filled : outline], explanation:showFilled ? "Die Form war gefüllt: reagieren." : "Die Kontur war ungefüllt: Reaktion hemmen." }, showFilled ? "Reagieren" : "Ignorieren", [showFilled ? "Ignorieren" : "Reagieren"]);
 }
 
 function divided(seed: number, difficulty: Difficulty): AttentionTask {
   const set = difficulty === 1 ? ["🔴▲","🔵■","🟢●","🟡◆"] : ["🔴▲","🔴■","🔵▲","🔵■","🟢●","🟢◆","🟡●","🟡◆"];
   const target = shuffled(set)[0];
-  const color = target.slice(0,2);
-  const shape = target.slice(2);
   const visual = shuffled(set).slice(0, difficulty === 3 ? 7 : 4);
   if (!visual.includes(target)) visual[0] = target;
-  return withAnswer({ id:`divided-${seed}-${target}`, mode:"divided", label:"Geteilte Aufmerksamkeit", prompt:`Finde die Kombination ${target}`, instruction:"Beachte gleichzeitig Farbe und Form.", visual, explanation:`Gesucht war genau die Kombination aus ${color} und ${shape}.` }, target, shuffled(set.filter((item)=>item!==target)).slice(0,3));
+  return withAnswer({ id:stableId("divided", `${target}-${visual.join("")}`), mode:"divided", label:"Geteilte Aufmerksamkeit", prompt:`Finde die Kombination ${target}`, instruction:"Beachte gleichzeitig Farbe und Form.", visual, explanation:`Gesucht war genau die Kombination ${target}.` }, target, shuffled(set.filter((item)=>item!==target)).slice(0,3));
 }
 
 function speed(seed: number, difficulty: Difficulty): AttentionTask {
   const [target, other] = shuffled(symbols).slice(0,2);
   const shown = seed % 2 === 0 ? target : other;
-  return withAnswer({ id:`speed-${seed}-${target}-${shown}`, mode:"speed", label:"Tempo", prompt:`Ist der Reiz ${target}?`, instruction:`Antworte möglichst schnell. Zielzeit: ${difficulty===3?650:difficulty===2?800:950} ms.`, visual:[shown], explanation:shown===target ? "Der Reiz stimmte mit dem Ziel überein." : "Der Reiz war ein anderer." }, shown===target ? "Ja" : "Nein", [shown===target ? "Nein" : "Ja"]);
+  return withAnswer({ id:stableId("speed", `${target}-${shown}`), mode:"speed", label:"Tempo", prompt:`Ist der Reiz ${target}?`, instruction:`Antworte möglichst schnell. Zielzeit: ${difficulty===3?650:difficulty===2?800:950} ms.`, visual:[shown], explanation:shown===target ? "Der Reiz stimmte mit dem Ziel überein." : "Der Reiz war ein anderer." }, shown===target ? "Ja" : "Nein", [shown===target ? "Nein" : "Ja"]);
 }
 
 function interference(seed: number): AttentionTask {
@@ -85,18 +77,16 @@ function interference(seed: number): AttentionTask {
   const index = seed % labels.length;
   let iconIndex = (seed + 1 + randomInt(0,2)) % colorIcons.length;
   if (seed % 4 === 0) iconIndex = index;
-  return withAnswer({ id:`interference-${seed}-${index}-${iconIndex}`, mode:"interference", label:"Störreiz", prompt:"Welche Farbe zeigt der Punkt?", instruction:"Ignoriere das geschriebene Farbwort und antworte nach dem Farbsymbol.", visual:[colorIcons[iconIndex], labels[index]], explanation:`Entscheidend war das Farbsymbol ${colorIcons[iconIndex]}, nicht das Wort ${labels[index]}.` }, labels[iconIndex], shuffled(labels.filter((item)=>item!==labels[iconIndex])).slice(0,3));
+  return withAnswer({ id:stableId("interference", `${labels[index]}-${colorIcons[iconIndex]}`), mode:"interference", label:"Störreiz", prompt:"Welche Farbe zeigt der Punkt?", instruction:"Ignoriere das geschriebene Farbwort und antworte nach dem Farbsymbol.", visual:[colorIcons[iconIndex], labels[index]], explanation:`Entscheidend war das Farbsymbol ${colorIcons[iconIndex]}, nicht das Wort ${labels[index]}.` }, labels[iconIndex], shuffled(labels.filter((item)=>item!==labels[iconIndex])).slice(0,3));
 }
 
 export function createAttentionSession(bestAccuracy: number): AttentionSession {
   const difficulty = difficultyFromPercent(bestAccuracy);
   const seed = createSessionSeed();
-  const factories = [
-    ()=>goNoGo(seed+1), ()=>goNoGo(seed+2), ()=>visualSearch(seed+3,difficulty), ()=>visualSearch(seed+4,difficulty),
-    ()=>ruleSwitch(seed+5), ()=>ruleSwitch(seed+6), ()=>inhibition(seed+7), ()=>divided(seed+8,difficulty),
-    ()=>speed(seed+9,difficulty), ()=>speed(seed+10,difficulty), ()=>interference(seed+11), ()=>interference(seed+12),
-  ];
-  const candidates = shuffled(factories).map((factory)=>factory());
-  const tasks = finalizeSessionTasks("attention-v2", candidates, 56).slice(0,8);
+  const candidates = Array.from({length:3},(_,round)=>{
+    const s=seed+round*30;
+    return [goNoGo(s+1),visualSearch(s+2,difficulty),ruleSwitch(s+3),inhibition(s+4),divided(s+5,difficulty),speed(s+6,difficulty),interference(s+7)];
+  }).flat();
+  const tasks = finalizeBalancedSessionTasks("attention-v3", candidates, 8, 84);
   return { difficulty, tasks, targetMs: difficulty===3 ? 650 : difficulty===2 ? 800 : 950 };
 }
