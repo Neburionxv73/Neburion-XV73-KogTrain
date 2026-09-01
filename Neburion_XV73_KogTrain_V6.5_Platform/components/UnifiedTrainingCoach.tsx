@@ -4,7 +4,15 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { BRAIN_FIT_AREAS, BRAIN_FIT_STORAGE_KEY, areaAverage, mergeBrainFitStats } from "@/lib/brainFit";
 import { PERSONAL_STATS_KEY } from "@/lib/personalTraining";
-import { buildWeeklyPlan, deriveUnifiedProgress, UNIFIED_PROGRESS_KEY, type AdaptiveTarget, type UnifiedProgress } from "@/lib/globalAdaptiveV2";
+import {
+  buildWeeklyPlan,
+  deriveUnifiedProgress,
+  UNIFIED_PROGRESS_KEY,
+  type AdaptiveConfidence,
+  type AdaptiveStrategy,
+  type AdaptiveTarget,
+  type UnifiedProgress,
+} from "@/lib/globalAdaptiveV2";
 import styles from "./UnifiedTrainingCoach.module.css";
 
 type PersonalStatsShape = {
@@ -19,6 +27,25 @@ const focusLabels: Record<string, { label: string; route: string }> = {
   attention: { label: "Aufmerksamkeit", route: "/training/attention" },
   reaction: { label: "Reaktion", route: "/training/focus" },
   memory: { label: "Merkfähigkeit", route: "/training/memory" },
+};
+
+const strategyLabels: Record<AdaptiveStrategy, { title: string; detail: string }> = {
+  coverage: { title: "Abdeckung", detail: "Datenbasis aufbauen" },
+  improve: { title: "Verbessern", detail: "Schwachstelle gezielt trainieren" },
+  stabilize: { title: "Stabilisieren", detail: "Leistung festigen" },
+  stretch: { title: "Fordern", detail: "Niveau kontrolliert erhöhen" },
+};
+
+const confidenceLabels: Record<AdaptiveConfidence, string> = {
+  low: "Evidenz niedrig",
+  medium: "Evidenz mittel",
+  high: "Evidenz hoch",
+};
+
+const difficultyLabels: Record<1 | 2 | 3, string> = {
+  1: "Basis",
+  2: "Aufbau",
+  3: "Challenge",
 };
 
 function loadTargets(): AdaptiveTarget[] {
@@ -88,7 +115,7 @@ export function UnifiedTrainingCoach() {
         <div>
           <p className={styles.eyebrow}>Dynamic Training Engine V2 · Global Adaptive</p>
           <h2 id="unified-coach-title">Dein nächster Trainingsplan.</h2>
-          <p>Der Plan bewertet Abdeckung, Trainingsmenge und Trefferquote gemeinsam. Untrainierte Bereiche werden zuerst erkundet; belastbare Schwächen werden danach gezielt priorisiert.</p>
+          <p>Der Coach zeigt jetzt transparent, warum jeder Bereich empfohlen wird. Strategie, Evidenz und Schwierigkeitsniveau basieren gemeinsam auf deiner bisherigen Trainingsmenge und Trefferquote.</p>
         </div>
         <div className={styles.metrics} aria-label="Gesamtfortschritt">
           <div><span>Level</span><strong>{progress?.level ?? 1}</strong></div>
@@ -100,19 +127,33 @@ export function UnifiedTrainingCoach() {
 
       {plan.length ? (
         <div className={styles.plan}>
-          {plan.map((item, index) => (
-            <article className={styles.card} key={item.id}>
-              <span className={styles.rank}>Priorität {index + 1} · Score {item.priority}/100</span>
-              <h3>{item.label}</h3>
-              <p>{item.reason}</p>
-              <div className={styles.meta}>
-                <span>Level {item.difficulty}</span>
-                <span>{item.sessions} Sessions</span>
-                <span>{item.sessions ? `${item.accuracy}%` : "neu"}</span>
-              </div>
-              <Link href={item.route}>Training öffnen →</Link>
-            </article>
-          ))}
+          {plan.map((item, index) => {
+            const strategy = strategyLabels[item.strategy];
+            return (
+              <article className={styles.card} key={item.id}>
+                <span className={styles.rank}>Priorität {index + 1} · Score {item.priority}/100</span>
+                <h3>{item.label}</h3>
+
+                <div className={styles.why} aria-label={`Begründung für ${item.label}`}>
+                  <strong>Warum diese Empfehlung?</strong>
+                  <p>{item.reason}</p>
+                  <div className={styles.signals} aria-label="Coach-Signale">
+                    <span><b>Ziel</b>{strategy.title}</span>
+                    <span><b>Evidenz</b>{confidenceLabels[item.confidence].replace("Evidenz ", "")}</span>
+                    <span><b>Niveau</b>{item.difficulty} · {difficultyLabels[item.difficulty]}</span>
+                  </div>
+                  <small>{strategy.detail}</small>
+                </div>
+
+                <div className={styles.meta} aria-label="Trainingsdaten">
+                  <span>{item.sessions} Sessions</span>
+                  <span>{item.sessions ? `${item.accuracy}% Trefferquote` : "Noch keine Trefferquote"}</span>
+                  <span>{confidenceLabels[item.confidence]}</span>
+                </div>
+                <Link href={item.route}>Training öffnen →</Link>
+              </article>
+            );
+          })}
         </div>
       ) : <div className={styles.empty}>Noch keine lokalen Trainingsdaten vorhanden. Starte eine erste Einheit, damit der adaptive Plan Evidenz aufbauen kann.</div>}
     </section>
