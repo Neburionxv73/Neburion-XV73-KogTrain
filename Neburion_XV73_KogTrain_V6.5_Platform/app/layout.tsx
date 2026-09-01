@@ -11,6 +11,7 @@ import "./anti-ai-final-humanization.css";
 import "./clean-palette-v97.css";
 import "./responsive-a11y-v97.css";
 import "./brainfit-functional-hardening.css";
+import "./brainfit-samsung-portrait-fix.css";
 import "./interaction-finish-v97.css";
 import "./performance-baseline-v97.css";
 import "./a11y-contrast-final-v97.css";
