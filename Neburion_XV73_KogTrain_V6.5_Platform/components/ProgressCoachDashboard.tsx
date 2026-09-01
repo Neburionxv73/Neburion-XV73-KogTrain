@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { getProgressSnapshot, type ProgressSnapshot } from "@/lib/progress";
+import { getProgressSnapshot, type LabProgress, type ProgressSnapshot } from "@/lib/progress";
 import styles from "./ProgressCoachDashboard.module.css";
 
 function useProgressSnapshot() {
@@ -47,6 +47,19 @@ function formatLastSession(value: string | null): string {
   const today = new Date();
   const sameDay = date.toDateString() === today.toDateString();
   return sameDay ? "Heute" : new Intl.DateTimeFormat("de-AT", { day: "2-digit", month: "2-digit" }).format(date);
+}
+
+function evidenceFor(sessions: number): { label: string; tone: "low" | "medium" | "high" } {
+  if (sessions >= 6) return { label: "Evidenz hoch", tone: "high" };
+  if (sessions >= 3) return { label: "Evidenz mittel", tone: "medium" };
+  return { label: "Evidenz niedrig", tone: "low" };
+}
+
+function performanceFor(lab: LabProgress): string {
+  if (!lab.sessions) return "Noch offen";
+  if (lab.bestPercent >= 85) return "Stark";
+  if (lab.bestPercent >= 65) return "Stabil";
+  return "Im Aufbau";
 }
 
 export function CoachHeroCard() {
@@ -95,6 +108,11 @@ export function ProgressCoachDashboard() {
   const weeklyPercent = Math.min(100, Math.round((snapshot.weekSessions / snapshot.weeklyGoal) * 100));
   const levelPercent = Math.min(100, Math.round((snapshot.xpInLevel / snapshot.xpToNextLevel) * 100));
   const maxDay = Math.max(1, ...snapshot.recentDays.map((day) => day.count));
+  const coveragePercent = Math.round((snapshot.trainedAreas / snapshot.labs.length) * 100);
+  const highEvidenceAreas = snapshot.labs.filter((lab) => lab.sessions >= 6).length;
+  const evidencePercent = Math.round((highEvidenceAreas / snapshot.labs.length) * 100);
+  const leastTrained = [...snapshot.labs].sort((a, b) => a.sessions - b.sessions || a.bestPercent - b.bestPercent)[0] ?? null;
+  const rhythmLabel = snapshot.activeDays7 >= 5 ? "Sehr konstant" : snapshot.activeDays7 >= 3 ? "Regelmäßig" : snapshot.activeDays7 >= 1 ? "Im Aufbau" : "Noch offen";
 
   return (
     <>
@@ -104,7 +122,7 @@ export function ProgressCoachDashboard() {
           <div>
             <p className="eyebrow">Fortschritt & Übersicht</p>
             <h2 id="progress-2-title">Dein Training klar im Blick.</h2>
-            <p>Hier siehst du deine tatsächlich gespeicherten Trainingswerte aus Spezial-Labs und Gehirnfit & Alltag. Ohne Bewertung und ohne automatische Empfehlungen.</p>
+            <p>Hier siehst du deine tatsächlich gespeicherten Trainingswerte aus Spezial-Labs und Gehirnfit & Alltag. Progress Insights V4 trennt Leistung, Trainingsmenge und Evidenz, damit einzelne gute Sessions nicht überbewertet werden.</p>
           </div>
           <div className={styles.levelCard}>
             <span>Level {snapshot.level}</span>
@@ -125,16 +143,55 @@ export function ProgressCoachDashboard() {
           <article><span>Letzte Session</span><strong>{formatLastSession(snapshot.lastSessionAt)}</strong><small>{snapshot.averageSessionsPerActiveDay ? `Ø ${snapshot.averageSessionsPerActiveDay} Sessions je aktivem Tag` : "noch keine Aktivität"}</small></article>
         </div>
 
+        <div className={styles.insightPanel} aria-labelledby="progress-insights-v4-title">
+          <div className={styles.insightHead}>
+            <div><p className="eyebrow">Progress Insights V4</p><h3 id="progress-insights-v4-title">Leistung mit Evidenz einordnen.</h3></div>
+            <span>{rhythmLabel}</span>
+          </div>
+          <div className={styles.insightGrid}>
+            <article>
+              <span>Trainingsabdeckung</span>
+              <strong>{coveragePercent}%</strong>
+              <p>{snapshot.trainedAreas} von {snapshot.labs.length} Bereichen besitzen echte Trainingsdaten.</p>
+            </article>
+            <article>
+              <span>Belastbare Evidenz</span>
+              <strong>{evidencePercent}%</strong>
+              <p>{highEvidenceAreas} Bereiche haben mindestens 6 gespeicherte Sessions.</p>
+            </article>
+            <article>
+              <span>Stärkster Bereich</span>
+              <strong>{snapshot.strongest?.label ?? "Noch offen"}</strong>
+              <p>{snapshot.strongest ? `${snapshot.strongest.bestPercent}% Bestwert bei ${snapshot.strongest.sessions} Sessions.` : "Noch keine ausreichenden Trainingsdaten vorhanden."}</p>
+            </article>
+            <article>
+              <span>Wenigste Evidenz</span>
+              <strong>{leastTrained?.label ?? "Noch offen"}</strong>
+              <p>{leastTrained ? `${leastTrained.sessions} Sessions · ${evidenceFor(leastTrained.sessions).label}.` : "Noch keine Bereiche verfügbar."}</p>
+            </article>
+          </div>
+        </div>
+
         <div className={styles.twoColumn}>
           <div className={styles.panel}>
             <div className={styles.panelHead}><div><p className="eyebrow">Gesamtprofil</p><h3>Bereiche und Entwicklung</h3></div><span>{snapshot.hasTrainingData ? `${snapshot.averageBest}% Ø` : "noch offen"}</span></div>
             <div className={styles.labList}>
-              {snapshot.labs.map((item) => (
-                <Link href={item.href} className={styles.labRow} key={item.id}>
-                  <div><strong>{item.label}</strong><small>{item.sessions} Sessions · {item.accent}</small></div>
-                  <div className={styles.labValue}><span>{item.sessions ? `${item.bestPercent}%` : "–"}</span><div className={styles.bar}><i style={{ width: `${item.sessions ? item.bestPercent : 0}%` }} /></div></div>
-                </Link>
-              ))}
+              {snapshot.labs.map((item) => {
+                const evidence = evidenceFor(item.sessions);
+                return (
+                  <Link href={item.href} className={styles.labRow} key={item.id}>
+                    <div>
+                      <strong>{item.label}</strong>
+                      <small>{item.sessions} Sessions · {item.accent}</small>
+                      <div className={styles.labSignals}>
+                        <span data-tone={evidence.tone}>{evidence.label}</span>
+                        <span>{performanceFor(item)}</span>
+                      </div>
+                    </div>
+                    <div className={styles.labValue}><span>{item.sessions ? `${item.bestPercent}%` : "–"}</span><div className={styles.bar}><i style={{ width: `${item.sessions ? item.bestPercent : 0}%` }} /></div></div>
+                  </Link>
+                );
+              })}
             </div>
           </div>
 
