@@ -40,11 +40,21 @@ for (const device of devices) {
       });
     });
 
-    test("focus shows an evidence-aware personal plan with unified XP", async ({ page }) => {
+    test("focus explains every adaptive recommendation and keeps unified XP", async ({ page }) => {
       await page.goto("/training/focus", { waitUntil: "networkidle" });
       await expect(page.getByRole("heading", { name: "Dein nächster Trainingsplan." })).toBeVisible();
       await expect(page.getByText("XP gesamt", { exact: true })).toBeVisible();
       await expect(page.getByText(/Priorität 1 · Score/)).toBeVisible();
+
+      const explanations = page.getByText("Warum diese Empfehlung?", { exact: true });
+      await expect(explanations).toHaveCount(3);
+      await expect(page.getByText("Ziel", { exact: true }).first()).toBeVisible();
+      await expect(page.getByText("Evidenz", { exact: true }).first()).toBeVisible();
+      await expect(page.getByText("Niveau", { exact: true }).first()).toBeVisible();
+      await expect(page.getByText(/Evidenz (niedrig|mittel|hoch)/).first()).toBeVisible();
+      await expect(page.getByText(/(Abdeckung|Verbessern|Stabilisieren|Fordern)/).first()).toBeVisible();
+      await expect(page.getByText(/[123] · (Basis|Aufbau|Challenge)/).first()).toBeVisible();
+
       const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("neburion-v67-unified-progress-v2") ?? "null"));
       expect(stored).not.toBeNull();
       expect(stored.xp).toBeGreaterThan(0);
@@ -57,10 +67,11 @@ for (const device of devices) {
       expect(overflow).toBeLessThanOrEqual(1);
     });
 
-    test("BrainFit is connected to the same diverse global plan", async ({ page }) => {
+    test("BrainFit is connected to the same explained and diverse global plan", async ({ page }) => {
       await page.goto("/training/brain-fit", { waitUntil: "networkidle" });
       await expect(page.getByRole("heading", { name: "Dein nächster Trainingsplan." })).toBeVisible();
       await expect(page.getByText("Dynamic Training Engine V2 · Global Adaptive", { exact: true })).toBeVisible();
+      await expect(page.getByText("Warum diese Empfehlung?", { exact: true })).toHaveCount(3);
       const links = page.getByRole("link", { name: "Training öffnen →" });
       expect(await links.count()).toBe(3);
       const hrefs = await links.evaluateAll((items) => items.map((item) => item.getAttribute("href")).filter(Boolean));
