@@ -110,7 +110,7 @@ export function AttentionTraining() {
         <div className={styles.stage}>
           <p className="eyebrow">Attention Lab 2.0</p>
           <h2>Fokus wechseln. Störreize hemmen. Tempo halten.</h2>
-          <p>Acht dynamische Aufgaben mischen Go/No-Go, visuelle Suche, Regelwechsel, Reaktionshemmung, geteilte Aufmerksamkeit, Tempo und Interferenz. Jede Session wird neu erzeugt.</p>
+          <p>Acht bis zehn dynamische Aufgaben mischen Go/No-Go, visuelle Suche, Regelwechsel, Reaktionshemmung, geteilte Aufmerksamkeit, Tempo und Interferenz. Umfang, Reizdichte und Konfliktniveau steigen mit deinem Trainingsstand.</p>
           <div className={styles.modeStrip} aria-label="Trainingsmodi"><span>Go/No-Go</span><span>Suche</span><span>Regelwechsel</span><span>Hemmung</span><span>Geteilt</span><span>Tempo</span><span>Störreiz</span></div>
           <button className="primary trainingButton" type="button" onClick={start}>Attention Session starten</button>
         </div>
@@ -146,7 +146,7 @@ export function AttentionTraining() {
           <h2>{accuracy}% Genauigkeit</h2>
           <div className={styles.score}><strong>{score}</strong><span>/ {session.tasks.length}</span></div>
           <div className={styles.summary}><span>Ø Reaktion <strong>{averageReaction} ms</strong></span><span>Level <strong>{session.difficulty}</strong></span><span>Modi <strong>{new Set(session.tasks.map((task)=>task.mode)).size}</strong></span></div>
-          <p>Die nächste Session mischt die Modi erneut und passt die Schwierigkeit an deinen bisherigen Bestwert an. Der Wert ist ein Trainingswert und keine medizinische Diagnose.</p>
+          <p>Die nächste Session mischt die Modi erneut und passt Umfang, Reizdichte und Konfliktniveau an deinen bisherigen Bestwert an. Der Wert ist ein Trainingswert und keine medizinische Diagnose.</p>
           <button className="primary trainingButton" type="button" onClick={start}>Neue Attention Session</button>
         </div>
       )}
