@@ -6,7 +6,7 @@ const devices = [
 ];
 
 for (const device of devices) {
-  test.describe(`global adaptive v2 · ${device.name}`, () => {
+  test.describe(`global adaptive v4 · ${device.name}`, () => {
     test.use({ viewport: device.viewport });
 
     test.beforeEach(async ({ page }) => {
@@ -40,7 +40,7 @@ for (const device of devices) {
       });
     });
 
-    test("focus shows a ranked personal plan with unified XP", async ({ page }) => {
+    test("focus shows an evidence-aware personal plan with unified XP", async ({ page }) => {
       await page.goto("/training/focus", { waitUntil: "networkidle" });
       await expect(page.getByRole("heading", { name: "Dein nächster Trainingsplan." })).toBeVisible();
       await expect(page.getByText("XP gesamt", { exact: true })).toBeVisible();
@@ -49,16 +49,22 @@ for (const device of devices) {
       expect(stored).not.toBeNull();
       expect(stored.xp).toBeGreaterThan(0);
       expect(stored.level).toBeGreaterThanOrEqual(1);
+      const planLinks = page.getByRole("link", { name: "Training öffnen →" });
+      expect(await planLinks.count()).toBe(3);
+      const hrefs = await planLinks.evaluateAll((links) => links.map((link) => link.getAttribute("href")).filter(Boolean));
+      expect(new Set(hrefs).size).toBeGreaterThanOrEqual(2);
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
       expect(overflow).toBeLessThanOrEqual(1);
     });
 
-    test("BrainFit is connected to the same global plan", async ({ page }) => {
+    test("BrainFit is connected to the same diverse global plan", async ({ page }) => {
       await page.goto("/training/brain-fit", { waitUntil: "networkidle" });
       await expect(page.getByRole("heading", { name: "Dein nächster Trainingsplan." })).toBeVisible();
       await expect(page.getByText("Dynamic Training Engine V2 · Global Adaptive", { exact: true })).toBeVisible();
       const links = page.getByRole("link", { name: "Training öffnen →" });
       expect(await links.count()).toBe(3);
+      const hrefs = await links.evaluateAll((items) => items.map((item) => item.getAttribute("href")).filter(Boolean));
+      expect(new Set(hrefs).size).toBeGreaterThanOrEqual(2);
       const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
       expect(overflow).toBeLessThanOrEqual(1);
     });
