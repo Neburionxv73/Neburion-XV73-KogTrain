@@ -55,12 +55,19 @@ expect("Visual V4: fresh-first selection active", visualV2.includes("readRecentT
 expect("Visual V4: balanced selection active", visualV2.includes("balancedByMode"));
 expect("Visual V4: long anti-repeat history", visualV2.includes("HISTORY_LIMIT = 144"));
 
-expect("BrainFit: all eight areas retained", ["sudoku","words","crossword","memory","categories","sequence","everydayMath","timeOrder"].every((area) => brainFit.includes(`\"${area}\"`)));
-expect("BrainFit: adaptive area mode retained", brainFit.includes("adaptiveMode") && brainFit.includes("challenge") && brainFit.includes("normal") && brainFit.includes("relaxed"));
-expect("BrainFit: expanded word and crossword pools retained", brainFit.includes("WORD_SETS") && brainFit.includes("CROSSWORD_POOL"));
-expect("BrainFit: rotation history retained", brainFitTraining.includes("ROTATION_STORAGE_KEY") && brainFitTraining.includes("rememberRotation"));
-expect("BrainFit: Sudoku accepts every valid grid", brainFitTraining.includes("isValidSudokuGrid"));
-expect("BrainFit: portrait crossword remains guarded", brainFitTraining.includes("CROSSWORD_SIZE") && brainFitTraining.includes("crossword"));
+expect("BrainFit V4: all eight areas retained", ["sudoku","words","crossword","memory","categories","sequence","everydayMath","timeOrder"].every((area) => brainFit.includes(`\"${area}\"`)));
+expect("BrainFit V4: evidence-based area mode retained", brainFit.includes("adaptiveMode") && brainFit.includes("stat.sessions>=4") && brainFit.includes("stat.bestScore"));
+expect("BrainFit V4: long anti-repeat history", brainFit.includes("BRAIN_FIT_V4_HISTORY_LIMIT = 144") && brainFit.includes("brainfit-${area}-v4"));
+expect("BrainFit V4: word-search content pool expanded", brainFit.includes("PLANET") && brainFit.includes("KOMPASS") && brainFitTraining.includes("rememberRotation"));
+expect("BrainFit V4: crossword pool expanded and adaptive depth retained", brainFit.includes("KALENDER") && brainFit.includes("FLUGHAFEN") && brainFitTraining.includes('mode==="relaxed"?4:mode==="normal"?6:8'));
+expect("BrainFit V4: memory pair depth retained", brainFitTraining.includes('mode==="relaxed"?4:mode==="normal"?6:8') && brainFitTraining.includes("MEMORY_POOL"));
+expect("BrainFit V4: Sudoku clue depth retained", brainFitTraining.includes('mode==="relaxed"?8:mode==="normal"?6:4') && brainFitTraining.includes("isValidSudokuGrid"));
+expect("BrainFit V4: quiz content has normal/challenge tiers", brainFit.includes('level:BrainFitMode') && brainFit.includes('"challenge"') && brainFit.includes('rank[task.level??"relaxed"]<=rank[mode]'));
+expect("BrainFit V4: category reasoning depth expanded", brainFit.includes("Schlussverfahren") && brainFit.includes("Semantik"));
+expect("BrainFit V4: sequence reasoning depth expanded", brainFit.includes("2 · 5 · 11 · 23 · 47") && brainFit.includes("3 · 4 · 7 · 11 · 18 · 29"));
+expect("BrainFit V4: everyday math depth expanded", brainFit.includes("25 % Rabatt") && brainFit.includes("20 % USt"));
+expect("BrainFit V4: time/order depth expanded", brainFit.includes("22:50") && brainFit.includes("95 Minuten"));
+expect("BrainFit V4: portrait crossword remains guarded", brainFitTraining.includes("CROSSWORD_SIZE") && brainFitTraining.includes("crossword"));
 
 const failed = checks.filter((check) => !check.pass);
 for (const check of checks) console.log(`${check.pass ? "PASS" : "FAIL"} ${check.name}`);
