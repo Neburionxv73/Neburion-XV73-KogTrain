@@ -1,121 +1,38 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { createMemorySession, MEMORY_SESSION_LENGTH, MEMORY_STORAGE_KEY, normalizeMemoryInput, type MemoryMode, type MemorySession, type MemoryTask } from "@/lib/memory";
+import { createMemorySession, MEMORY_SESSION_LENGTH, MEMORY_STORAGE_KEY, normalizeMemoryInput, type MemoryMode, type MemorySession } from "@/lib/memory";
 import styles from "./MemoryTraining.module.css";
 
 type Phase = "intro" | "memorize" | "recall" | "feedback" | "complete";
-type ModeStat = { attempts: number; correct: number };
-type SavedProgress = { bestScore: number; completedSessions: number; lastScore: number; modeStats: Record<MemoryMode, ModeStat> };
-type SessionResult = { mode: MemoryMode; correct: boolean };
+type ModeStat = { attempts:number; correct:number };
+type SavedProgress = { bestScore:number; completedSessions:number; lastScore:number; modeStats:Record<MemoryMode,ModeStat> };
+type SessionResult = { mode:MemoryMode; correct:boolean };
+const emptyModeStats:Record<MemoryMode,ModeStat>={digits:{attempts:0,correct:0},reverse:{attempts:0,correct:0},words:{attempts:0,correct:0},symbols:{attempts:0,correct:0},positions:{attempts:0,correct:0},recognition:{attempts:0,correct:0},nback1:{attempts:0,correct:0},nback2:{attempts:0,correct:0}};
+const initialProgress:SavedProgress={bestScore:0,completedSessions:0,lastScore:0,modeStats:emptyModeStats};
+function renderPositionPattern(value:string,className:string){const positions=value.replace("pos:","").split(",").map(Number);return <span className={className} aria-label={`Markierte Felder ${positions.map(p=>p+1).join(", ")}`}>{Array.from({length:9},(_,i)=><i key={i} data-active={positions.includes(i)}/>)}</span>}
 
-const emptyModeStats: Record<MemoryMode, ModeStat> = {
-  digits:{attempts:0,correct:0}, reverse:{attempts:0,correct:0}, words:{attempts:0,correct:0}, symbols:{attempts:0,correct:0},
-  positions:{attempts:0,correct:0}, recognition:{attempts:0,correct:0}, nback1:{attempts:0,correct:0}, nback2:{attempts:0,correct:0},
-};
-const initialProgress: SavedProgress = { bestScore:0, completedSessions:0, lastScore:0, modeStats:emptyModeStats };
-
-function renderPositionPattern(value: string, className: string) {
-  const positions = value.replace("pos:", "").split(",").map(Number);
-  return <span className={className} aria-label={`Markierte Felder ${positions.map((p)=>p+1).join(", ")}`}>{Array.from({length:9},(_,index)=><i key={index} data-active={positions.includes(index)} />)}</span>;
-}
-
-export function MemoryTraining() {
-  const [phase,setPhase] = useState<Phase>("intro");
-  const [session,setSession] = useState<MemorySession|null>(null);
-  const [index,setIndex] = useState(0);
-  const [answer,setAnswer] = useState("");
-  const [selected,setSelected] = useState<string|null>(null);
-  const [wasCorrect,setWasCorrect] = useState<boolean|null>(null);
-  const [results,setResults] = useState<SessionResult[]>([]);
-  const [progress,setProgress] = useState<SavedProgress>(initialProgress);
-  const task = session?.tasks[index];
-
-  useEffect(()=>{
-    try {
-      const raw = localStorage.getItem(MEMORY_STORAGE_KEY);
-      if (!raw) return;
-      const parsed = JSON.parse(raw) as Partial<SavedProgress>;
-      setProgress({
-        bestScore:parsed.bestScore ?? 0,
-        completedSessions:parsed.completedSessions ?? 0,
-        lastScore:parsed.lastScore ?? 0,
-        modeStats:{...emptyModeStats,...(parsed.modeStats ?? {})},
-      });
-    } catch { setProgress(initialProgress); }
-  },[]);
-
-  useEffect(()=>{
-    if (phase !== "memorize" || !session) return;
-    const timer = window.setTimeout(()=>setPhase("recall"),session.showMs);
-    return ()=>window.clearTimeout(timer);
-  },[phase,index,session]);
-
-  function start() {
-    setSession(createMemorySession(progress.bestScore));
-    setIndex(0); setAnswer(""); setSelected(null); setWasCorrect(null); setResults([]); setPhase("memorize");
-  }
-
-  function record(correct: boolean) {
-    if (!task) return;
-    setWasCorrect(correct);
-    setResults((current)=>[...current,{mode:task.mode,correct}]);
-    setPhase("feedback");
-  }
-
-  function submitText(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!task) return;
-    record(normalizeMemoryInput(task,answer) === task.expected);
-  }
-
-  function choose(value: string) {
-    if (!task || phase !== "recall") return;
-    setSelected(value);
-    record(value === task.expected);
-  }
-
-  function next() {
-    if (!session) return;
-    if (index < session.tasks.length - 1) {
-      setIndex((current)=>current+1); setAnswer(""); setSelected(null); setWasCorrect(null); setPhase("memorize"); return;
-    }
-    const finalScore = results.filter((result)=>result.correct).length;
-    const nextModeStats = {...progress.modeStats};
-    results.forEach((result)=>{
-      const current = nextModeStats[result.mode] ?? {attempts:0,correct:0};
-      nextModeStats[result.mode] = { attempts:current.attempts+1, correct:current.correct+(result.correct?1:0) };
-    });
-    const nextProgress: SavedProgress = { bestScore:Math.max(progress.bestScore,finalScore), completedSessions:progress.completedSessions+1, lastScore:finalScore, modeStats:nextModeStats };
-    setProgress(nextProgress);
-    try { localStorage.setItem(MEMORY_STORAGE_KEY,JSON.stringify(nextProgress)); } catch {}
-    setPhase("complete");
-  }
-
-  const liveScore = results.filter((result)=>result.correct).length;
-  const modeEntries = Object.entries(progress.modeStats) as [MemoryMode,ModeStat][];
-  const labels: Record<MemoryMode,string> = {digits:"Zahlen",reverse:"Rückwärts",words:"Wörter",symbols:"Symbole",positions:"Positionen",recognition:"Erkennen",nback1:"1-Back",nback2:"2-Back"};
-
-  return (
-    <section className={styles.trainer} aria-labelledby="memory-title">
-      <div className={styles.header}>
-        <div><p className="eyebrow">Memory Lab 2.0 · Multimodales Gedächtnistraining</p><h1 id="memory-title">Merken. Verknüpfen. Abrufen.</h1><p>Eine Session kombiniert acht unterschiedliche Gedächtnisaufgaben. Inhalt, Reihenfolge und Schwierigkeit werden jedes Mal neu erzeugt.</p></div>
-        <div className={styles.meta}><span>Bestwert <strong>{progress.bestScore}/{MEMORY_SESSION_LENGTH}</strong></span><span>Sessions <strong>{progress.completedSessions}</strong></span></div>
-      </div>
-
-      <div className={styles.stage} aria-live="polite">
-        {phase === "intro" && <div className={styles.center}><p className="eyebrow">8 Modi · 1 Session</p><h2>Zahlen, Wörter, Symbole, Positionen und N-Back.</h2><p>Die Anzeigezeit und Komplexität passen sich deinem bisherigen Bestwert an. Jede Session enthält alle acht Trainingsformen einmal.</p><button className="primaryButton" type="button" onClick={start}>Memory Lab 2.0 starten</button></div>}
-
-        {phase === "memorize" && task && session && <div className={styles.center}><p className="roundLabel">{task.label} · Aufgabe {index+1}/{session.tasks.length} · Level {session.difficulty}</p><h2>{task.instruction}</h2>{task.grid ? <div className={styles.bigGrid}>{task.display.map((value,i)=><span key={i} data-active={value === "●"} />)}</div> : <div className={styles.sequence}>{task.display.map((value,i)=><span key={`${value}-${i}`}>{value}</span>)}</div>}<p className={styles.hint}>Verschwindet nach {(session.showMs/1000).toFixed(1).replace(".0","")} Sekunden.</p></div>}
-
-        {phase === "recall" && task && (task.answerType === "text" ? <form className={styles.center} onSubmit={submitText}><p className="roundLabel">{task.label} · Aufgabe {index+1}</p><h2>{task.prompt}</h2><label className={styles.label} htmlFor="memory-answer">Deine Antwort</label><input id="memory-answer" className={styles.input} inputMode={task.mode === "digits" || task.mode === "reverse" ? "numeric" : "text"} autoComplete="off" value={answer} onChange={(event)=>setAnswer(event.target.value)} placeholder={task.mode === "words" ? "Wörter mit Leerzeichen eingeben" : "Antwort eingeben"} autoFocus /><button className="primaryButton" type="submit" disabled={!answer.trim()}>Antwort prüfen</button></form> : <div className={styles.center}><p className="roundLabel">{task.label} · Aufgabe {index+1}</p><h2>{task.prompt}</h2><div className={styles.options}>{task.options?.map((option)=><button key={option} type="button" onClick={()=>choose(option)}>{option.startsWith("pos:") ? renderPositionPattern(option,styles.miniGrid) : option}</button>)}</div></div>)}
-
-        {phase === "feedback" && task && <div className={styles.center}><p className={`feedbackBadge ${wasCorrect ? "correct" : "incorrect"}`}>{wasCorrect ? "Richtig" : "Noch nicht"}</p><h2>{wasCorrect ? "Stark abgerufen." : "Diese Aufgabe war anders."}</h2><p>{task.explanation}</p>{!wasCorrect && <div className={styles.solution}><span>Gesuchte Antwort</span><strong>{task.expected.startsWith("pos:") ? renderPositionPattern(task.expected,styles.miniGrid) : task.expected.replaceAll("|"," · ")}</strong></div>}<button className="primaryButton" type="button" onClick={next}>{index === (session?.tasks.length ?? 1)-1 ? "Auswertung" : "Nächste Aufgabe"}</button></div>}
-
-        {phase === "complete" && <div className={styles.center}><p className="eyebrow">Session abgeschlossen</p><div className={styles.score}><strong>{liveScore}</strong><span>/ {MEMORY_SESSION_LENGTH}</span></div><h2>Gedächtnisprofil aktualisiert.</h2><p>Beim nächsten Start werden Inhalt und Reihenfolge vollständig neu zusammengestellt.</p><div className={styles.modeStats}>{modeEntries.map(([mode,stat])=>{const percent=stat.attempts?Math.round((stat.correct/stat.attempts)*100):0;return <div key={mode}><span>{labels[mode]}</span><strong>{stat.attempts ? `${percent}%` : "–"}</strong></div>})}</div><button className="primaryButton" type="button" onClick={start}>Neue Mixed Session</button></div>}
-      </div>
-
-      <div className="trainingNotice"><strong>Trainingshinweis</strong><p>Memory Lab 2.0 trainiert unterschiedliche Merk- und Abrufprozesse. Ergebnisse sind Trainingswerte und keine medizinische Diagnose.</p></div>
-    </section>
-  );
+export function MemoryTraining(){
+ const [phase,setPhase]=useState<Phase>("intro"),[session,setSession]=useState<MemorySession|null>(null),[index,setIndex]=useState(0),[answer,setAnswer]=useState(""),[selected,setSelected]=useState<string|null>(null),[wasCorrect,setWasCorrect]=useState<boolean|null>(null),[results,setResults]=useState<SessionResult[]>([]),[progress,setProgress]=useState<SavedProgress>(initialProgress);
+ const task=session?.tasks[index];
+ useEffect(()=>{try{const raw=localStorage.getItem(MEMORY_STORAGE_KEY);if(!raw)return;const parsed=JSON.parse(raw) as Partial<SavedProgress>;setProgress({bestScore:parsed.bestScore??0,completedSessions:parsed.completedSessions??0,lastScore:parsed.lastScore??0,modeStats:{...emptyModeStats,...(parsed.modeStats??{})}})}catch{setProgress(initialProgress)}},[]);
+ useEffect(()=>{if(phase!=="memorize"||!session)return;const timer=window.setTimeout(()=>setPhase("recall"),session.showMs);return()=>window.clearTimeout(timer)},[phase,index,session]);
+ function start(){setSession(createMemorySession(progress.bestScore));setIndex(0);setAnswer("");setSelected(null);setWasCorrect(null);setResults([]);setPhase("memorize")}
+ function record(correct:boolean){if(!task)return;setWasCorrect(correct);setResults(current=>[...current,{mode:task.mode,correct}]);setPhase("feedback")}
+ function submitText(event:FormEvent<HTMLFormElement>){event.preventDefault();if(!task)return;record(normalizeMemoryInput(task,answer)===task.expected)}
+ function choose(value:string){if(!task||phase!=="recall")return;setSelected(value);record(value===task.expected)}
+ function next(){if(!session)return;if(index<session.tasks.length-1){setIndex(c=>c+1);setAnswer("");setSelected(null);setWasCorrect(null);setPhase("memorize");return}const finalScore=results.filter(r=>r.correct).length,nextModeStats={...progress.modeStats};results.forEach(result=>{const current=nextModeStats[result.mode]??{attempts:0,correct:0};nextModeStats[result.mode]={attempts:current.attempts+1,correct:current.correct+(result.correct?1:0)}});const nextProgress={bestScore:Math.max(progress.bestScore,finalScore),completedSessions:progress.completedSessions+1,lastScore:finalScore,modeStats:nextModeStats};setProgress(nextProgress);try{localStorage.setItem(MEMORY_STORAGE_KEY,JSON.stringify(nextProgress))}catch{}setPhase("complete")}
+ const liveScore=results.filter(r=>r.correct).length,modeEntries=Object.entries(progress.modeStats) as [MemoryMode,ModeStat][];
+ const labels:Record<MemoryMode,string>={digits:"Zahlen",reverse:"Rückwärts",words:"Wörter",symbols:"Symbole",positions:"Positionen",recognition:"Erkennen",nback1:"1-Back",nback2:"2-Back"};
+ return <section className={styles.trainer} aria-labelledby="memory-title">
+  <div className={styles.header}><div><p className="eyebrow">Memory Lab 2.4 · Adaptive Quality V4</p><h1 id="memory-title">Merken. Verknüpfen. Abrufen.</h1><p>Acht Gedächtnisformen mit adaptiver Merkspanne, gezielten Near-Miss-Antworten und größerem Aufgabenpool. Inhalt, Reihenfolge und Schwierigkeit werden bei jeder Session neu erzeugt.</p></div><div className={styles.meta}><span>Bestwert <strong>{progress.bestScore}/{MEMORY_SESSION_LENGTH}</strong></span><span>Sessions <strong>{progress.completedSessions}</strong></span></div></div>
+  <div className={styles.stage} aria-live="polite">
+   {phase==="intro"&&<div className={styles.center}><p className="eyebrow">8 Modi · Adaptive V4</p><h2>Zahlen, Wörter, Symbole, Positionen und N-Back.</h2><p>Mit steigendem Level wachsen Zahlen- und Symbolfolgen, Wortlisten und räumliche Muster. Wiedererkennungsaufgaben verwenden zunehmend ähnliche Ablenkungen; eine lange Anti-Repeat-Historie verhindert schnelle Wiederholungen.</p><button className="primaryButton" type="button" onClick={start}>Memory Lab V4 starten</button></div>}
+   {phase==="memorize"&&task&&session&&<div className={styles.center}><p className="roundLabel">{task.label} · Aufgabe {index+1}/{session.tasks.length} · Level {session.difficulty}</p><h2>{task.instruction}</h2>{task.grid?<div className={styles.bigGrid}>{task.display.map((value,i)=><span key={i} data-active={value==="●"}/>)}</div>:<div className={styles.sequence}>{task.display.map((value,i)=><span key={`${value}-${i}`}>{value}</span>)}</div>}<p className={styles.hint}>Verschwindet nach {(session.showMs/1000).toFixed(1).replace(".0","")} Sekunden.</p></div>}
+   {phase==="recall"&&task&&(task.answerType==="text"?<form className={styles.center} onSubmit={submitText}><p className="roundLabel">{task.label} · Aufgabe {index+1}</p><h2>{task.prompt}</h2><label className={styles.label} htmlFor="memory-answer">Deine Antwort</label><input id="memory-answer" className={styles.input} inputMode={task.mode==="digits"||task.mode==="reverse"?"numeric":"text"} autoComplete="off" value={answer} onChange={e=>setAnswer(e.target.value)} placeholder={task.mode==="words"?"Wörter mit Leerzeichen eingeben":"Antwort eingeben"} autoFocus/><button className="primaryButton" type="submit" disabled={!answer.trim()}>Antwort prüfen</button></form>:<div className={styles.center}><p className="roundLabel">{task.label} · Aufgabe {index+1}</p><h2>{task.prompt}</h2><div className={styles.options}>{task.options?.map(option=><button key={option} type="button" onClick={()=>choose(option)}>{option.startsWith("pos:")?renderPositionPattern(option,styles.miniGrid):option}</button>)}</div></div>)}
+   {phase==="feedback"&&task&&<div className={styles.center}><p className={`feedbackBadge ${wasCorrect?"correct":"incorrect"}`}>{wasCorrect?"Richtig":"Noch nicht"}</p><h2>{wasCorrect?"Stark abgerufen.":"Diese Aufgabe war anders."}</h2><p>{task.explanation}</p>{!wasCorrect&&<div className={styles.solution}><span>Gesuchte Antwort</span><strong>{task.expected.startsWith("pos:")?renderPositionPattern(task.expected,styles.miniGrid):task.expected.replaceAll("|"," · ")}</strong></div>}<button className="primaryButton" type="button" onClick={next}>{index===(session?.tasks.length??1)-1?"Auswertung":"Nächste Aufgabe"}</button></div>}
+   {phase==="complete"&&<div className={styles.center}><p className="eyebrow">Session abgeschlossen</p><div className={styles.score}><strong>{liveScore}</strong><span>/ {MEMORY_SESSION_LENGTH}</span></div><h2>Gedächtnisprofil aktualisiert.</h2><p>Die nächste Session wird aus einem großen Kandidatenpool neu zusammengestellt und passt Merkspanne sowie Ablenkungsähnlichkeit erneut an.</p><div className={styles.modeStats}>{modeEntries.map(([mode,stat])=>{const percent=stat.attempts?Math.round(stat.correct/stat.attempts*100):0;return <div key={mode}><span>{labels[mode]}</span><strong>{stat.attempts?`${percent}%`:"–"}</strong></div>})}</div><button className="primaryButton" type="button" onClick={start}>Neue Mixed Session</button></div>}
+  </div>
+  <div className="trainingNotice"><strong>Trainingshinweis</strong><p>Memory Lab trainiert unterschiedliche Merk- und Abrufprozesse. Ergebnisse sind Trainingswerte und keine medizinische Diagnose.</p></div>
+ </section>
 }
