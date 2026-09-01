@@ -80,15 +80,16 @@ export function chooseFresh<T extends { id: string }>(items: readonly T[], count
 }
 
 /**
- * Reorders a generated session so unseen tasks come first and persists the
- * delivered IDs. Generated domains can use this without changing their UI.
+ * Reorders a generated session so unseen tasks come first and persists only
+ * tasks that are actually delivered. This prevents hidden candidates from
+ * polluting the anti-repeat history.
  */
-export function finalizeSessionTasks<T extends { id: string }>(scope: string, tasks: readonly T[], maxHistory = 32): T[] {
+export function finalizeSessionTasks<T extends { id: string }>(scope: string, tasks: readonly T[], maxHistory = 32, count = tasks.length): T[] {
   const recentIds = readRecentTaskIds(scope, maxHistory);
   const recent = new Set(recentIds);
   const fresh = shuffled(tasks.filter((task) => !recent.has(task.id)));
   const repeated = shuffled(tasks.filter((task) => recent.has(task.id)));
-  const result = [...fresh, ...repeated];
+  const result = [...fresh, ...repeated].slice(0, Math.min(count, tasks.length));
   rememberTaskIds(scope, result.map((task) => task.id), maxHistory);
   return result;
 }
@@ -115,6 +116,26 @@ export function balancedByMode<T extends { mode: string }>(items: readonly T[], 
       cursor += 1;
     }
   }
+  return result;
+}
+
+/**
+ * Anti-repeat selector for generated pools. Fresh tasks are balanced by mode
+ * first; only when a mode has no fresh candidate do recent tasks become eligible.
+ */
+export function finalizeBalancedSessionTasks<T extends { id: string; mode: string }>(scope: string, tasks: readonly T[], count: number, maxHistory = 48): T[] {
+  const recentIds = readRecentTaskIds(scope, maxHistory);
+  const recent = new Set(recentIds);
+  const fresh = tasks.filter((task) => !recent.has(task.id));
+  const repeated = tasks.filter((task) => recent.has(task.id));
+  const selectedFresh = balancedByMode(fresh, count);
+  const selectedIds = new Set(selectedFresh.map((task) => task.id));
+  const remaining = count - selectedFresh.length;
+  const fallback = remaining > 0
+    ? balancedByMode(repeated.filter((task) => !selectedIds.has(task.id)), remaining)
+    : [];
+  const result = shuffled([...selectedFresh, ...fallback]).slice(0, Math.min(count, tasks.length));
+  rememberTaskIds(scope, result.map((task) => task.id), maxHistory);
   return result;
 }
 
