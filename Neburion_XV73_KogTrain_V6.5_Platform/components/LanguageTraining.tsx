@@ -10,7 +10,8 @@ type Stats = { sessions: number; bestScore: number; recentIds: string[]; modeSta
 type Outcome = { mode: LanguageMode; correct: boolean };
 type Phase = "intro" | "question" | "feedback" | "done";
 
-const HISTORY_SCOPE = "language";
+const HISTORY_SCOPE = "language-v4";
+const HISTORY_LIMIT = 144;
 const initialStats: Stats = { sessions: 0, bestScore: 0, recentIds: [], modeStats: {} };
 const labels: Record<LanguageMode, string> = {
   synonym: "Synonyme",
@@ -58,8 +59,8 @@ export function LanguageTraining() {
   });
 
   function start() {
-    const sharedHistory = readRecentTaskIds(HISTORY_SCOPE, 32);
-    const mergedHistory = [...new Set([...stats.recentIds, ...sharedHistory])].slice(-32);
+    const sharedHistory = readRecentTaskIds(HISTORY_SCOPE, HISTORY_LIMIT);
+    const mergedHistory = [...new Set([...stats.recentIds, ...sharedHistory])].slice(-HISTORY_LIMIT);
     setSession(createLanguageSession(stats.bestScore, mergedHistory, stats.sessions));
     setIndex(0);
     setSelected(null);
@@ -93,12 +94,12 @@ export function LanguageTraining() {
         correct: current.correct + (item.correct ? 1 : 0),
       };
     });
-    const sessionIds = session.tasks.map((task) => task.id);
-    rememberTaskIds(HISTORY_SCOPE, sessionIds, 32);
+    const sessionIds = session.tasks.map((item) => item.id);
+    rememberTaskIds(HISTORY_SCOPE, sessionIds, HISTORY_LIMIT);
     const nextStats: Stats = {
       sessions: stats.sessions + 1,
       bestScore: Math.max(stats.bestScore, score),
-      recentIds: [...new Set([...stats.recentIds, ...sessionIds])].slice(-32),
+      recentIds: [...new Set([...stats.recentIds, ...sessionIds])].slice(-HISTORY_LIMIT),
       modeStats,
     };
     setStats(nextStats);
@@ -115,14 +116,14 @@ export function LanguageTraining() {
       <div className={styles.stats}>
         <span>Sessions <strong>{stats.sessions}</strong></span>
         <span>Bestwert <strong>{stats.bestScore}/{LANGUAGE_SESSION_LENGTH}</strong></span>
-        <span>{session ? `Level ${session.difficulty}` : "Language Lab V2"}</span>
+        <span>{session ? `Level ${session.difficulty}` : "Language Lab 2.4 · Adaptive V4"}</span>
       </div>
 
       {phase === "intro" && (
         <div className={styles.stage}>
-          <p className="eyebrow">8 Sprachmodi · Dynamic Engine V2</p>
-          <h2>Wörter verstehen. Beziehungen erkennen. Kontext deuten.</h2>
-          <p>Jede Session kombiniert acht verschiedene Sprachbereiche. Das rollierende Aufgabenfenster reduziert Wiederholungen; die Schwierigkeit steigt erst mit ausreichend Trainingsdaten und bleibt damit nachvollziehbar.</p>
+          <p className="eyebrow">8 Sprachmodi · Adaptive Quality V4</p>
+          <h2>Wörter verstehen. Beziehungen erkennen. Kontext präzise deuten.</h2>
+          <p>Language V4 erweitert Wortschatz, Grammatik, Analogien und Kontextverständnis deutlich. Mit steigendem Niveau werden Bedeutungsunterschiede feiner, Schlussketten abstrakter und Antwortoptionen ähnlicher. Eine lange Anti-Repeat-Historie reduziert Wiederholungen über viele Sessions hinweg.</p>
           <div className={styles.modeGrid}>{Object.values(labels).map((label) => <span key={label}>{label}</span>)}</div>
           <button className="primary trainingButton" type="button" onClick={start}>Language Session starten</button>
         </div>
@@ -130,7 +131,7 @@ export function LanguageTraining() {
 
       {phase === "question" && current && session && (
         <div className={styles.stage}>
-          <p className="eyebrow">{labels[current.mode]} · Aufgabe {index + 1}/{session.tasks.length}</p>
+          <p className="eyebrow">{labels[current.mode]} · Aufgabe {index + 1}/{session.tasks.length} · Level {session.difficulty}</p>
           <h2>{current.prompt}</h2>
           <div className={styles.prompt}>{current.detail}</div>
           <div className={styles.options}>
@@ -162,7 +163,7 @@ export function LanguageTraining() {
               <div key={mode}><span>{labels[mode]}</span><strong>{value.attempts ? Math.round((value.correct / value.attempts) * 100) : 0}%</strong></div>
             ))}
           </div>
-          <p>Die nächste Session bevorzugt andere Varianten aus dem rollierenden Verlauf und passt das Niveau evidenzbasiert an.</p>
+          <p>Die nächste Session wählt bevorzugt neue Varianten und passt die sprachliche Tiefe erneut an deinen bisherigen Trainingsstand an.</p>
           <button className="primary trainingButton" type="button" onClick={start}>Neue Language Session</button>
         </div>
       )}
