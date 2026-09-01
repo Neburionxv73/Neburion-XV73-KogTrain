@@ -208,7 +208,7 @@ test("Attention lab starts a generated session", async ({ page }) => {
 
 test("Memory lab starts its first multimodal task", async ({ page }) => {
   await page.goto("/training/memory", { waitUntil: "networkidle" });
-  await page.getByRole("button", { name: "Memory Lab 2.0 starten" }).click();
+  await page.getByRole("button", { name: /Memory Lab .* starten/i }).click();
   await expect(page.getByText(/Aufgabe 1\/\d+/)).toBeVisible();
 });
 
