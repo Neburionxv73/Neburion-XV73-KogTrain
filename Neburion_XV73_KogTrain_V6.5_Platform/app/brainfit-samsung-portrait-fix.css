@@ -1,0 +1,12 @@
+/* V6.7 BrainFit portrait hardening for 391–430 px Android-class viewports.
+   The crossword generator can produce a dense 13-column grid whose inline
+   track minimums slightly exceed the 500 px local-scroll budget. Keep the
+   existing local horizontal scroll behavior, but scale only the puzzle grid
+   in this narrow band so every generated variant remains reachable without
+   rotating the device. */
+@media (min-width:391px) and (max-width:430px){
+  .bfCrosswordGrid{
+    zoom:.94;
+    transform-origin:top left;
+  }
+}
