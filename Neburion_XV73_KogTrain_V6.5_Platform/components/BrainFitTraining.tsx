@@ -17,15 +17,47 @@ type CrosswordDirection = "across" | "down";
 type CrosswordEntry = { id:number; number:number; clue:string; answer:string; row:number; col:number; direction:CrosswordDirection };
 type CrosswordCell = { answer:string; number?:number };
 type CrosswordPuzzle = { rows:number; cols:number; entries:CrosswordEntry[]; cells:Record<string,CrosswordCell> };
+type RotationArea = "words" | "crossword" | "memory";
+type RotationHistory = Record<RotationArea,string[]>;
 
 const ANIMALS=["🐶","🐱","🦊","🐼"];
-const MEMORY_POOL=["🐶","🐱","🦊","🐼","🐸","🦉","🐰","🦋"];
+const MEMORY_POOL=["🐶","🐱","🦊","🐼","🐸","🦉","🐰","🦋","🐨","🐯","🦁","🐮","🐷","🐵","🐧","🐙","🦄","🐝","🐢","🦀","🐳","🦜","🦔","🐿️"];
 const BASE_SUDOKU=[0,1,2,3,2,3,0,1,1,0,3,2,3,2,1,0];
 const ALPHABET="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const QUIZ_AREAS:BrainFitArea[]=["categories","sequence","everydayMath","timeOrder"];
 const WORD_GRID_SIZE=10;
 const CROSSWORD_SIZE=13;
+const ROTATION_STORAGE_KEY="neburion-v67-brainfit-rotation-v3";
+const ROTATION_LIMIT:Record<RotationArea,number>={words:12,crossword:18,memory:18};
 const DIRECTIONS=[[0,1],[1,0],[1,1],[1,-1],[0,-1],[-1,0],[-1,-1],[-1,1]] as const;
+
+function readRotationHistory():RotationHistory{
+  const empty:RotationHistory={words:[],crossword:[],memory:[]};
+  if(typeof window==="undefined") return empty;
+  try{
+    const raw=localStorage.getItem(ROTATION_STORAGE_KEY);
+    if(!raw) return empty;
+    const parsed=JSON.parse(raw) as Partial<RotationHistory>;
+    return {
+      words:Array.isArray(parsed.words)?parsed.words.filter(item=>typeof item==="string").slice(-ROTATION_LIMIT.words):[],
+      crossword:Array.isArray(parsed.crossword)?parsed.crossword.filter(item=>typeof item==="string").slice(-ROTATION_LIMIT.crossword):[],
+      memory:Array.isArray(parsed.memory)?parsed.memory.filter(item=>typeof item==="string").slice(-ROTATION_LIMIT.memory):[],
+    };
+  }catch{return empty;}
+}
+
+function rememberRotation(area:RotationArea,signature:string){
+  if(typeof window==="undefined"||!signature) return;
+  try{
+    const history=readRotationHistory();
+    history[area]=[...history[area].filter(item=>item!==signature),signature].slice(-ROTATION_LIMIT[area]);
+    localStorage.setItem(ROTATION_STORAGE_KEY,JSON.stringify(history));
+  }catch{}
+}
+
+function wordSignature(words:string[]){return [...words].sort().join("|");}
+function crosswordSignature(puzzle:CrosswordPuzzle){return puzzle.entries.map(entry=>entry.answer).sort().join("|");}
+function memorySignature(cards:MemoryCard[]){return [...new Set(cards.map(card=>card.value))].sort().join("|");}
 
 function makeSudokuRound(mode:BrainFitMode):SudokuRound{
   const symbols=shuffled(ANIMALS);
@@ -57,10 +89,22 @@ function isValidSudokuGrid(cells:Cell[]){
   return groups.every(group=>new Set(group.map(index=>values[index])).size===4);
 }
 
-function makeMemory(mode:BrainFitMode):MemoryCard[]{
+function makeMemory(mode:BrainFitMode,recent:string[]=[]):MemoryCard[]{
   const pairs=mode==="relaxed"?4:mode==="normal"?6:8;
-  const values=MEMORY_POOL.slice(0,pairs);
-  return shuffled([...values,...values]).map((value,index)=>({id:index,value,matched:false}));
+  const seen=new Set(recent);
+  let chosen:string[]=[];
+  for(let attempt=0;attempt<40;attempt++){
+    const candidate=shuffled(MEMORY_POOL).slice(0,pairs);
+    chosen=candidate;
+    if(!seen.has([...candidate].sort().join("|"))) break;
+  }
+  return shuffled([...chosen,...chosen]).map((value,index)=>({id:index,value,matched:false}));
+}
+
+function chooseWordSet(recent:string[]=[]){
+  const seen=new Set(recent);
+  const candidates=shuffled(WORD_SETS);
+  return candidates.find(words=>!seen.has(wordSignature(words))) ?? candidates[0] ?? WORD_SETS[0];
 }
 
 function tryWordPuzzle(words:string[]):WordPuzzle|null{
@@ -195,12 +239,17 @@ function buildCrossword(entries:Array<{clue:string;answer:string}>,targetCount:n
   return {rows:maxRow-minRow+1,cols:maxCol-minCol+1,entries:finalEntries,cells};
 }
 
-function makeCrosswordPuzzle(mode:BrainFitMode):CrosswordPuzzle{
+function makeCrosswordPuzzle(mode:BrainFitMode,recent:string[]=[]):CrosswordPuzzle{
   const target=mode==="relaxed"?4:mode==="normal"?6:8;
-  for(let attempt=0;attempt<70;attempt++){
+  const seen=new Set(recent);
+  let fallbackFresh:CrosswordPuzzle|null=null;
+  for(let attempt=0;attempt<100;attempt++){
     const puzzle=buildCrossword(shuffled(CROSSWORD_POOL),target);
-    if(puzzle&&puzzle.entries.length>=target) return puzzle;
+    if(!puzzle||puzzle.entries.length<target) continue;
+    fallbackFresh=puzzle;
+    if(!seen.has(crosswordSignature(puzzle))) return puzzle;
   }
+  if(fallbackFresh) return fallbackFresh;
   const fallback=buildCrossword(shuffled(CROSSWORD_POOL),Math.min(4,target));
   if(fallback) return fallback;
   const first=CROSSWORD_POOL[0];
@@ -251,6 +300,17 @@ export function BrainFitTraining(){
       const raw=localStorage.getItem(BRAIN_FIT_STORAGE_KEY);
       if(raw) setStats(mergeBrainFitStats(JSON.parse(raw)));
     }catch{}
+    const history=readRotationHistory();
+    const nextWords=chooseWordSet(history.words);
+    const nextWordPuzzle=makeWordPuzzle(nextWords);
+    setWordPuzzle(nextWordPuzzle);
+    rememberRotation("words",wordSignature(nextWordPuzzle.words));
+    const nextCrossword=makeCrosswordPuzzle("relaxed",history.crossword);
+    setCrossword(nextCrossword);
+    rememberRotation("crossword",crosswordSignature(nextCrossword));
+    const nextMemory=makeMemory("relaxed",history.memory);
+    setMemory(nextMemory);
+    rememberRotation("memory",memorySignature(nextMemory));
   },[]);
 
   const sudokuFilled=useMemo(()=>sudokuRound.cells.every(cell=>Boolean(cell.value)),[sudokuRound]);
@@ -287,10 +347,24 @@ export function BrainFitTraining(){
   function resetArea(){
     setMessage("");setRecorded(current=>({...current,[area]:false}));
     const level=modeFor(area);
+    const history=readRotationHistory();
     if(area==="sudoku"){setSudokuRound(makeSudokuRound(level));setActiveSudoku(null);}
-    if(area==="words"){const next=shuffled(WORD_SETS)[0];setWordPuzzle(makeWordPuzzle(next));setSelectedCells([]);setFoundWords([]);}
-    if(area==="crossword"){setCrossword(makeCrosswordPuzzle(level));setCrossValues({});}
-    if(area==="memory"){setMemory(makeMemory(level));setOpenCards([]);}
+    if(area==="words"){
+      const nextWords=chooseWordSet(history.words);
+      const nextPuzzle=makeWordPuzzle(nextWords);
+      setWordPuzzle(nextPuzzle);setSelectedCells([]);setFoundWords([]);
+      rememberRotation("words",wordSignature(nextPuzzle.words));
+    }
+    if(area==="crossword"){
+      const nextPuzzle=makeCrosswordPuzzle(level,history.crossword);
+      setCrossword(nextPuzzle);setCrossValues({});
+      rememberRotation("crossword",crosswordSignature(nextPuzzle));
+    }
+    if(area==="memory"){
+      const nextMemory=makeMemory(level,history.memory);
+      setMemory(nextMemory);setOpenCards([]);
+      rememberRotation("memory",memorySignature(nextMemory));
+    }
     prepareQuiz(area);
   }
 
