@@ -1,3 +1,5 @@
+import { chooseFresh, readRecentTaskIds, rememberTaskIds } from "@/lib/dynamicTraining";
+
 export type BrainFitMode = "relaxed" | "normal" | "challenge";
 export type BrainFitArea = "sudoku" | "words" | "crossword" | "memory" | "categories" | "sequence" | "everydayMath" | "timeOrder";
 
@@ -80,6 +82,14 @@ export const WORD_SETS = [
   ["KIRCHE","MARKT","PARK","BRUECKE","PLATZ","STRASSE"],
   ["SUPPE","NUDEL","SALAT","KAFFEE","KUCHEN","KAESE"],
   ["WINTER","SCHNEE","SOMMER","REGEN","WIND","WOLKE"],
+  ["FELS","PFAD","HUETTE","GIPFEL","SEIL","WANDERUNG"],
+  ["BIRNE","TRAUBE","BEERE","MELONE","PFLAUME","KIRSCHE"],
+  ["SCHULE","HEFT","STIFT","PAUSE","TAFEL","KLASSE"],
+  ["RADIO","MUSIK","TON","LIED","KLANG","STIMME"],
+  ["KINO","FILM","KARTE","SITZ","LEINWAND","PAUSE"],
+  ["ARZT","PRAXIS","TERMIN","REZEPT","WARTEZIMMER","APOTHEKE"],
+  ["BUS","HALTESTELLE","FAHRPLAN","TICKET","LINIE","FAHRT"],
+  ["KUECHE","TOPF","PFANNE","MESSER","TELLER","LOEFFEL"],
 ];
 
 export const CROSSWORD_POOL = [
@@ -95,6 +105,14 @@ export const CROSSWORD_POOL = [
   {clue:"Fällt im Winter weiß vom Himmel.",answer:"SCHNEE"}, {clue:"Damit telefoniert man unterwegs.",answer:"HANDY"},
   {clue:"Dort wartet man auf einen Zug.",answer:"BAHNHOF"}, {clue:"Ein Fahrzeug mit zwei Rädern und Pedalen.",answer:"FAHRRAD"},
   {clue:"Darauf schläft man nachts.",answer:"BETT"}, {clue:"Daraus trinkt man Kaffee oder Tee.",answer:"TASSE"},
+  {clue:"Damit schreibt man auf Papier.",answer:"STIFT"}, {clue:"Zeigt den Weg in einer fremden Stadt.",answer:"KARTE"},
+  {clue:"Dort werden Medikamente verkauft.",answer:"APOTHEKE"}, {clue:"Damit schützt man sich vor Regen.",answer:"SCHIRM"},
+  {clue:"Ein Raum zum Kochen.",answer:"KUECHE"}, {clue:"Dort sieht man Filme auf großer Leinwand.",answer:"KINO"},
+  {clue:"Damit schneidet man Brot oder Gemüse.",answer:"MESSER"}, {clue:"Ein kaltes Getränk aus Früchten.",answer:"SAFT"},
+  {clue:"Damit fährt man im Winter einen Hang hinunter.",answer:"SKI"}, {clue:"Dort lernt eine Klasse gemeinsam.",answer:"SCHULE"},
+  {clue:"Ein kleiner Weg durch Wald oder Berge.",answer:"PFAD"}, {clue:"Damit hört man Musik privat.",answer:"KOPFHOERER"},
+  {clue:"Dort behandelt ein Arzt Patientinnen und Patienten.",answer:"PRAXIS"}, {clue:"Damit bezahlt man eine Bus- oder Zugfahrt.",answer:"TICKET"},
+  {clue:"Eine Frucht, oft gelb und länglich.",answer:"BANANE"}, {clue:"Darin kocht man Suppe oder Nudeln.",answer:"TOPF"},
 ];
 
 export const CATEGORY_TASKS: BrainFitChoiceTask[] = [
@@ -110,6 +128,14 @@ export const CATEGORY_TASKS: BrainFitChoiceTask[] = [
   {prompt:"Was passt nicht zum Winter?",options:["Schnee","Mütze","Handschuhe","Badehose"],answer:"Badehose"},
   {prompt:"Was passt nicht in eine Küche?",options:["Topf","Teller","Pfanne","Regenschirm"],answer:"Regenschirm"},
   {prompt:"Was passt nicht zu Blumen?",options:["Rose","Tulpe","Nelke","Kartoffel"],answer:"Kartoffel"},
+  {prompt:"Was passt nicht zum Büro?",options:["Ordner","Drucker","Tastatur","Kochtopf"],answer:"Kochtopf"},
+  {prompt:"Was passt nicht zum Wandern?",options:["Rucksack","Wanderschuh","Trinkflasche","Kopfkissen"],answer:"Kopfkissen"},
+  {prompt:"Was passt nicht zu Möbeln?",options:["Tisch","Schrank","Sessel","Banane"],answer:"Banane"},
+  {prompt:"Was passt nicht zum Kino?",options:["Leinwand","Film","Sitzplatz","Zahnbürste"],answer:"Zahnbürste"},
+  {prompt:"Was passt nicht zu Schreibwaren?",options:["Stift","Heft","Radiergummi","Pfanne"],answer:"Pfanne"},
+  {prompt:"Was passt nicht zum Arztbesuch?",options:["Termin","Wartezimmer","Rezept","Fahrkarte"],answer:"Fahrkarte"},
+  {prompt:"Was passt nicht zu Musik?",options:["Melodie","Rhythmus","Klang","Schraubenzieher"],answer:"Schraubenzieher"},
+  {prompt:"Was passt nicht zu einem Bahnhof?",options:["Gleis","Zug","Fahrplan","Badewanne"],answer:"Badewanne"},
 ];
 
 export const SEQUENCE_TASKS: BrainFitChoiceTask[] = [
@@ -125,6 +151,14 @@ export const SEQUENCE_TASKS: BrainFitChoiceTask[] = [
   {prompt:"Januar · Februar · März · ?",options:["April","Mai","Juni","Juli"],answer:"April"},
   {prompt:"100 · 90 · 80 · 70 · ?",options:["50","55","60","65"],answer:"60"},
   {prompt:"1 · 3 · 5 · 7 · ?",options:["8","9","10","11"],answer:"9"},
+  {prompt:"4 · 8 · 12 · 16 · ?",options:["18","20","22","24"],answer:"20"},
+  {prompt:"30 · 25 · 20 · 15 · ?",options:["5","10","12","14"],answer:"10"},
+  {prompt:"2 · 6 · 18 · 54 · ?",options:["108","126","162","216"],answer:"162"},
+  {prompt:"B · D · F · H · ?",options:["I","J","K","L"],answer:"J"},
+  {prompt:"Sonntag · Montag · Dienstag · ?",options:["Mittwoch","Freitag","Samstag","Donnerstag"],answer:"Mittwoch"},
+  {prompt:"12 · 24 · 36 · 48 · ?",options:["54","60","62","72"],answer:"60"},
+  {prompt:"64 · 32 · 16 · 8 · ?",options:["2","4","6","10"],answer:"4"},
+  {prompt:"2 · 3 · 5 · 8 · 12 · ?",options:["15","16","17","18"],answer:"17"},
 ];
 
 export const EVERYDAY_MATH_TASKS: BrainFitChoiceTask[] = [
@@ -140,6 +174,14 @@ export const EVERYDAY_MATH_TASKS: BrainFitChoiceTask[] = [
   {prompt:"Eine Fahrt dauert 30 Minuten. Zwei Fahrten dauern?",options:["45 min","50 min","60 min","90 min"],answer:"60 min"},
   {prompt:"In einer Kiste sind 24 Flaschen. 6 werden entnommen. Übrig?",options:["16","18","20","22"],answer:"18"},
   {prompt:"Ein Rezept braucht 2 Eier. Für drei gleiche Rezepte brauchst du?",options:["4","5","6","8"],answer:"6"},
+  {prompt:"Ein Ticket kostet 7 €. Zwei Tickets kosten?",options:["12 €","14 €","16 €","17 €"],answer:"14 €"},
+  {prompt:"Du hast 50 € und gibst 18 € aus. Übrig?",options:["28 €","30 €","32 €","38 €"],answer:"32 €"},
+  {prompt:"Eine Flasche enthält 1,5 Liter. Zwei Flaschen enthalten?",options:["2 l","2,5 l","3 l","3,5 l"],answer:"3 l"},
+  {prompt:"6 Stück kosten je 2 €. Gesamtpreis?",options:["8 €","10 €","12 €","14 €"],answer:"12 €"},
+  {prompt:"Ein Termin dauert 45 Minuten. Zwei Termine dauern zusammen?",options:["60 min","75 min","90 min","100 min"],answer:"90 min"},
+  {prompt:"Von 40 Stück werden 15 verkauft. Wie viele bleiben?",options:["20","25","30","35"],answer:"25"},
+  {prompt:"3 Packungen enthalten je 4 Stück. Gesamtmenge?",options:["7","10","12","14"],answer:"12"},
+  {prompt:"Ein Einkauf kostet 23 €. Du zahlst mit 30 €. Rückgeld?",options:["5 €","6 €","7 €","8 €"],answer:"7 €"},
 ];
 
 export const TIME_ORDER_TASKS: BrainFitChoiceTask[] = [
@@ -155,12 +197,30 @@ export const TIME_ORDER_TASKS: BrainFitChoiceTask[] = [
   {prompt:"Welcher Monat folgt auf April?",options:["März","Mai","Juni","Juli"],answer:"Mai"},
   {prompt:"Ein Termin ist um 16:30. Eine halbe Stunde vorher ist?",options:["15:30","16:00","16:15","17:00"],answer:"16:00"},
   {prompt:"Welche Tageszeit folgt normalerweise auf den Vormittag?",options:["Nacht","Mittag","Morgen","Abend"],answer:"Mittag"},
+  {prompt:"Was kommt nach dem Abend?",options:["Nacht","Mittag","Vormittag","Frühstück"],answer:"Nacht"},
+  {prompt:"Welche Uhrzeit ist früher?",options:["13:45","12:30","14:00","15:10"],answer:"12:30"},
+  {prompt:"Welcher Monat kommt vor September?",options:["Juli","August","Oktober","November"],answer:"August"},
+  {prompt:"Ein Termin beginnt um 09:15 und dauert 45 Minuten. Ende?",options:["09:45","10:00","10:15","11:00"],answer:"10:00"},
+  {prompt:"Was folgt im Jahreslauf auf den Winter?",options:["Frühling","Sommer","Herbst","Nacht"],answer:"Frühling"},
+  {prompt:"Ein Bus fährt um 17:20. Zehn Minuten vorher ist?",options:["17:00","17:10","17:15","17:30"],answer:"17:10"},
+  {prompt:"Welche Uhrzeit liegt zwischen 14:00 und 15:00?",options:["13:50","14:30","15:10","16:00"],answer:"14:30"},
+  {prompt:"Was kommt direkt nach Samstag?",options:["Freitag","Sonntag","Montag","Mittwoch"],answer:"Sonntag"},
 ];
 
 export function shuffled<T>(items:T[]):T[]{return [...items].sort(()=>Math.random()-.5);}
 
+function quizTaskId(area:BrainFitArea,task:BrainFitChoiceTask,index:number){
+  const normalized=task.prompt.toLocaleLowerCase("de-AT").replace(/[^a-z0-9äöüß]+/g,"-").replace(/^-|-$/g,"").slice(0,56);
+  return `brainfit-${area}-${normalized || index}`;
+}
+
 export function variedQuizTasks(area:BrainFitArea,mode:BrainFitMode):BrainFitChoiceTask[]{
   const source = area==="categories"?CATEGORY_TASKS:area==="sequence"?SEQUENCE_TASKS:area==="everydayMath"?EVERYDAY_MATH_TASKS:area==="timeOrder"?TIME_ORDER_TASKS:[];
   const count=mode==="relaxed"?6:mode==="normal"?8:10;
-  return shuffled(source).slice(0,Math.min(count,source.length)).map(task=>({...task,options:shuffled(task.options)}));
+  const scope=`brainfit-${area}-v3`;
+  const candidates=source.map((task,index)=>({...task,id:quizTaskId(area,task,index)}));
+  const recent=readRecentTaskIds(scope,64);
+  const picked=chooseFresh(candidates,count,recent);
+  rememberTaskIds(scope,picked.map(task=>task.id),64);
+  return picked.map(({id: _id,...task})=>({...task,options:shuffled(task.options)}));
 }
