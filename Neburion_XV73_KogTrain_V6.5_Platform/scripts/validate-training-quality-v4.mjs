@@ -29,29 +29,35 @@ expect("V4 core: balanced session selection exists", dynamicTraining.includes("b
 expect("V4 core: evidence-based difficulty exists", dynamicTraining.includes("difficultyFromEvidence"));
 
 expect("Memory V4: adaptive quality UI active", memoryTraining.includes("Adaptive Quality V4"));
-expect("Memory V4: expanded symbol/word generation", memory.includes("createSessionSeed") && memory.length > 9000);
-expect("Memory V4: long anti-repeat history", /144/.test(memory) || /144/.test(memoryTraining));
+expect("Memory V4: eight generated memory modes retained", ["digits","reverse","words","symbols","positions","recognition","nback1","nback2"].every((mode) => memory.includes(`\"${mode}\"`)));
+expect("Memory V4: generated sessions and adaptive span active", memory.includes("createSessionSeed") && memory.includes("finalizeBalancedSessionTasks") && memory.includes("showMs"));
+expect("Memory V4: long anti-repeat history", memory.includes("memory-v4") && memory.includes("144"));
 
 expect("Attention V4: adaptive quality UI active", attentionTraining.includes("Adaptive Quality V4"));
-expect("Attention V4: advanced interference/search modes retained", attention.includes("visual-search") && attention.includes("interference") && attention.includes("rule-switch"));
-expect("Attention V4: deep candidate pool", /112|144/.test(attention));
+expect("Attention V4: advanced modes retained", ["go-no-go","visual-search","rule-switch","inhibition","divided","speed","interference"].every((mode) => attention.includes(`\"${mode}\"`)));
+expect("Attention V4: variable depth and balanced selection active", attention.includes("taskCount") && attention.includes("finalizeBalancedSessionTasks") && attention.includes("attention-v4"));
+expect("Attention V4: anti-repeat history minimum retained", attention.includes("112"));
 
 expect("Logic V4: adaptive quality UI active", logicTraining.includes("Adaptive Quality V4"));
 expect("Logic V4: advanced sequence/rule tasks active", logicV2.includes("v4-seq") && logicV2.includes("v4-rule"));
 expect("Logic V4: deduction and operator depth active", logicV2.includes("v4-ded") && logicV2.includes("v4-op"));
-expect("Logic V4: long anti-repeat history", logicV2.includes("144"));
+expect("Logic V4: long anti-repeat history", logicV2.includes("logic-v4") && logicV2.includes("144"));
 
 expect("Language V4: adaptive quality UI active", languageTraining.includes("Adaptive Quality V4"));
-expect("Language V4: V4 generator active", languageV2.includes("V4") || languageV2.includes("v4"));
+expect("Language V4: dedicated V4 task bank active", languageV2.includes("V4_BANK") && languageV2.includes("v4-syn-") && languageV2.includes("v4-ctx-"));
 expect("Language V4: rolling history minimum 32", historyAtLeast(languageTraining, 32));
 expect("Language V4: rolling history read/write active", languageTraining.includes("readRecentTaskIds") && languageTraining.includes("rememberTaskIds"));
+expect("Language V4: balanced adaptive selection active", languageV2.includes("difficultyFromEvidence") && languageV2.includes("finalizeBalancedSessionTasks"));
 
-expect("Visual V4: generated visual modes retained", visual.includes("rotation") && visual.includes("matrix") && visual.includes("memory") && visual.includes("compare"));
+expect("Visual V4: generated visual modes retained", ["rotation","mirror","pattern","matrix","position","search","compare","memory"].every((mode) => visual.includes(`\"${mode}\"`)));
 expect("Visual V4: expanded independent candidate rounds", visualV2.includes("round < 7"));
 expect("Visual V4: fresh-first selection active", visualV2.includes("readRecentTaskIds") && visualV2.includes("recent.has"));
+expect("Visual V4: balanced selection active", visualV2.includes("balancedByMode"));
 expect("Visual V4: long anti-repeat history", visualV2.includes("HISTORY_LIMIT = 144"));
 
 expect("BrainFit: all eight areas retained", ["sudoku","words","crossword","memory","categories","sequence","everydayMath","timeOrder"].every((area) => brainFit.includes(`\"${area}\"`)));
+expect("BrainFit: adaptive area mode retained", brainFit.includes("adaptiveMode") && brainFit.includes("challenge") && brainFit.includes("normal") && brainFit.includes("relaxed"));
+expect("BrainFit: expanded word and crossword pools retained", brainFit.includes("WORD_SETS") && brainFit.includes("CROSSWORD_POOL"));
 expect("BrainFit: rotation history retained", brainFitTraining.includes("ROTATION_STORAGE_KEY") && brainFitTraining.includes("rememberRotation"));
 expect("BrainFit: Sudoku accepts every valid grid", brainFitTraining.includes("isValidSudokuGrid"));
 expect("BrainFit: portrait crossword remains guarded", brainFitTraining.includes("CROSSWORD_SIZE") && brainFitTraining.includes("crossword"));
