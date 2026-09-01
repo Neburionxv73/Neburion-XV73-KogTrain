@@ -8,6 +8,11 @@ const ProgressCoachDashboard = dynamic(
   { ssr: false }
 );
 
+const AdaptiveProgressCoachBridge = dynamic(
+  () => import("./AdaptiveProgressCoachBridge").then((mod) => mod.AdaptiveProgressCoachBridge),
+  { ssr: false }
+);
+
 export function DeferredProgressCoachDashboard() {
   const markerRef = useRef<HTMLDivElement | null>(null);
   const [shouldLoad, setShouldLoad] = useState(false);
@@ -37,7 +42,14 @@ export function DeferredProgressCoachDashboard() {
 
   return (
     <div ref={markerRef} className="deferredProgressMount">
-      {shouldLoad ? <ProgressCoachDashboard /> : <div id="fortschritt" className="deferredProgressAnchor" aria-hidden="true" />}
+      {shouldLoad ? (
+        <>
+          <ProgressCoachDashboard />
+          <AdaptiveProgressCoachBridge />
+        </>
+      ) : (
+        <div id="fortschritt" className="deferredProgressAnchor" aria-hidden="true" />
+      )}
     </div>
   );
 }
