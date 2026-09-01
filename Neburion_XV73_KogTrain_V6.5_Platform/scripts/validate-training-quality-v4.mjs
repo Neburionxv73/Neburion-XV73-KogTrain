@@ -33,7 +33,7 @@ expect("Memory V4: eight generated memory modes retained", ["digits","reverse","
 expect("Memory V4: generated sessions and adaptive span active", memory.includes("createSessionSeed") && memory.includes("finalizeBalancedSessionTasks") && memory.includes("showMs"));
 expect("Memory V4: long anti-repeat history", memory.includes("memory-v4") && memory.includes("144"));
 
-expect("Attention V4: adaptive quality UI active", attentionTraining.includes("Adaptive Quality V4"));
+expect("Attention V4: adaptive quality UI active", attentionTraining.includes("createAttentionSession(stats.bestAccuracy)") && attentionTraining.includes("session.difficulty") && attentionTraining.includes("session.targetMs"));
 expect("Attention V4: advanced modes retained", ["go-no-go","visual-search","rule-switch","inhibition","divided","speed","interference"].every((mode) => attention.includes(`\"${mode}\"`)));
 expect("Attention V4: variable depth and balanced selection active", attention.includes("taskCount") && attention.includes("finalizeBalancedSessionTasks") && attention.includes("attention-v4"));
 expect("Attention V4: anti-repeat history minimum retained", attention.includes("112"));
