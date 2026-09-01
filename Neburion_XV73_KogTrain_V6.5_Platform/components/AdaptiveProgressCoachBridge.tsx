@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { buildWeeklyPlan, type AdaptiveTarget, type AdaptiveStrategy, type AdaptiveConfidence } from "@/lib/globalAdaptiveV2";
-import type { LabProgress } from "@/lib/progress";
+import { getProgressSnapshot, type LabProgress, type ProgressSnapshot } from "@/lib/progress";
 import styles from "./AdaptiveProgressCoachBridge.module.css";
 
 const strategyLabel: Record<AdaptiveStrategy, string> = {
@@ -34,8 +35,27 @@ function toAdaptiveTarget(lab: LabProgress): AdaptiveTarget {
   };
 }
 
-export function AdaptiveProgressCoachBridge({ labs }: { labs: LabProgress[] }) {
-  const plan = buildWeeklyPlan(labs.map(toAdaptiveTarget), 3);
+export function AdaptiveProgressCoachBridge() {
+  const [snapshot, setSnapshot] = useState<ProgressSnapshot | null>(null);
+
+  useEffect(() => {
+    const refresh = () => {
+      try { setSnapshot(getProgressSnapshot()); } catch { setSnapshot(null); }
+    };
+    refresh();
+    window.addEventListener("focus", refresh);
+    window.addEventListener("storage", refresh);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      window.removeEventListener("focus", refresh);
+      window.removeEventListener("storage", refresh);
+      document.removeEventListener("visibilitychange", refresh);
+    };
+  }, []);
+
+  if (!snapshot) return null;
+
+  const plan = buildWeeklyPlan(snapshot.labs.map(toAdaptiveTarget), 3);
 
   return (
     <section className={styles.bridge} aria-labelledby="adaptive-progress-coach-title">
@@ -43,7 +63,7 @@ export function AdaptiveProgressCoachBridge({ labs }: { labs: LabProgress[] }) {
         <div>
           <p className="eyebrow">Adaptive Coach · Progress Link V4</p>
           <h3 id="adaptive-progress-coach-title">Dein nächster Trainingsschwerpunkt.</h3>
-          <p>Der Coach verbindet jetzt Trainingsabdeckung, Leistungswert und Evidenz aus Progress Insights V4 mit der adaptiven Planung.</p>
+          <p>Der Coach verbindet Trainingsabdeckung, Leistungswert und Evidenz aus Progress Insights V4 direkt mit der adaptiven Planung.</p>
         </div>
         <span>3 Prioritäten</span>
       </div>
@@ -58,7 +78,7 @@ export function AdaptiveProgressCoachBridge({ labs }: { labs: LabProgress[] }) {
                   <small>{strategyLabel[item.strategy]}</small>
                   <strong>{item.label}</strong>
                 </div>
-                <b>{item.priority}</b>
+                <b aria-label={`Priorität ${item.priority}`}>{item.priority}</b>
               </div>
               <p>{item.reason}</p>
               <div className={styles.signals}>
