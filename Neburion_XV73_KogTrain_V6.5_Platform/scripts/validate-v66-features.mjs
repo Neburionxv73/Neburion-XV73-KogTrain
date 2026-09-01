@@ -50,7 +50,13 @@ expect("V6.6 baseline: Logic UI uses generative engine", logicTraining.includes(
 expect("V6.6 baseline: Logic has expanded variants", logic.includes("Thermometer : Temperatur") && logic.includes("Kubikzahlen") && logic.includes("createSessionSeed"));
 
 expect("V6.6 baseline: Language route wires LanguageTraining", languageRoute.includes("LanguageTraining"));
-expect("V6.6 baseline: Language persists rolling history", languageTraining.includes("readRecentTaskIds") && languageTraining.includes("rememberTaskIds") && languageTraining.includes("32"));
+const languageHistoryLimit = Number(languageTraining.match(/const HISTORY_LIMIT = (\d+);/)?.[1] ?? 0);
+expect(
+  "V6.6 baseline: Language persists rolling history",
+  languageTraining.includes("readRecentTaskIds") &&
+    languageTraining.includes("rememberTaskIds") &&
+    languageHistoryLimit >= 32,
+);
 
 expect("V6.6 baseline: Visual route wires VisualTraining", visualRoute.includes("VisualTraining"));
 expect("V6.6 baseline: Visual UI uses generative engine", visualTraining.includes("createVisualSession") && visualTraining.includes("VISUAL_STORAGE_KEY"));
