@@ -1,0 +1,49 @@
+name: Raptor Delta V11 Control Engine
+
+on:
+  push:
+    branches:
+      - dev/raptor-v11-control-engine
+    paths:
+      - "raptor-v11/**"
+      - ".github/workflows/v11-control-engine.yml"
+  pull_request:
+    paths:
+      - "raptor-v11/**"
+      - ".github/workflows/v11-control-engine.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  v11-sprint-1:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@v4
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Run failure-injection suite
+        run: node raptor-v11/tests/failure-injection.mjs
+
+      - name: Prove all-pass fixture releases
+        run: node raptor-v11/controls/gate-engine.mjs raptor-v11/fixtures/all-pass.json
+
+      - name: Prove missing visual evidence is blocked
+        shell: bash
+        run: |
+          set +e
+          node raptor-v11/controls/gate-engine.mjs raptor-v11/fixtures/missing-visual-evidence.json
+          code=$?
+          set -e
+          if [ "$code" -eq 0 ]; then
+            echo "ERROR: invalid release was allowed"
+            exit 1
+          fi
+          echo "Expected block confirmed with exit code $code"
