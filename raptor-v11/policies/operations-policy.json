@@ -1,0 +1,8 @@
+{
+  "version": "11.0-rc1",
+  "severities": ["SEV-1", "SEV-2", "SEV-3", "SEV-4"],
+  "rollbackOn": ["HEALTHCHECK_FAIL", "CRITICAL_RUNTIME_ERROR", "SECURITY_REGRESSION"],
+  "requireIncidentRecordOnRollback": true,
+  "requirePostRollbackVerification": true,
+  "flow": ["DETECT", "CONTAIN", "ANALYZE", "RECOVER", "VERIFY", "DOCUMENT"]
+}

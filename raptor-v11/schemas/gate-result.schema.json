@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raptor-delta.local/schemas/gate-result.schema.json",
+  "title": "Raptor Delta Gate Result",
+  "type": "object",
+  "required": ["gate", "status", "evidence"],
+  "properties": {
+    "gate": { "type": "string", "minLength": 1 },
+    "status": {
+      "type": "string",
+      "enum": ["PASS", "FAIL", "BLOCKED", "NOT_RUN", "NOT_CAPTURED", "N/A"]
+    },
+    "evidence": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "reviewer": { "type": "string" },
+    "buildId": { "type": "string" }
+  },
+  "additionalProperties": true
+}

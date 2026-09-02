@@ -1,0 +1,118 @@
+name: Raptor Delta V11 Reference Certification
+
+on:
+  push:
+    branches:
+      - dev/raptor-v11-control-engine
+    paths:
+      - "Neburion_XV73_KogTrain_V6.5_Platform/**"
+      - "raptor-v11/**"
+      - ".github/workflows/v11-reference-certification.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reference-certification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
+    defaults:
+      run:
+        working-directory: Neburion_XV73_KogTrain_V6.5_Platform
+
+    steps:
+      - name: Checkout exact RC commit
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.13.1
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.x"
+
+      - name: Install application dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Install certification QA tools
+        run: pnpm add --save-dev --lockfile=false @playwright/test@1.55.0 @lhci/cli@0.15.1
+
+      - name: Production build and source quality gates
+        run: pnpm quality:core
+
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Start production runtime
+        run: |
+          pnpm start > /tmp/v11-reference-runtime.log 2>&1 &
+          echo $! > /tmp/v11-reference-runtime.pid
+
+      - name: Runtime health check
+        run: |
+          for i in {1..60}; do
+            if curl -fsS http://127.0.0.1:3000/ > /dev/null; then
+              echo "REFERENCE_HEALTHCHECK=PASS"
+              exit 0
+            fi
+            sleep 2
+          done
+          cat /tmp/v11-reference-runtime.log
+          exit 1
+
+      - name: Responsive and functional certification
+        env:
+          QA_BASE_URL: http://127.0.0.1:3000
+        run: pnpm exec playwright test tests/runtime-smoke.spec.ts
+
+      - name: Performance certification
+        run: pnpm exec lhci autorun --config=./lighthouserc.cjs
+
+      - name: V11 enterprise control certification
+        working-directory: .
+        run: |
+          node raptor-v11/tests/failure-injection.mjs
+          node raptor-v11/tests/rbac-failure-injection.mjs
+          node raptor-v11/tests/evidence-failure-injection.mjs
+          node raptor-v11/tests/model-governance-failure-injection.mjs
+          node raptor-v11/tests/supply-chain-failure-injection.mjs
+          node raptor-v11/tests/operations-failure-injection.mjs
+          node raptor-v11/tests/project-contract-failure-injection.mjs
+          node raptor-v11/tests/rc1-certification.mjs
+
+      - name: Create reference certification manifest
+        if: always()
+        working-directory: .
+        run: |
+          mkdir -p raptor-v11/evidence/reference
+          cat > raptor-v11/evidence/reference/certification-manifest.json <<EOF
+          {
+            "standard": "Raptor Delta V11.0-RC1",
+            "reference_project": "Neburion_XV73_KogTrain_V6.5_Platform",
+            "commit": "${GITHUB_SHA}",
+            "run_id": "${GITHUB_RUN_ID}",
+            "repository": "${GITHUB_REPOSITORY}",
+            "evidence_scope": ["build","source-quality","runtime-health","responsive-functional","performance","enterprise-controls"],
+            "visual_qa_note": "Automated Playwright evidence is captured by the reference run; manual visual approval remains required if not represented by captured artifacts.",
+            "principle": "NO EVIDENCE -> NO PASS -> NO RELEASE"
+          }
+          EOF
+
+      - name: Upload V11 reference evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v11-reference-certification-${{ github.sha }}
+          if-no-files-found: warn
+          retention-days: 30
+          path: |
+            Neburion_XV73_KogTrain_V6.5_Platform/test-results/
+            Neburion_XV73_KogTrain_V6.5_Platform/reports/lhci/
+            raptor-v11/evidence/reference/
+            /tmp/v11-reference-runtime.log

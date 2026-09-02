@@ -1,0 +1,81 @@
+name: Raptor Delta V11 Control Engine
+
+on:
+  push:
+    branches:
+      - dev/raptor-v11-control-engine
+    paths:
+      - "raptor-v11/**"
+      - ".github/workflows/v11-control-engine.yml"
+  pull_request:
+    paths:
+      - "raptor-v11/**"
+      - ".github/workflows/v11-control-engine.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  v11-control-engine:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@v4
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Sprint 1 - Gate failure-injection suite
+        run: node raptor-v11/tests/failure-injection.mjs
+      - name: Sprint 1 - All-pass release
+        run: node raptor-v11/controls/gate-engine.mjs raptor-v11/fixtures/all-pass.json
+      - name: Sprint 1 - Missing visual evidence blocked
+        shell: bash
+        run: |
+          set +e
+          node raptor-v11/controls/gate-engine.mjs raptor-v11/fixtures/missing-visual-evidence.json
+          code=$?
+          set -e
+          test "$code" -ne 0
+      - name: Sprint 2 - RBAC and approval failure-injection suite
+        run: node raptor-v11/tests/rbac-failure-injection.mjs
+      - name: Sprint 2 - Mudrasol production deploy denied
+        shell: bash
+        run: |
+          set +e
+          node raptor-v11/controls/authorization-engine.mjs MUDRASOL production.deploy
+          code=$?
+          set -e
+          test "$code" -ne 0
+      - name: Sprint 2 - Approved Deployment role may deploy
+        run: node raptor-v11/controls/authorization-engine.mjs DEPLOYMENT production.deploy 1 DEPLOYMENT
+      - name: Sprint 3 - Evidence build-binding and freshness failure-injection suite
+        run: node raptor-v11/tests/evidence-failure-injection.mjs
+      - name: Sprint 4 - Model governance and data-class failure-injection suite
+        run: node raptor-v11/tests/model-governance-failure-injection.mjs
+      - name: Sprint 4 - Restricted data cannot use frontier model
+        shell: bash
+        run: |
+          set +e
+          node raptor-v11/controls/model-router.mjs RESTRICTED FRONTIER_APPROVED repo.read
+          code=$?
+          set -e
+          test "$code" -ne 0
+      - name: Sprint 4 - Restricted data may use trusted local model
+        run: node raptor-v11/controls/model-router.mjs RESTRICTED LOCAL_TRUSTED local.compute
+      - name: Sprint 5 - Supply-chain failure-injection suite
+        run: node raptor-v11/tests/supply-chain-failure-injection.mjs
+      - name: Sprint 6 - Operations incident and rollback failure-injection suite
+        run: node raptor-v11/tests/operations-failure-injection.mjs
+      - name: Sprint 6 - Failed healthcheck must demand rollback
+        shell: bash
+        run: |
+          set +e
+          node raptor-v11/controls/operations-engine.mjs HEALTHCHECK_FAIL SEV-2
+          code=$?
+          set -e
+          test "$code" -ne 0
+      - name: Sprint 7 - Project Contract and Enterprise Certification Gate
+        run: node raptor-v11/tests/certification-gate.mjs

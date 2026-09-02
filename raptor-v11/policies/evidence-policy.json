@@ -1,0 +1,12 @@
+{
+  "version": "11.0-rc1",
+  "policy": "EVIDENCE_INTEGRITY",
+  "requiredFields": ["evidence_id","project_id","run_id","commit","build_id","gate","result","timestamp","artifact_hash","reviewer"],
+  "allowedResults": ["PASS","FAIL","BLOCKED","NOT_RUN","NOT_CAPTURED","N/A"],
+  "maxAgeHours": 24,
+  "requireBuildBinding": true,
+  "requireCommitBinding": true,
+  "requireSha256ArtifactHash": true,
+  "denyFutureTimestamp": true,
+  "principle": "NO EVIDENCE -> NO PASS -> NO RELEASE"
+}

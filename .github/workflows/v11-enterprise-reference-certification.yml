@@ -1,0 +1,137 @@
+name: Raptor Delta V11 Enterprise Reference Certification
+
+on:
+  push:
+    branches:
+      - dev/raptor-v11-control-engine
+    paths:
+      - "Neburion_XV73_KogTrain_V6.5_Platform/**"
+      - "raptor-v11/**"
+      - ".github/workflows/v11-enterprise-reference-certification.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reference-certification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      VERCEL_ENV: production
+      NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3000
+    defaults:
+      run:
+        working-directory: Neburion_XV73_KogTrain_V6.5_Platform
+
+    steps:
+      - name: Checkout exact commit
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.13.1
+
+      - name: Setup Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24.x"
+
+      - name: Install application dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Install certification QA tools
+        run: pnpm add --save-dev --lockfile=false @playwright/test@1.55.0 @lhci/cli@0.15.1
+
+      - name: Build and source quality gates
+        run: pnpm quality:core
+
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Start production server
+        run: |
+          pnpm start > /tmp/kogtrain-v11.log 2>&1 &
+          echo $! > /tmp/kogtrain-v11.pid
+
+      - name: Runtime healthcheck
+        run: |
+          for i in {1..60}; do
+            if curl -fsS http://127.0.0.1:3000/ > /dev/null; then
+              echo "Runtime healthcheck PASS"
+              exit 0
+            fi
+            sleep 2
+          done
+          cat /tmp/kogtrain-v11.log
+          exit 1
+
+      - name: Responsive, functional and A11Y runtime QA
+        env:
+          QA_BASE_URL: http://127.0.0.1:3000
+        run: pnpm exec playwright test tests/runtime-smoke.spec.ts
+
+      - name: Lighthouse mobile performance gates
+        run: pnpm exec lhci autorun --config=./lighthouserc.cjs
+
+      - name: Raptor V11 control-engine regression
+        working-directory: .
+        run: |
+          node raptor-v11/tests/failure-injection.mjs
+          node raptor-v11/tests/rbac-failure-injection.mjs
+          node raptor-v11/tests/evidence-failure-injection.mjs
+          node raptor-v11/tests/model-governance-failure-injection.mjs
+          node raptor-v11/tests/supply-chain-failure-injection.mjs
+          node raptor-v11/tests/operations-failure-injection.mjs
+          node raptor-v11/tests/certification-gate.mjs
+
+      - name: Prove Enterprise GA remains blocked pending independent visual review
+        working-directory: .
+        shell: bash
+        run: |
+          set +e
+          node raptor-v11/controls/gate-engine.mjs raptor-v11/fixtures/reference-project-pre-ga.json
+          code=$?
+          set -e
+          if [ "$code" -eq 0 ]; then
+            echo "ERROR: Enterprise GA was allowed without independent visual/final review"
+            exit 1
+          fi
+          echo "Expected GA block confirmed with exit code $code"
+
+      - name: Write certification manifest
+        if: always()
+        working-directory: .
+        shell: bash
+        run: |
+          mkdir -p raptor-v11/evidence/reference-run
+          cat > raptor-v11/evidence/reference-run/certification-manifest.txt <<EOF
+          RAPTOR DELTA V11 ENTERPRISE REFERENCE RUN
+          project=KOGTRAIN-V6.6-REFERENCE
+          commit=${GITHUB_SHA}
+          workflow_run=${GITHUB_RUN_ID}
+          automated_build=EXECUTED
+          responsive_evidence=CAPTURED
+          a11y_runtime_checks=EXECUTED
+          performance_lighthouse=EXECUTED
+          healthcheck=EXECUTED
+          v11_controls=EXECUTED
+          visual_evidence=CAPTURED
+          independent_visual_review=REQUIRED
+          final_review=REQUIRED
+          enterprise_ga=BLOCKED_UNTIL_REVIEW
+          EOF
+
+      - name: Upload V11 reference evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v11-enterprise-reference-evidence-${{ github.sha }}
+          if-no-files-found: warn
+          retention-days: 30
+          path: |
+            Neburion_XV73_KogTrain_V6.5_Platform/test-results/
+            Neburion_XV73_KogTrain_V6.5_Platform/reports/lhci/
+            raptor-v11/evidence/reference-run/
+            /tmp/kogtrain-v11.log

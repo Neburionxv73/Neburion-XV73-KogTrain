@@ -1,0 +1,26 @@
+{
+  "version": "11.0-rc1",
+  "default": "DENY",
+  "roles": {
+    "NEBURION_XV73": {
+      "allow": ["spec.write", "orchestrate", "review.request", "release.recommend"],
+      "deny": ["production.deploy", "security.override", "own_critical_work.approve"]
+    },
+    "MUDRASOL": {
+      "allow": ["design.write", "visual_review.write", "visual_evidence.write"],
+      "deny": ["production.deploy", "security.override", "own_critical_work.approve"]
+    },
+    "SYNTHARION": {
+      "allow": ["technical_review.write", "a11y_review.write", "performance_review.write", "technical_evidence.write"],
+      "deny": ["production.deploy", "security.override", "own_critical_work.approve"]
+    },
+    "DEPLOYMENT": {
+      "allow": ["production.deploy"],
+      "deny": ["security.override", "own_critical_work.approve"]
+    },
+    "SECURITY_APPROVER": {
+      "allow": ["security.override.review"],
+      "deny": ["production.deploy", "own_critical_work.approve"]
+    }
+  }
+}

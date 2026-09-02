@@ -1,0 +1,11 @@
+{
+  "version": "11.0-rc1",
+  "requireLockfile": true,
+  "denyFloatingVersions": true,
+  "forbiddenVersionTokens": ["latest", "*"],
+  "criticalVulnerabilityBlocksRelease": true,
+  "highVulnerabilityRequiresReview": true,
+  "secretPatterns": ["BEGIN PRIVATE KEY", "ghp_", "github_pat_", "AKIA", "VERCEL_TOKEN="],
+  "requireArtifactSha256": true,
+  "principle": "DEPENDENCIES AND ARTIFACTS ARE UNTRUSTED UNTIL VERIFIED"
+}

@@ -1,0 +1,18 @@
+{
+  "project_id": "KOGTRAIN-V6.6-REFERENCE",
+  "release": "V11.0-ENTERPRISE-GA",
+  "gates": {
+    "SPEC_GATE": "PASS",
+    "SECURITY_GATE": "PASS",
+    "BUILD_GATE": "PASS",
+    "RESPONSIVE_GATE": "PASS",
+    "A11Y_GATE": "PASS",
+    "PERFORMANCE_GATE": "PASS",
+    "SEO_GATE": "PASS",
+    "VISUAL_QA_GATE": "BLOCKED",
+    "REVIEW_GATE": "BLOCKED"
+  },
+  "critical_risks": 0,
+  "evidence_complete": false,
+  "reason": "Automated multi-viewport screenshots are captured, but independent human visual review and final review are still required."
+}
