@@ -67,3 +67,13 @@ jobs:
         run: node raptor-v11/controls/model-router.mjs RESTRICTED LOCAL_TRUSTED local.compute
       - name: Sprint 5 - Supply-chain failure-injection suite
         run: node raptor-v11/tests/supply-chain-failure-injection.mjs
+      - name: Sprint 6 - Operations incident and rollback failure-injection suite
+        run: node raptor-v11/tests/operations-failure-injection.mjs
+      - name: Sprint 6 - Failed healthcheck must demand rollback
+        shell: bash
+        run: |
+          set +e
+          node raptor-v11/controls/operations-engine.mjs HEALTHCHECK_FAIL SEV-2
+          code=$?
+          set -e
+          test "$code" -ne 0
