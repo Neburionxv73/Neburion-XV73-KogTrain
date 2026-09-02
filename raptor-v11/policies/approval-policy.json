@@ -1,0 +1,26 @@
+{
+  "version": "11.0-rc1",
+  "actions": {
+    "content.edit": "AUTO",
+    "design.change": "AUTO",
+    "dependency.add": "REVIEW",
+    "production.deploy": "APPROVAL",
+    "secret.rotate": "APPROVAL",
+    "security.override": "APPROVAL",
+    "critical_risk.accept": "APPROVAL"
+  },
+  "approval_requirements": {
+    "production.deploy": {
+      "required_role": "DEPLOYMENT",
+      "minimum_approvals": 1
+    },
+    "security.override": {
+      "required_role": "SECURITY_APPROVER",
+      "minimum_approvals": 1
+    },
+    "critical_risk.accept": {
+      "required_role": "SECURITY_APPROVER",
+      "minimum_approvals": 1
+    }
+  }
+}
