@@ -1,0 +1,22 @@
+{
+  "version": "11.0-rc1",
+  "requiredGates": [
+    "SPEC_GATE",
+    "SECURITY_GATE",
+    "BUILD_GATE",
+    "RESPONSIVE_GATE",
+    "A11Y_GATE",
+    "PERFORMANCE_GATE",
+    "SEO_GATE",
+    "VISUAL_QA_GATE",
+    "REVIEW_GATE"
+  ],
+  "allowedPassState": "PASS",
+  "blockingStates": ["FAIL", "BLOCKED", "NOT_RUN", "NOT_CAPTURED"],
+  "criticalRiskLimit": 0,
+  "requireEvidence": true,
+  "releaseDecision": {
+    "pass": "PASS",
+    "deny": "BLOCKED"
+  }
+}
