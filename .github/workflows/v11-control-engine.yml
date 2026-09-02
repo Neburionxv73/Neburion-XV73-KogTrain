@@ -53,3 +53,15 @@ jobs:
         run: node raptor-v11/controls/authorization-engine.mjs DEPLOYMENT production.deploy 1 DEPLOYMENT
       - name: Sprint 3 - Evidence build-binding and freshness failure-injection suite
         run: node raptor-v11/tests/evidence-failure-injection.mjs
+      - name: Sprint 4 - Model governance and data-class failure-injection suite
+        run: node raptor-v11/tests/model-governance-failure-injection.mjs
+      - name: Sprint 4 - Restricted data cannot use frontier model
+        shell: bash
+        run: |
+          set +e
+          node raptor-v11/controls/model-router.mjs RESTRICTED FRONTIER_APPROVED repo.read
+          code=$?
+          set -e
+          test "$code" -ne 0
+      - name: Sprint 4 - Restricted data may use trusted local model
+        run: node raptor-v11/controls/model-router.mjs RESTRICTED LOCAL_TRUSTED local.compute
