@@ -84,7 +84,7 @@ jobs:
           node raptor-v11/tests/model-governance-failure-injection.mjs
           node raptor-v11/tests/supply-chain-failure-injection.mjs
           node raptor-v11/tests/operations-failure-injection.mjs
-          node raptor-v11/controls/enterprise-certification.mjs raptor-v11/fixtures/project-contract-pass.json
+          node raptor-v11/tests/certification-gate.mjs
 
       - name: Prove Enterprise GA remains blocked pending independent visual review
         working-directory: .
