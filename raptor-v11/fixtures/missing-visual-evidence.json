@@ -1,0 +1,14 @@
+{
+  "criticalRisks": 0,
+  "gates": [
+    {"gate":"SPEC_GATE","status":"PASS","evidence":["evd-spec-001"]},
+    {"gate":"SECURITY_GATE","status":"PASS","evidence":["evd-sec-001"]},
+    {"gate":"BUILD_GATE","status":"PASS","evidence":["evd-build-001"]},
+    {"gate":"RESPONSIVE_GATE","status":"PASS","evidence":["evd-responsive-001"]},
+    {"gate":"A11Y_GATE","status":"PASS","evidence":["evd-a11y-001"]},
+    {"gate":"PERFORMANCE_GATE","status":"PASS","evidence":["evd-perf-001"]},
+    {"gate":"SEO_GATE","status":"PASS","evidence":["evd-seo-001"]},
+    {"gate":"VISUAL_QA_GATE","status":"NOT_CAPTURED","evidence":[]},
+    {"gate":"REVIEW_GATE","status":"PASS","evidence":["evd-review-001"]}
+  ]
+}
