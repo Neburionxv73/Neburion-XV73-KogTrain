@@ -17,7 +17,7 @@ permissions:
   contents: read
 
 jobs:
-  v11-sprint-1:
+  v11-control-engine:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -29,13 +29,13 @@ jobs:
         with:
           node-version: 24
 
-      - name: Run failure-injection suite
+      - name: Sprint 1 - Run gate failure-injection suite
         run: node raptor-v11/tests/failure-injection.mjs
 
-      - name: Prove all-pass fixture releases
+      - name: Sprint 1 - Prove all-pass fixture releases
         run: node raptor-v11/controls/gate-engine.mjs raptor-v11/fixtures/all-pass.json
 
-      - name: Prove missing visual evidence is blocked
+      - name: Sprint 1 - Prove missing visual evidence is blocked
         shell: bash
         run: |
           set +e
@@ -47,3 +47,22 @@ jobs:
             exit 1
           fi
           echo "Expected block confirmed with exit code $code"
+
+      - name: Sprint 2 - Run RBAC and approval failure-injection suite
+        run: node raptor-v11/tests/rbac-failure-injection.mjs
+
+      - name: Sprint 2 - Prove Mudrasol production deploy is denied
+        shell: bash
+        run: |
+          set +e
+          node raptor-v11/controls/authorization-engine.mjs MUDRASOL production.deploy
+          code=$?
+          set -e
+          if [ "$code" -eq 0 ]; then
+            echo "ERROR: Mudrasol was allowed to deploy production"
+            exit 1
+          fi
+          echo "Expected RBAC denial confirmed with exit code $code"
+
+      - name: Sprint 2 - Prove approved Deployment role may deploy
+        run: node raptor-v11/controls/authorization-engine.mjs DEPLOYMENT production.deploy 1 DEPLOYMENT
