@@ -49,9 +49,9 @@ for (const viewport of viewports) {
 
 test("Journey keeps duration and route selection coherent", async ({ page }) => {
   await page.goto("/training/journey", { waitUntil: "networkidle" });
-  await page.getByRole("button", { name: /^5 Minuten\b/ }).click();
+  await page.getByRole("button", { name: /^10 Minuten\b/ }).click();
   await page.getByRole("button", { name: /Gehirnfit & Alltag/ }).click();
-  const start = page.getByRole("link", { name: /Jetzt 5 Minuten starten/ });
+  const start = page.getByRole("link", { name: /Jetzt 10 Minuten starten/ });
   await expect(start).toBeVisible();
   await expect(start).toHaveAttribute("href", "/training/brain-fit");
 });
