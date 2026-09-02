@@ -1,0 +1,16 @@
+{
+  "version": "11.0-rc1",
+  "dataClasses": ["PUBLIC", "INTERNAL", "CONFIDENTIAL", "RESTRICTED"],
+  "models": {
+    "FRONTIER_APPROVED": {"maxDataClass": "CONFIDENTIAL", "tools": ["web.read", "repo.read", "repo.write"]},
+    "LOCAL_TRUSTED": {"maxDataClass": "RESTRICTED", "tools": ["repo.read", "repo.write", "local.compute"]},
+    "OPEN_WEIGHT_SANDBOX": {"maxDataClass": "INTERNAL", "tools": ["repo.read", "local.compute"]}
+  },
+  "rules": {
+    "RESTRICTED": {"allowedModels": ["LOCAL_TRUSTED"], "denyExternalTools": true},
+    "CONFIDENTIAL": {"allowedModels": ["FRONTIER_APPROVED", "LOCAL_TRUSTED"]},
+    "INTERNAL": {"allowedModels": ["FRONTIER_APPROVED", "LOCAL_TRUSTED", "OPEN_WEIGHT_SANDBOX"]},
+    "PUBLIC": {"allowedModels": ["FRONTIER_APPROVED", "LOCAL_TRUSTED", "OPEN_WEIGHT_SANDBOX"]}
+  },
+  "defaultDecision": "DENY"
+}
