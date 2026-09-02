@@ -23,46 +23,33 @@ jobs:
     steps:
       - name: Checkout exact commit
         uses: actions/checkout@v4
-
       - name: Setup Node 24
         uses: actions/setup-node@v4
         with:
           node-version: 24
-
-      - name: Sprint 1 - Run gate failure-injection suite
+      - name: Sprint 1 - Gate failure-injection suite
         run: node raptor-v11/tests/failure-injection.mjs
-
-      - name: Sprint 1 - Prove all-pass fixture releases
+      - name: Sprint 1 - All-pass release
         run: node raptor-v11/controls/gate-engine.mjs raptor-v11/fixtures/all-pass.json
-
-      - name: Sprint 1 - Prove missing visual evidence is blocked
+      - name: Sprint 1 - Missing visual evidence blocked
         shell: bash
         run: |
           set +e
           node raptor-v11/controls/gate-engine.mjs raptor-v11/fixtures/missing-visual-evidence.json
           code=$?
           set -e
-          if [ "$code" -eq 0 ]; then
-            echo "ERROR: invalid release was allowed"
-            exit 1
-          fi
-          echo "Expected block confirmed with exit code $code"
-
-      - name: Sprint 2 - Run RBAC and approval failure-injection suite
+          test "$code" -ne 0
+      - name: Sprint 2 - RBAC and approval failure-injection suite
         run: node raptor-v11/tests/rbac-failure-injection.mjs
-
-      - name: Sprint 2 - Prove Mudrasol production deploy is denied
+      - name: Sprint 2 - Mudrasol production deploy denied
         shell: bash
         run: |
           set +e
           node raptor-v11/controls/authorization-engine.mjs MUDRASOL production.deploy
           code=$?
           set -e
-          if [ "$code" -eq 0 ]; then
-            echo "ERROR: Mudrasol was allowed to deploy production"
-            exit 1
-          fi
-          echo "Expected RBAC denial confirmed with exit code $code"
-
-      - name: Sprint 2 - Prove approved Deployment role may deploy
+          test "$code" -ne 0
+      - name: Sprint 2 - Approved Deployment role may deploy
         run: node raptor-v11/controls/authorization-engine.mjs DEPLOYMENT production.deploy 1 DEPLOYMENT
+      - name: Sprint 3 - Evidence build-binding and freshness failure-injection suite
+        run: node raptor-v11/tests/evidence-failure-injection.mjs
