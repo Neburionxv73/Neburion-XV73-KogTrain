@@ -77,3 +77,5 @@ jobs:
           code=$?
           set -e
           test "$code" -ne 0
+      - name: Sprint 7 - Project Contract and Enterprise Certification Gate
+        run: node raptor-v11/tests/certification-gate.mjs
