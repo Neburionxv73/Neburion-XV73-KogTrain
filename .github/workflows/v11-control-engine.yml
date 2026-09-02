@@ -65,3 +65,5 @@ jobs:
           test "$code" -ne 0
       - name: Sprint 4 - Restricted data may use trusted local model
         run: node raptor-v11/controls/model-router.mjs RESTRICTED LOCAL_TRUSTED local.compute
+      - name: Sprint 5 - Supply-chain failure-injection suite
+        run: node raptor-v11/tests/supply-chain-failure-injection.mjs
