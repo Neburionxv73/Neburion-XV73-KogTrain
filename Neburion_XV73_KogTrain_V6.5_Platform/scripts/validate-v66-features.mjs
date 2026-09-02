@@ -53,32 +53,28 @@ expect("V6.6 baseline: Language route wires LanguageTraining", languageRoute.inc
 const languageHistoryLimit = Number(languageTraining.match(/const HISTORY_LIMIT = (\d+);/)?.[1] ?? 0);
 expect(
   "V6.6 baseline: Language persists rolling history",
-  languageTraining.includes("readRecentTaskIds") &&
-    languageTraining.includes("rememberTaskIds") &&
-    languageHistoryLimit >= 32,
+  languageTraining.includes("readRecentTaskIds") && languageTraining.includes("rememberTaskIds") && languageHistoryLimit >= 32,
 );
 
 expect("V6.6 baseline: Visual route wires VisualTraining", visualRoute.includes("VisualTraining"));
 expect("V6.6 baseline: Visual UI uses generative engine", visualTraining.includes("createVisualSession") && visualTraining.includes("VISUAL_STORAGE_KEY"));
 expect("V6.6 baseline: Visual uses generated session seed", visual.includes("createSessionSeed") && visual.includes("position") && visual.includes("compare"));
 
-expect(
-  "V6.6 baseline: BrainFit route wires client boundary",
-  brainFitRoute.includes("BrainFitClient") && brainFitRoute.includes("<BrainFitClient"),
-);
-expect(
-  "V6.6 baseline: BrainFit client boundary wires both training panels",
-  brainFitClient.includes("BrainFitTraining") &&
-    brainFitClient.includes("BrainFitCompletionPanel") &&
-    brainFitClient.includes("ssr: false"),
-);
+expect("V6.6 baseline: BrainFit route wires client boundary", brainFitRoute.includes("BrainFitClient") && brainFitRoute.includes("<BrainFitClient"));
+expect("V6.6 baseline: BrainFit client boundary wires both training panels", brainFitClient.includes("BrainFitTraining") && brainFitClient.includes("BrainFitCompletionPanel") && brainFitClient.includes("ssr: false"));
 expect("V6.6 baseline: BrainFit completion pool expanded", (brainFitCompletion.match(/area:\"missingWords\"/g) ?? []).length >= 10 && (brainFitCompletion.match(/area:\"orientation\"/g) ?? []).length >= 10);
 
 expect("V6.6 baseline: Progress dashboard is mounted on home", home.includes("DeferredProgressCoachDashboard"));
 expect("V6.6 baseline: Progress tracks trained areas", progress.includes("trainedAreas") && progressUi.includes("Trainierte Bereiche"));
 expect("V6.6 baseline: Progress tracks active days", progress.includes("activeDays7") && progressUi.includes("Aktive Tage"));
 expect("V6.6 baseline: Progress tracks last session", progress.includes("lastSessionAt") && progressUi.includes("Letzte Session"));
-expect("V6.6 baseline: Journey documents full session flow", journey.includes("Start → Aufgabe → direkte Rückmeldung → nächste Aufgabe → Abschluss & Fortschritt"));
+expect(
+  "V6.6 baseline: Journey documents full session flow",
+  journey.includes("startHref") &&
+    journey.includes("Nach jeder Station") &&
+    journey.includes("Fortschritt ansehen") &&
+    journey.includes("Jetzt {duration} Minuten starten"),
+);
 const forbiddenRecommendationUi = ["Empfehlung öffnen", "Empfohlen", "Nächster Fokus", "Heute sinnvoll", "Coach-Empfehlung"];
 expect("V6.6 baseline: No visible recommendation UI in progress", forbiddenRecommendationUi.every((label) => !progressUi.includes(label)));
 
