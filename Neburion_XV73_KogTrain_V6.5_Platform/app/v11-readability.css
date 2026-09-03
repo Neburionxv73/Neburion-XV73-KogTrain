@@ -1,0 +1,209 @@
+/* Raptor Delta V11 readability / spacing correction layer.
+   Loaded last on purpose so contrast and rhythm cannot be overwritten by legacy theme layers. */
+
+:root{
+  --v11-ink:#172333;
+  --v11-body:#425466;
+  --v11-muted:#61727b;
+  --v11-teal:#087f8c;
+  --v11-blue:#2672d8;
+  --v11-line:#d6e2e5;
+  --v11-card:#ffffff;
+  --v11-soft:#f7fafb;
+}
+
+/* Home: enforce readable editorial hierarchy on light surfaces. */
+.journeyTeaser,
+.learningLibrary,
+.worlds,
+.v103-statusBand{
+  color:var(--v11-ink)!important;
+}
+.journeyTeaser h2,
+.learningLibrary h2,
+.learningLibrary h3,
+.worlds h2,
+.worlds h3,
+.v103-statusBand strong,
+.v103-statusBand b{
+  color:var(--v11-ink)!important;
+  opacity:1!important;
+  text-shadow:none!important;
+}
+.journeyTeaser p:not(.eyebrow),
+.learningLibrary .sectionHead>p,
+.learningLibrary .learningCard>p:not(.eyebrow),
+.learningLibrary .learningCta p,
+.worlds .sectionHead>p,
+.worlds .worldCard p,
+.v103-statusBand small{
+  color:var(--v11-body)!important;
+  opacity:1!important;
+}
+.journeyTeaser .eyebrow,
+.learningLibrary .eyebrow,
+.worlds .eyebrow{
+  color:#0a6d76!important;
+  opacity:1!important;
+}
+
+/* V11 section rhythm: less dead space, clearer grouping. */
+.journeyTeaser{
+  padding-top:88px!important;
+  padding-bottom:96px!important;
+  gap:72px!important;
+}
+.journeyTeaser>div:first-child{
+  max-width:700px!important;
+}
+.journeyTeaser h2{
+  margin-top:8px!important;
+  margin-bottom:22px!important;
+  font-size:clamp(42px,4.6vw,64px)!important;
+  line-height:1.04!important;
+  letter-spacing:-.04em!important;
+  max-width:12ch!important;
+}
+.journeyTeaser>div:first-child>p:not(.eyebrow){
+  font-size:18px!important;
+  line-height:1.72!important;
+  max-width:620px!important;
+}
+.journeyTeaser .journeyTeaserMeta{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:14px!important;
+  align-items:stretch!important;
+}
+.journeyTeaser .journeyTeaserMeta>span{
+  min-height:132px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  padding:24px!important;
+}
+.journeyTeaser .journeyTeaserMeta>.primary{
+  grid-column:1/-1!important;
+  min-height:58px!important;
+  margin-top:0!important;
+}
+
+.learningLibrary{
+  padding-top:96px!important;
+  padding-bottom:104px!important;
+}
+.learningLibrary .sectionHead{
+  margin-bottom:46px!important;
+  gap:60px!important;
+  align-items:center!important;
+}
+.learningLibrary .sectionHead h2{
+  font-size:clamp(40px,4.4vw,62px)!important;
+  line-height:1.05!important;
+  letter-spacing:-.04em!important;
+  max-width:14ch!important;
+}
+.learningLibrary .sectionHead>p{
+  font-size:18px!important;
+  line-height:1.7!important;
+  max-width:520px!important;
+}
+.learningLibrary .learningCard{
+  min-height:270px!important;
+  padding:28px!important;
+}
+.learningLibrary .learningCard h3{
+  margin:12px 0 10px!important;
+  line-height:1.12!important;
+}
+.learningLibrary .learningCard>p:not(.eyebrow){
+  font-size:16px!important;
+  line-height:1.62!important;
+}
+
+/* Progress: bright card surface, dark readable copy, compact V11 dashboard rhythm. */
+#fortschritt + section{
+  width:min(1240px,calc(100% - 48px))!important;
+  margin-top:72px!important;
+  margin-bottom:88px!important;
+  color:var(--v11-ink)!important;
+}
+#fortschritt + section h2,
+#fortschritt + section h3,
+#fortschritt + section strong{
+  color:var(--v11-ink)!important;
+  opacity:1!important;
+  text-shadow:none!important;
+}
+#fortschritt + section p,
+#fortschritt + section small,
+#fortschritt + section span{
+  opacity:1!important;
+}
+#fortschritt + section > div:first-of-type{
+  align-items:start!important;
+  gap:34px!important;
+  margin-bottom:24px!important;
+}
+#fortschritt + section > div:first-of-type h2{
+  font-size:clamp(42px,4.6vw,64px)!important;
+  line-height:1.04!important;
+  letter-spacing:-.04em!important;
+  max-width:15ch!important;
+}
+#fortschritt + section > div:first-of-type p:not(.eyebrow){
+  color:var(--v11-body)!important;
+  font-size:17px!important;
+  line-height:1.7!important;
+  max-width:760px!important;
+}
+#fortschritt + section article,
+#fortschritt + section [class*="panel"],
+#fortschritt + section [class*="Panel"],
+#fortschritt + section [class*="Card"],
+#fortschritt + section [class*="Row"],
+#fortschritt + section [class*="Block"]{
+  text-shadow:none!important;
+}
+#fortschritt + section a{
+  text-underline-offset:3px;
+}
+
+/* Specifically protect all white/near-white progress cards from inherited dark-theme text. */
+#fortschritt + section [style*="background"],
+#fortschritt + section article{
+  color:var(--v11-ink)!important;
+}
+#fortschritt + section article span,
+#fortschritt + section article small,
+#fortschritt + section article p{
+  color:var(--v11-muted)!important;
+}
+
+@media(max-width:980px){
+  .journeyTeaser{padding-top:70px!important;padding-bottom:78px!important;gap:40px!important;}
+  .journeyTeaser h2{font-size:clamp(38px,6.6vw,52px)!important;}
+  .learningLibrary{padding-top:76px!important;padding-bottom:82px!important;}
+  .learningLibrary .sectionHead{gap:26px!important;margin-bottom:34px!important;}
+  #fortschritt + section{width:min(100% - 32px,1240px)!important;margin-top:54px!important;}
+}
+
+@media(max-width:640px){
+  .journeyTeaser{padding-top:52px!important;padding-bottom:58px!important;gap:28px!important;}
+  .journeyTeaser h2{font-size:34px!important;line-height:1.08!important;max-width:100%!important;}
+  .journeyTeaser>div:first-child>p:not(.eyebrow){font-size:16px!important;line-height:1.62!important;}
+  .journeyTeaser .journeyTeaserMeta{grid-template-columns:1fr 1fr!important;}
+  .journeyTeaser .journeyTeaserMeta>span{min-height:105px!important;padding:18px!important;}
+  .learningLibrary{padding-top:58px!important;padding-bottom:64px!important;}
+  .learningLibrary .sectionHead h2{font-size:34px!important;line-height:1.08!important;max-width:100%!important;}
+  .learningLibrary .sectionHead>p{font-size:16px!important;line-height:1.62!important;}
+  .learningLibrary .learningCard{min-height:0!important;padding:22px!important;}
+  #fortschritt + section{width:calc(100% - 20px)!important;margin-top:44px!important;margin-bottom:58px!important;}
+  #fortschritt + section > div:first-of-type h2{font-size:34px!important;line-height:1.08!important;max-width:100%!important;}
+  #fortschritt + section > div:first-of-type p:not(.eyebrow){font-size:15.5px!important;line-height:1.62!important;}
+}
+
+@media(max-width:390px){
+  .journeyTeaser .journeyTeaserMeta{grid-template-columns:1fr!important;}
+  .journeyTeaser .journeyTeaserMeta>.primary{grid-column:auto!important;}
+}
