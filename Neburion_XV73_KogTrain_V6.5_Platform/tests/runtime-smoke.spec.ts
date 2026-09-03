@@ -86,6 +86,14 @@ test("Memory exposes Adaptive Difficulty V5 inside the session", async ({ page }
   await expect(page.getByText(/Dynamik [123]/).first()).toBeVisible();
 });
 
+test("Attention exposes Adaptive Difficulty V5 inside the session", async ({ page }) => {
+  await page.goto("/training/attention", { waitUntil: "networkidle" });
+  const trainer = page.locator("[data-adaptive-level]");
+  await expect(trainer).toHaveAttribute("data-adaptive-level", /[123]/);
+  await page.getByRole("button", { name: /Attention Session starten/ }).click();
+  await expect(page.getByText(/Dynamik [123]/).first()).toBeVisible();
+});
+
 test("Logic exposes Adaptive Difficulty V5 inside the session", async ({ page }) => {
   await page.goto("/training/logic", { waitUntil: "networkidle" });
   const trainer = page.locator("[data-adaptive-level]");
