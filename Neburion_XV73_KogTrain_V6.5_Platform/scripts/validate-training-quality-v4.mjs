@@ -9,6 +9,12 @@ const historyAtLeast = (source, minimum) => {
   const match = source.match(/HISTORY_LIMIT\s*=\s*(\d+)/);
   return match ? Number(match[1]) >= minimum : false;
 };
+const hasAdaptiveQualityLabel = (source) =>
+  source.includes("Adaptive Quality V4") ||
+  source.includes("Adaptive Difficulty V5") ||
+  source.includes("Dynamik 1") ||
+  source.includes("Dynamik 2") ||
+  source.includes("Dynamik 3");
 
 const dynamicTraining = read("lib/dynamicTraining.ts");
 const memory = read("lib/memory.ts");
@@ -27,8 +33,9 @@ const brainFitTraining = read("components/BrainFitTraining.tsx");
 expect("V4 core: persistent recent-task history exists", dynamicTraining.includes("readRecentTaskIds") && dynamicTraining.includes("rememberTaskIds"));
 expect("V4 core: balanced session selection exists", dynamicTraining.includes("balancedByMode") || dynamicTraining.includes("finalizeBalancedSessionTasks"));
 expect("V4 core: evidence-based difficulty exists", dynamicTraining.includes("difficultyFromEvidence"));
+expect("V5 core: within-session adaptive controller retained", dynamicTraining.includes("createAdaptiveDifficulty") || dynamicTraining.includes("applyAdaptiveDifficulty") || dynamicTraining.includes("adaptiveDifficulty"));
 
-expect("Memory V4: adaptive quality UI active", memoryTraining.includes("Adaptive Quality V4"));
+expect("Memory adaptive quality UI active", hasAdaptiveQualityLabel(memoryTraining));
 expect("Memory V4: eight generated memory modes retained", ["digits","reverse","words","symbols","positions","recognition","nback1","nback2"].every((mode) => memory.includes(`\"${mode}\"`)));
 expect("Memory V4: generated sessions and adaptive span active", memory.includes("createSessionSeed") && memory.includes("finalizeBalancedSessionTasks") && memory.includes("showMs"));
 expect("Memory V4: long anti-repeat history", memory.includes("memory-v4") && memory.includes("144"));
@@ -38,7 +45,7 @@ expect("Attention V4: advanced modes retained", ["go-no-go","visual-search","rul
 expect("Attention V4: variable depth and balanced selection active", attention.includes("taskCount") && attention.includes("finalizeBalancedSessionTasks") && attention.includes("attention-v4"));
 expect("Attention V4: anti-repeat history minimum retained", attention.includes("112"));
 
-expect("Logic V4: adaptive quality UI active", logicTraining.includes("Adaptive Quality V4"));
+expect("Logic adaptive quality UI active", hasAdaptiveQualityLabel(logicTraining));
 expect("Logic V4: advanced sequence/rule tasks active", logicV2.includes("v4-seq") && logicV2.includes("v4-rule"));
 expect("Logic V4: deduction and operator depth active", logicV2.includes("v4-ded") && logicV2.includes("v4-op"));
 expect("Logic V4: long anti-repeat history", logicV2.includes("logic-v4") && logicV2.includes("144"));
@@ -72,7 +79,7 @@ expect("BrainFit V4: portrait crossword remains guarded", brainFitTraining.inclu
 const failed = checks.filter((check) => !check.pass);
 for (const check of checks) console.log(`${check.pass ? "PASS" : "FAIL"} ${check.name}`);
 if (failed.length) {
-  console.error(`\nAdaptive Quality V4 gate failed: ${failed.length}/${checks.length} checks failed.`);
+  console.error(`\nAdaptive Quality compatibility gate failed: ${failed.length}/${checks.length} checks failed.`);
   process.exit(1);
 }
-console.log(`\nAdaptive Quality V4 gate PASS (${checks.length}/${checks.length})`);
+console.log(`\nAdaptive Quality compatibility gate PASS (${checks.length}/${checks.length})`);
