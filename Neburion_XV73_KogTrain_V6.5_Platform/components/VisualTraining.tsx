@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createVisualSession, VISUAL_SESSION_LENGTH, VISUAL_STORAGE_KEY, type VisualMode, type VisualSession } from "@/lib/visualV2";
+import { applyAdaptiveDifficultyResult, createAdaptiveDifficultyState, difficultyLabel, type AdaptiveDifficultyState } from "@/lib/adaptiveDifficultyV5";
 import styles from "./VisualTraining.module.css";
 
 type ModeStat = { attempts: number; correct: number };
@@ -28,6 +29,7 @@ export function VisualTraining() {
   const [outcomes, setOutcomes] = useState<Outcome[]>([]);
   const [phase, setPhase] = useState<Phase>("intro");
   const [stats, setStats] = useState<VisualStats>(initialStats);
+  const [adaptive, setAdaptive] = useState<AdaptiveDifficultyState>(createAdaptiveDifficultyState(1));
   const current = session?.tasks[index];
 
   useEffect(() => {
@@ -70,15 +72,27 @@ export function VisualTraining() {
   function start() {
     const nextSession = createVisualSession(stats.bestScore, stats.sessions);
     setSession(nextSession);
+    setAdaptive(createAdaptiveDifficultyState(nextSession.difficulty));
     setOutcomes([]);
     enterTask(nextSession, 0);
   }
 
   function answer(optionIndex: number) {
-    if (!current || phase !== "question") return;
+    if (!current || !session || phase !== "question") return;
     const correct = optionIndex === current.answer;
+    const nextAdaptive = applyAdaptiveDifficultyResult(adaptive, correct);
     setSelected(optionIndex);
     setOutcomes((value) => [...value, { mode: current.mode, correct }]);
+    setAdaptive(nextAdaptive);
+
+    if (nextAdaptive.transition !== "hold" && nextAdaptive.level !== session.difficulty) {
+      const replacement = createVisualSession(stats.bestScore, stats.sessions, nextAdaptive.level);
+      setSession({
+        ...replacement,
+        difficulty: nextAdaptive.level,
+        tasks: [...session.tasks.slice(0, index + 1), ...replacement.tasks.slice(index + 1)],
+      });
+    }
     setPhase("feedback");
   }
 
@@ -112,18 +126,18 @@ export function VisualTraining() {
   const percent = session ? Math.round((score / session.tasks.length) * 100) : 0;
 
   return (
-    <section className={styles.trainer} aria-live="polite">
+    <section className={styles.trainer} aria-live="polite" data-adaptive-level={adaptive.level}>
       <div className={styles.stats}>
         <span>Sessions <strong>{stats.sessions}</strong></span>
         <span>Bestwert <strong>{stats.bestScore}/{VISUAL_SESSION_LENGTH}</strong></span>
-        <span>{session ? `Level ${session.difficulty}` : "Visual Lab V2"}</span>
+        <span>{session ? `Dynamik ${adaptive.level} · ${difficultyLabel(adaptive.level)}` : "Visual Lab · Adaptive Difficulty V5"}</span>
       </div>
 
       {phase === "intro" && (
         <div className={styles.stage}>
-          <p className="eyebrow">8 visuelle Trainingsmodi · Dynamic Engine V2</p>
+          <p className="eyebrow">8 visuelle Trainingsmodi · Adaptive Difficulty V5</p>
           <h2>Sehen. Vergleichen. Erinnern. Räumlich denken.</h2>
-          <p>Jede Session kombiniert Rotation, Spiegelung, Muster, Matrix, Positionswechsel, visuelle Suche, Formvergleich und Kurzzeitgedächtnis. Die Reize rotieren über Sessions und das Niveau steigt erst mit belastbarer Trainingsevidenz.</p>
+          <p>Visual V5 passt die visuelle Schwierigkeit jetzt auch während der laufenden Session an. Drei sichere Treffer können die folgenden Aufgaben um genau eine Stufe anheben; zwei Fehler in Folge stabilisieren um genau eine Stufe. Einzelne Antworten lösen keinen abrupten Sprung aus.</p>
           <div className={styles.modeGrid}>{Object.values(labels).map((label) => <span key={label}>{label}</span>)}</div>
           <button className="primary trainingButton" type="button" onClick={start}>Visual Session starten</button>
         </div>
@@ -131,7 +145,7 @@ export function VisualTraining() {
 
       {phase === "preview" && current?.preview && (
         <div className={styles.stage}>
-          <p className="eyebrow">{labels[current.mode]} · Aufgabe {index + 1}/{VISUAL_SESSION_LENGTH}</p>
+          <p className="eyebrow">{labels[current.mode]} · Aufgabe {index + 1}/{VISUAL_SESSION_LENGTH} · Dynamik {adaptive.level} {difficultyLabel(adaptive.level)}</p>
           <h2>Präge dir die Reihenfolge ein.</h2>
           <div className={styles.previewBadge}>Nur kurz sichtbar</div>
           <div className={styles.visualBoard} aria-label={`Zu merkende Folge: ${current.preview.join(" ")}`}>
@@ -143,7 +157,7 @@ export function VisualTraining() {
 
       {phase === "question" && current && session && (
         <div className={styles.stage}>
-          <p className="eyebrow">{labels[current.mode]} · Aufgabe {index + 1}/{session.tasks.length}</p>
+          <p className="eyebrow">{labels[current.mode]} · Aufgabe {index + 1}/{session.tasks.length} · Dynamik {adaptive.level} {difficultyLabel(adaptive.level)}</p>
           <h2>{current.prompt}</h2>
           <div className={`${styles.visualBoard} ${current.visual.length === 9 ? styles.gridBoard : ""}`} aria-label={current.visual.join(" ")}>
             {current.visual.map((item, itemIndex) => <span key={`${item}-${itemIndex}`}>{item}</span>)}
@@ -163,13 +177,14 @@ export function VisualTraining() {
           <p className={`${styles.feedbackBadge} ${selected === current.answer ? styles.correct : styles.incorrect}`}>{selected === current.answer ? "Richtig" : "Noch nicht"}</p>
           <h2>{selected === current.answer ? "Visuell korrekt erkannt." : `Richtig wäre: ${current.options[current.answer]}`}</h2>
           <p>{current.explanation}</p>
+          <p><strong>Adaptive Difficulty V5:</strong> {adaptive.reason}</p>
           <button className="primary trainingButton" type="button" onClick={next}>{session && index === session.tasks.length - 1 ? "Auswertung" : "Nächste Aufgabe"}</button>
         </div>
       )}
 
       {phase === "done" && session && (
         <div className={styles.stage}>
-          <p className="eyebrow">Session abgeschlossen</p>
+          <p className="eyebrow">Session abgeschlossen · Endniveau {adaptive.level} {difficultyLabel(adaptive.level)}</p>
           <h2>{percent}% richtig</h2>
           <div className={styles.score}><strong>{score}</strong><span>/ {session.tasks.length}</span></div>
           <div className={styles.modeStats}>
@@ -177,7 +192,7 @@ export function VisualTraining() {
               <div key={mode}><span>{labels[mode]}</span><strong>{value.attempts ? Math.round((value.correct / value.attempts) * 100) : 0}%</strong></div>
             ))}
           </div>
-          <p>Die nächste Session erzeugt neue Reize, priorisiert frische Varianten und passt die Schwierigkeit evidenzbasiert an.</p>
+          <p>Die nächste Session startet wieder evidenzbasiert und passt sich anschließend schrittweise innerhalb der Einheit an.</p>
           <button className="primary trainingButton" type="button" onClick={start}>Neue Visual Session</button>
         </div>
       )}
