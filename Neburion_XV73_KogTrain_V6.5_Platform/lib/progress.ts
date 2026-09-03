@@ -17,6 +17,21 @@ export type ActivityEvent = {
   bestPercent: number;
 };
 
+export type ProgressDay = {
+  date: string;
+  label: string;
+  count: number;
+  bestPercent: number | null;
+};
+
+export type ProgressTrend = {
+  sessions: number;
+  activeDays: number;
+  firstBest: number | null;
+  lastBest: number | null;
+  deltaBest: number | null;
+};
+
 export type ProgressSnapshot = {
   labs: LabProgress[];
   totalSessions: number;
@@ -37,6 +52,9 @@ export type ProgressSnapshot = {
   recommendation: LabProgress | null;
   strongest: LabProgress | null;
   recentDays: { label: string; count: number }[];
+  recentDays30: ProgressDay[];
+  trend7: ProgressTrend;
+  trend30: ProgressTrend;
   hasTrainingData: boolean;
   activityCount: number;
   storageHost: string;
@@ -176,6 +194,37 @@ function getStorageContext(): { storageHost: string; storageScope: StorageScope 
   return { storageHost, storageScope };
 }
 
+function buildTimeline(events: ActivityEvent[], days: number): ProgressDay[] {
+  return Array.from({ length: days }, (_, offset) => {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() - (days - 1 - offset));
+    const key = dateKey(date);
+    const dayEvents = events.filter((event) => dateKey(new Date(event.completedAt)) === key);
+    const bestPercent = dayEvents.length ? Math.max(...dayEvents.map((event) => event.bestPercent)) : null;
+    return {
+      date: key,
+      label: new Intl.DateTimeFormat("de-AT", { day: "2-digit", month: "2-digit" }).format(date),
+      count: dayEvents.length,
+      bestPercent,
+    };
+  });
+}
+
+function summarizeTrend(days: ProgressDay[]): ProgressTrend {
+  const active = days.filter((day) => day.count > 0);
+  const measured = days.filter((day) => day.bestPercent !== null);
+  const firstBest = measured[0]?.bestPercent ?? null;
+  const lastBest = measured.at(-1)?.bestPercent ?? null;
+  return {
+    sessions: days.reduce((sum, day) => sum + day.count, 0),
+    activeDays: active.length,
+    firstBest,
+    lastBest,
+    deltaBest: firstBest !== null && lastBest !== null ? lastBest - firstBest : null,
+  };
+}
+
 export function getProgressSnapshot(): ProgressSnapshot {
   const labs = configs.map(readLab);
   const events = syncActivity(labs);
@@ -204,13 +253,13 @@ export function getProgressSnapshot(): ProgressSnapshot {
   const activeDays7 = new Set(weekEvents.map((event) => dateKey(new Date(event.completedAt)))).size;
   const averageSessionsPerActiveDay = activeDays7 ? Math.round((weekSessions / activeDays7) * 10) / 10 : 0;
   const lastSessionAt = events.length ? [...events].sort((a, b) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime())[0].completedAt : null;
-  const recentDays = Array.from({ length: 7 }, (_, offset) => {
-    const date = new Date();
-    date.setDate(date.getDate() - (6 - offset));
-    const key = dateKey(date);
-    const label = new Intl.DateTimeFormat("de-AT", { weekday: "short" }).format(date).replace(".", "");
-    return { label, count: events.filter((event) => dateKey(new Date(event.completedAt)) === key).length };
-  });
+  const recentDays30 = buildTimeline(events, 30);
+  const recentDays = recentDays30.slice(-7).map((day) => ({
+    label: new Intl.DateTimeFormat("de-AT", { weekday: "short" }).format(new Date(`${day.date}T12:00:00`)).replace(".", ""),
+    count: day.count,
+  }));
+  const trend7 = summarizeTrend(recentDays30.slice(-7));
+  const trend30 = summarizeTrend(recentDays30);
 
   const xp = totalSessions * XP_PER_SESSION + labs.reduce((sum, lab) => sum + Math.round(lab.bestPercent / 5) * 5, 0);
   const level = Math.floor(xp / XP_PER_LEVEL) + 1;
@@ -237,6 +286,9 @@ export function getProgressSnapshot(): ProgressSnapshot {
     recommendation,
     strongest,
     recentDays,
+    recentDays30,
+    trend7,
+    trend30,
     hasTrainingData,
     activityCount: events.length,
     ...storage,
