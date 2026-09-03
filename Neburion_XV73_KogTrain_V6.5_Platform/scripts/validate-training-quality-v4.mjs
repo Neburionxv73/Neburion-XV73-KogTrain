@@ -17,6 +17,7 @@ const hasAdaptiveQualityLabel = (source) =>
   source.includes("Dynamik 3");
 
 const dynamicTraining = read("lib/dynamicTraining.ts");
+const adaptiveDifficultyV5 = read("lib/adaptiveDifficultyV5.ts");
 const memory = read("lib/memory.ts");
 const memoryTraining = read("components/MemoryTraining.tsx");
 const attention = read("lib/attention.ts");
@@ -33,7 +34,7 @@ const brainFitTraining = read("components/BrainFitTraining.tsx");
 expect("V4 core: persistent recent-task history exists", dynamicTraining.includes("readRecentTaskIds") && dynamicTraining.includes("rememberTaskIds"));
 expect("V4 core: balanced session selection exists", dynamicTraining.includes("balancedByMode") || dynamicTraining.includes("finalizeBalancedSessionTasks"));
 expect("V4 core: evidence-based difficulty exists", dynamicTraining.includes("difficultyFromEvidence"));
-expect("V5 core: within-session adaptive controller retained", dynamicTraining.includes("createAdaptiveDifficulty") || dynamicTraining.includes("applyAdaptiveDifficulty") || dynamicTraining.includes("adaptiveDifficulty"));
+expect("V5 core: within-session adaptive controller retained", adaptiveDifficultyV5.includes("createAdaptiveDifficultyState") && adaptiveDifficultyV5.includes("applyAdaptiveDifficultyResult") && adaptiveDifficultyV5.includes("correctStreak >= 3") && adaptiveDifficultyV5.includes("wrongStreak >= 2"));
 
 expect("Memory adaptive quality UI active", hasAdaptiveQualityLabel(memoryTraining));
 expect("Memory V4: eight generated memory modes retained", ["digits","reverse","words","symbols","positions","recognition","nback1","nback2"].every((mode) => memory.includes(`\"${mode}\"`)));
