@@ -14,7 +14,8 @@ const attention = read("lib/attention.ts");
 const attentionTraining = read("components/AttentionTraining.tsx");
 const attentionRoute = read("app/training/attention/page.tsx");
 const logic = read("lib/logic.ts");
-const logicTraining = read("components/LogicTraining2.tsx");
+const logicTrainingLegacy = read("components/LogicTraining2.tsx");
+const logicTrainingV5 = read("components/LogicTraining.tsx");
 const logicRoute = read("app/training/logic/page.tsx");
 const languageTraining = read("components/LanguageTraining.tsx");
 const languageRoute = read("app/training/language/page.tsx");
@@ -29,9 +30,8 @@ const progressUi = read("components/ProgressCoachDashboard.tsx");
 const journey = read("components/UnifiedTrainingJourney.tsx");
 const home = read("app/page.tsx");
 
-// V6.6 is now a frozen regression baseline. These checks verify that the
-// functionality introduced in V6.6 is still present in later development
-// versions without requiring the active package/UI version label to stay V6.6.
+// V6.6 is a frozen regression baseline. Later trainers may replace the active UI,
+// but the behavior introduced in V6.6 must remain present or be superseded.
 expect("V6.6 baseline: dynamic history reader exists", dynamicTraining.includes("readRecentTaskIds"));
 expect("V6.6 baseline: dynamic history writer exists", dynamicTraining.includes("rememberTaskIds"));
 expect("V6.6 baseline: fresh task selection helper exists", dynamicTraining.includes("chooseFresh"));
@@ -45,16 +45,13 @@ expect("V6.6 baseline: Attention route wires AttentionTraining", attentionRoute.
 expect("V6.6 baseline: Attention UI uses generative engine", attentionTraining.includes("createAttentionSession") && attentionTraining.includes("neburion-v65-attention-stats"));
 expect("V6.6 baseline: Attention uses generated session seed", attention.includes("createSessionSeed") && attention.includes("visual-search") && attention.includes("interference"));
 
-expect("V6.6 baseline: Logic route wires LogicTraining2", logicRoute.includes("LogicTraining2"));
-expect("V6.6 baseline: Logic UI uses generative engine", logicTraining.includes("createLogicSession") && logicTraining.includes("LOGIC_STORAGE_KEY"));
+expect("V6.6 baseline: Logic route wires an active Logic trainer", logicRoute.includes("LogicTraining") || logicRoute.includes("LogicTraining2"));
+expect("V6.6 baseline: Logic UI uses generative engine", [logicTrainingLegacy,logicTrainingV5].some(source=>source.includes("createLogicSession") && source.includes("LOGIC_STORAGE_KEY")));
 expect("V6.6 baseline: Logic has expanded variants", logic.includes("Thermometer : Temperatur") && logic.includes("Kubikzahlen") && logic.includes("createSessionSeed"));
 
 expect("V6.6 baseline: Language route wires LanguageTraining", languageRoute.includes("LanguageTraining"));
 const languageHistoryLimit = Number(languageTraining.match(/const HISTORY_LIMIT = (\d+);/)?.[1] ?? 0);
-expect(
-  "V6.6 baseline: Language persists rolling history",
-  languageTraining.includes("readRecentTaskIds") && languageTraining.includes("rememberTaskIds") && languageHistoryLimit >= 32,
-);
+expect("V6.6 baseline: Language persists rolling history",languageTraining.includes("readRecentTaskIds") && languageTraining.includes("rememberTaskIds") && languageHistoryLimit >= 32);
 
 expect("V6.6 baseline: Visual route wires VisualTraining", visualRoute.includes("VisualTraining"));
 expect("V6.6 baseline: Visual UI uses generative engine", visualTraining.includes("createVisualSession") && visualTraining.includes("VISUAL_STORAGE_KEY"));
@@ -68,13 +65,7 @@ expect("V6.6 baseline: Progress dashboard is mounted on home", home.includes("De
 expect("V6.6 baseline: Progress tracks trained areas", progress.includes("trainedAreas") && progressUi.includes("Trainierte Bereiche"));
 expect("V6.6 baseline: Progress tracks active days", progress.includes("activeDays7") && progressUi.includes("Aktive Tage"));
 expect("V6.6 baseline: Progress tracks last session", progress.includes("lastSessionAt") && progressUi.includes("Letzte Session"));
-expect(
-  "V6.6 baseline: Journey documents full session flow",
-  journey.includes("startHref") &&
-    journey.includes("Nach jeder Station") &&
-    journey.includes("Fortschritt ansehen") &&
-    journey.includes("Jetzt {duration} Minuten starten"),
-);
+expect("V6.6 baseline: Journey documents full session flow",journey.includes("startHref") && journey.includes("Nach jeder Station") && journey.includes("Fortschritt ansehen") && journey.includes("Jetzt {duration} Minuten starten"));
 const forbiddenRecommendationUi = ["Empfehlung öffnen", "Empfohlen", "Nächster Fokus", "Heute sinnvoll", "Coach-Empfehlung"];
 expect("V6.6 baseline: No visible recommendation UI in progress", forbiddenRecommendationUi.every((label) => !progressUi.includes(label)));
 
