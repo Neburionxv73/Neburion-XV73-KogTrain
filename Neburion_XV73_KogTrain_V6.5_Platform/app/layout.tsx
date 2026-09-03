@@ -17,6 +17,7 @@ import "./performance-baseline-v97.css";
 import "./a11y-contrast-final-v97.css";
 import "./raptor-v103-clean-foundation.css";
 import "./v11-readability.css";
+import "./v11-dashboard-lighthouse.css";
 
 const isProduction = process.env.VERCEL_ENV === "production";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : undefined);
