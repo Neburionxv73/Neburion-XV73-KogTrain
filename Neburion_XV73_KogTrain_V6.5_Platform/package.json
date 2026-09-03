@@ -15,7 +15,7 @@
     "validate:v67": "node scripts/validate-v67-player-isolation.mjs",
     "validate:v67cloud": "node scripts/validate-v67-cloud-foundation.mjs",
     "validate:training-v4": "node scripts/validate-training-quality-v4.mjs",
-    "validate:v103": "node scripts/validate-v103-redesign.mjs",
+    "validate:v103": "node scripts/validate-v11-dashboard.mjs",
     "validate": "npm run typecheck && node scripts/validate-project.mjs && npm run validate:brainfit && npm run validate:release && npm run validate:final && npm run validate:v66 && npm run validate:v67 && npm run validate:v67cloud && npm run validate:training-v4 && npm run validate:v103",
     "quality:core": "npm run validate && npm run build"
   },
