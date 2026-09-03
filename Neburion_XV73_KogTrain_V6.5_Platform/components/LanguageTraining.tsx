@@ -3,170 +3,33 @@
 import { useEffect, useState } from "react";
 import { createLanguageSession, LANGUAGE_SESSION_LENGTH, LANGUAGE_STORAGE_KEY, type LanguageMode, type LanguageSession } from "@/lib/languageV2";
 import { readRecentTaskIds, rememberTaskIds } from "@/lib/dynamicTraining";
+import { applyAdaptiveDifficultyResult, createAdaptiveDifficultyState, difficultyLabel, type AdaptiveDifficultyState } from "@/lib/adaptiveDifficultyV5";
 import styles from "./LanguageTraining.module.css";
 
-type ModeStat = { attempts: number; correct: number };
-type Stats = { sessions: number; bestScore: number; recentIds: string[]; modeStats: Partial<Record<LanguageMode, ModeStat>> };
-type Outcome = { mode: LanguageMode; correct: boolean };
-type Phase = "intro" | "question" | "feedback" | "done";
+type ModeStat={attempts:number;correct:number};
+type Stats={sessions:number;bestScore:number;recentIds:string[];modeStats:Partial<Record<LanguageMode,ModeStat>>};
+type Outcome={mode:LanguageMode;correct:boolean};
+type Phase="intro"|"question"|"feedback"|"done";
+const HISTORY_SCOPE="language-v4",HISTORY_LIMIT=144;
+const initialStats:Stats={sessions:0,bestScore:0,recentIds:[],modeStats:{}};
+const labels:Record<LanguageMode,string>={synonym:"Synonyme",antonym:"Antonyme",analogy:"Analogien",category:"Kategorien",wordfield:"Wortfelder",sentence:"Satzlogik",relation:"Beziehungen",context:"Kontext"};
 
-const HISTORY_SCOPE = "language-v4";
-const HISTORY_LIMIT = 144;
-const initialStats: Stats = { sessions: 0, bestScore: 0, recentIds: [], modeStats: {} };
-const labels: Record<LanguageMode, string> = {
-  synonym: "Synonyme",
-  antonym: "Antonyme",
-  analogy: "Analogien",
-  category: "Kategorien",
-  wordfield: "Wortfelder",
-  sentence: "Satzlogik",
-  relation: "Beziehungen",
-  context: "Kontext",
-};
+export function LanguageTraining(){
+  const [session,setSession]=useState<LanguageSession|null>(null),[index,setIndex]=useState(0),[selected,setSelected]=useState<number|null>(null),[outcomes,setOutcomes]=useState<Outcome[]>([]),[phase,setPhase]=useState<Phase>("intro"),[stats,setStats]=useState<Stats>(initialStats),[adaptive,setAdaptive]=useState<AdaptiveDifficultyState>(createAdaptiveDifficultyState(1));
+  useEffect(()=>{try{const raw=localStorage.getItem(LANGUAGE_STORAGE_KEY);if(!raw)return;const saved=JSON.parse(raw) as Partial<Stats>;setStats({sessions:saved.sessions??0,bestScore:saved.bestScore??0,recentIds:saved.recentIds??[],modeStats:saved.modeStats??{}})}catch{setStats(initialStats)}},[]);
+  useEffect(()=>{const handler=(event:KeyboardEvent)=>{if(phase!=="question"||!session)return;const optionIndex=Number(event.key)-1;if(optionIndex>=0&&optionIndex<session.tasks[index].options.length)answer(optionIndex)};window.addEventListener("keydown",handler);return()=>window.removeEventListener("keydown",handler)});
 
-export function LanguageTraining() {
-  const [session, setSession] = useState<LanguageSession | null>(null);
-  const [index, setIndex] = useState(0);
-  const [selected, setSelected] = useState<number | null>(null);
-  const [outcomes, setOutcomes] = useState<Outcome[]>([]);
-  const [phase, setPhase] = useState<Phase>("intro");
-  const [stats, setStats] = useState<Stats>(initialStats);
+  function currentHistory(){return [...new Set([...stats.recentIds,...readRecentTaskIds(HISTORY_SCOPE,HISTORY_LIMIT),...(session?.tasks.map(item=>item.id)??[])])].slice(-HISTORY_LIMIT)}
+  function start(){const merged=currentHistory();const next=createLanguageSession(stats.bestScore,merged,stats.sessions);setSession(next);setAdaptive(createAdaptiveDifficultyState(next.difficulty));setIndex(0);setSelected(null);setOutcomes([]);setPhase("question")}
+  function answer(optionIndex:number){if(!session||phase!=="question")return;const current=session.tasks[index],correct=optionIndex===current.answer,nextAdaptive=applyAdaptiveDifficultyResult(adaptive,correct);setSelected(optionIndex);setOutcomes(values=>[...values,{mode:current.mode,correct}]);setAdaptive(nextAdaptive);if(nextAdaptive.transition!=="hold"&&nextAdaptive.level!==session.difficulty){const replacement=createLanguageSession(stats.bestScore,currentHistory(),stats.sessions,nextAdaptive.level);setSession({...replacement,difficulty:nextAdaptive.level,tasks:[...session.tasks.slice(0,index+1),...replacement.tasks.slice(index+1)]})}setPhase("feedback")}
+  function next(){if(!session)return;if(index<session.tasks.length-1){setIndex(value=>value+1);setSelected(null);setPhase("question");return}const score=outcomes.filter(item=>item.correct).length,modeStats={...stats.modeStats};outcomes.forEach(item=>{const current=modeStats[item.mode]??{attempts:0,correct:0};modeStats[item.mode]={attempts:current.attempts+1,correct:current.correct+(item.correct?1:0)}});const sessionIds=session.tasks.map(item=>item.id);rememberTaskIds(HISTORY_SCOPE,sessionIds,HISTORY_LIMIT);const nextStats={sessions:stats.sessions+1,bestScore:Math.max(stats.bestScore,score),recentIds:[...new Set([...stats.recentIds,...sessionIds])].slice(-HISTORY_LIMIT),modeStats};setStats(nextStats);try{localStorage.setItem(LANGUAGE_STORAGE_KEY,JSON.stringify(nextStats))}catch{}setPhase("done")}
 
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(LANGUAGE_STORAGE_KEY);
-      if (!raw) return;
-      const saved = JSON.parse(raw) as Partial<Stats>;
-      setStats({
-        sessions: saved.sessions ?? 0,
-        bestScore: saved.bestScore ?? 0,
-        recentIds: saved.recentIds ?? [],
-        modeStats: saved.modeStats ?? {},
-      });
-    } catch {
-      setStats(initialStats);
-    }
-  }, []);
-
-  useEffect(() => {
-    const handler = (event: KeyboardEvent) => {
-      if (phase !== "question" || !session) return;
-      const optionIndex = Number(event.key) - 1;
-      if (optionIndex >= 0 && optionIndex < session.tasks[index].options.length) answer(optionIndex);
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  });
-
-  function start() {
-    const sharedHistory = readRecentTaskIds(HISTORY_SCOPE, HISTORY_LIMIT);
-    const mergedHistory = [...new Set([...stats.recentIds, ...sharedHistory])].slice(-HISTORY_LIMIT);
-    setSession(createLanguageSession(stats.bestScore, mergedHistory, stats.sessions));
-    setIndex(0);
-    setSelected(null);
-    setOutcomes([]);
-    setPhase("question");
-  }
-
-  function answer(optionIndex: number) {
-    if (!session || phase !== "question") return;
-    const current = session.tasks[index];
-    setSelected(optionIndex);
-    setOutcomes((values) => [...values, { mode: current.mode, correct: optionIndex === current.answer }]);
-    setPhase("feedback");
-  }
-
-  function next() {
-    if (!session) return;
-    if (index < session.tasks.length - 1) {
-      setIndex((value) => value + 1);
-      setSelected(null);
-      setPhase("question");
-      return;
-    }
-
-    const score = outcomes.filter((item) => item.correct).length;
-    const modeStats = { ...stats.modeStats };
-    outcomes.forEach((item) => {
-      const current = modeStats[item.mode] ?? { attempts: 0, correct: 0 };
-      modeStats[item.mode] = {
-        attempts: current.attempts + 1,
-        correct: current.correct + (item.correct ? 1 : 0),
-      };
-    });
-    const sessionIds = session.tasks.map((item) => item.id);
-    rememberTaskIds(HISTORY_SCOPE, sessionIds, HISTORY_LIMIT);
-    const nextStats: Stats = {
-      sessions: stats.sessions + 1,
-      bestScore: Math.max(stats.bestScore, score),
-      recentIds: [...new Set([...stats.recentIds, ...sessionIds])].slice(-HISTORY_LIMIT),
-      modeStats,
-    };
-    setStats(nextStats);
-    try { localStorage.setItem(LANGUAGE_STORAGE_KEY, JSON.stringify(nextStats)); } catch {}
-    setPhase("done");
-  }
-
-  const current = session?.tasks[index];
-  const score = outcomes.filter((item) => item.correct).length;
-  const percent = session ? Math.round((score / session.tasks.length) * 100) : 0;
-
-  return (
-    <section className={styles.trainer} aria-live="polite">
-      <div className={styles.stats}>
-        <span>Sessions <strong>{stats.sessions}</strong></span>
-        <span>Bestwert <strong>{stats.bestScore}/{LANGUAGE_SESSION_LENGTH}</strong></span>
-        <span>{session ? `Level ${session.difficulty}` : "Language Lab 2.4 · Adaptive V4"}</span>
-      </div>
-
-      {phase === "intro" && (
-        <div className={styles.stage}>
-          <p className="eyebrow">8 Sprachmodi · Adaptive Quality V4</p>
-          <h2>Wörter verstehen. Beziehungen erkennen. Kontext präzise deuten.</h2>
-          <p>Language V4 erweitert Wortschatz, Grammatik, Analogien und Kontextverständnis deutlich. Mit steigendem Niveau werden Bedeutungsunterschiede feiner, Schlussketten abstrakter und Antwortoptionen ähnlicher. Eine lange Anti-Repeat-Historie reduziert Wiederholungen über viele Sessions hinweg.</p>
-          <div className={styles.modeGrid}>{Object.values(labels).map((label) => <span key={label}>{label}</span>)}</div>
-          <button className="primary trainingButton" type="button" onClick={start}>Language Session starten</button>
-        </div>
-      )}
-
-      {phase === "question" && current && session && (
-        <div className={styles.stage}>
-          <p className="eyebrow">{labels[current.mode]} · Aufgabe {index + 1}/{session.tasks.length} · Level {session.difficulty}</p>
-          <h2>{current.prompt}</h2>
-          <div className={styles.prompt}>{current.detail}</div>
-          <div className={styles.options}>
-            {current.options.map((option, optionIndex) => (
-              <button className={styles.option} key={`${current.id}-${optionIndex}`} type="button" onClick={() => answer(optionIndex)}>
-                <kbd>{optionIndex + 1}</kbd><span>{option}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {phase === "feedback" && current && selected !== null && (
-        <div className={`${styles.stage} ${styles.feedback}`}>
-          <p className={`${styles.feedbackBadge} ${selected === current.answer ? styles.correct : styles.incorrect}`}>{selected === current.answer ? "Richtig" : "Noch nicht"}</p>
-          <h2>{selected === current.answer ? "Sprachliche Beziehung erkannt." : `Richtig wäre: ${current.options[current.answer]}`}</h2>
-          <p>{current.explanation}</p>
-          <button className="primary trainingButton" type="button" onClick={next}>{session && index === session.tasks.length - 1 ? "Auswertung" : "Nächste Aufgabe"}</button>
-        </div>
-      )}
-
-      {phase === "done" && session && (
-        <div className={styles.stage}>
-          <p className="eyebrow">Session abgeschlossen</p>
-          <h2>{percent}% richtig</h2>
-          <div className={styles.score}><strong>{score}</strong><span>/ {session.tasks.length}</span></div>
-          <div className={styles.modeStats}>
-            {(Object.entries(stats.modeStats) as [LanguageMode, ModeStat][]).map(([mode, value]) => (
-              <div key={mode}><span>{labels[mode]}</span><strong>{value.attempts ? Math.round((value.correct / value.attempts) * 100) : 0}%</strong></div>
-            ))}
-          </div>
-          <p>Die nächste Session wählt bevorzugt neue Varianten und passt die sprachliche Tiefe erneut an deinen bisherigen Trainingsstand an.</p>
-          <button className="primary trainingButton" type="button" onClick={start}>Neue Language Session</button>
-        </div>
-      )}
-    </section>
-  );
+  const current=session?.tasks[index],score=outcomes.filter(item=>item.correct).length,percent=session?Math.round(score/session.tasks.length*100):0;
+  return <section className={styles.trainer} aria-live="polite" data-adaptive-level={adaptive.level}>
+    <div className={styles.stats}><span>Sessions <strong>{stats.sessions}</strong></span><span>Bestwert <strong>{stats.bestScore}/{LANGUAGE_SESSION_LENGTH}</strong></span><span>{session?`Dynamik ${adaptive.level} · ${difficultyLabel(adaptive.level)}`:"Language Lab · Adaptive Difficulty V5"}</span></div>
+    {phase==="intro"&&<div className={styles.stage}><p className="eyebrow">8 Sprachmodi · Adaptive Difficulty V5</p><h2>Wörter verstehen. Beziehungen erkennen. Kontext präzise deuten.</h2><p>Language V5 passt die sprachliche Tiefe jetzt auch während der laufenden Session an. Drei sichere Treffer können die folgenden Aufgaben um eine Stufe anheben; zwei Fehler in Folge stabilisieren um genau eine Stufe. Einzelne Antworten lösen keinen abrupten Sprung aus.</p><div className={styles.modeGrid}>{Object.values(labels).map(label=><span key={label}>{label}</span>)}</div><button className="primary trainingButton" type="button" onClick={start}>Language Session starten</button></div>}
+    {phase==="question"&&current&&session&&<div className={styles.stage}><p className="eyebrow">{labels[current.mode]} · Aufgabe {index+1}/{session.tasks.length} · Dynamik {adaptive.level} {difficultyLabel(adaptive.level)}</p><h2>{current.prompt}</h2><div className={styles.prompt}>{current.detail}</div><div className={styles.options}>{current.options.map((option,optionIndex)=><button className={styles.option} key={`${current.id}-${optionIndex}`} type="button" onClick={()=>answer(optionIndex)}><kbd>{optionIndex+1}</kbd><span>{option}</span></button>)}</div></div>}
+    {phase==="feedback"&&current&&selected!==null&&<div className={`${styles.stage} ${styles.feedback}`}><p className={`${styles.feedbackBadge} ${selected===current.answer?styles.correct:styles.incorrect}`}>{selected===current.answer?"Richtig":"Noch nicht"}</p><h2>{selected===current.answer?"Sprachliche Beziehung erkannt.":`Richtig wäre: ${current.options[current.answer]}`}</h2><p>{current.explanation}</p><p><strong>Adaptive Difficulty V5:</strong> {adaptive.reason}</p><button className="primary trainingButton" type="button" onClick={next}>{session&&index===session.tasks.length-1?"Auswertung":"Nächste Aufgabe"}</button></div>}
+    {phase==="done"&&session&&<div className={styles.stage}><p className="eyebrow">Session abgeschlossen · Endniveau {adaptive.level} {difficultyLabel(adaptive.level)}</p><h2>{percent}% richtig</h2><div className={styles.score}><strong>{score}</strong><span>/ {session.tasks.length}</span></div><div className={styles.modeStats}>{(Object.entries(stats.modeStats) as [LanguageMode,ModeStat][]).map(([mode,value])=><div key={mode}><span>{labels[mode]}</span><strong>{value.attempts?Math.round(value.correct/value.attempts*100):0}%</strong></div>)}</div><p>Die nächste Session startet wieder evidenzbasiert und passt sich anschließend schrittweise innerhalb der Einheit an.</p><button className="primary trainingButton" type="button" onClick={start}>Neue Language Session</button></div>}
+  </section>;
 }
