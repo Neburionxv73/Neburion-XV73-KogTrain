@@ -28,6 +28,7 @@ const languageV2 = read("lib/languageV2.ts");
 const languageTraining = read("components/LanguageTraining.tsx");
 const visual = read("lib/visual.ts");
 const visualV2 = read("lib/visualV2.ts");
+const visualTraining = read("components/VisualTraining.tsx");
 const brainFit = read("lib/brainFit.ts");
 const brainFitTraining = read("components/BrainFitTraining.tsx");
 
@@ -57,11 +58,13 @@ expect("Language V4: rolling history minimum 32", historyAtLeast(languageTrainin
 expect("Language V4: rolling history read/write active", languageTraining.includes("readRecentTaskIds") && languageTraining.includes("rememberTaskIds"));
 expect("Language V4: balanced adaptive selection active", languageV2.includes("difficultyFromEvidence") && languageV2.includes("finalizeBalancedSessionTasks"));
 
+expect("Visual adaptive quality UI active", hasAdaptiveQualityLabel(visualTraining) && visualTraining.includes("data-adaptive-level") && visualTraining.includes("applyAdaptiveDifficultyResult"));
 expect("Visual V4: generated visual modes retained", ["rotation","mirror","pattern","matrix","position","search","compare","memory"].every((mode) => visual.includes(`\"${mode}\"`)));
 expect("Visual V4: expanded independent candidate rounds", visualV2.includes("round < 7"));
 expect("Visual V4: fresh-first selection active", visualV2.includes("readRecentTaskIds") && visualV2.includes("recent.has"));
 expect("Visual V4: balanced selection active", visualV2.includes("balancedByMode"));
 expect("Visual V4: long anti-repeat history", visualV2.includes("HISTORY_LIMIT = 144"));
+expect("Visual V5: forced difficulty regeneration active", visualV2.includes("forcedDifficulty") && visualTraining.includes("createVisualSession(stats.bestScore, stats.sessions, nextAdaptive.level)"));
 
 expect("BrainFit V4: all eight areas retained", ["sudoku","words","crossword","memory","categories","sequence","everydayMath","timeOrder"].every((area) => brainFit.includes(`\"${area}\"`)));
 expect("BrainFit V4: evidence-based area mode retained", brainFit.includes("adaptiveMode") && brainFit.includes("stat.sessions>=4") && brainFit.includes("stat.bestScore"));
