@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createAttentionSession, type AttentionMode, type AttentionSession } from "@/lib/attention";
+import { applyAdaptiveDifficultyResult, createAdaptiveDifficultyState, difficultyLabel, type AdaptiveDifficultyState } from "@/lib/adaptiveDifficultyV5";
 import styles from "./AttentionTraining.module.css";
 
 type ModeStat = { attempts: number; correct: number };
@@ -11,6 +12,7 @@ type Phase = "intro" | "question" | "feedback" | "done";
 
 const STORAGE_KEY = "neburion-v65-attention-stats";
 const initialStats: Stats = { sessions: 0, bestAccuracy: 0, bestReaction: 0, modeStats: {} };
+const percentForDifficulty = (level: 1 | 2 | 3) => level === 1 ? 0 : level === 2 ? 70 : 90;
 
 export function AttentionTraining() {
   const [session, setSession] = useState<AttentionSession | null>(null);
@@ -20,6 +22,7 @@ export function AttentionTraining() {
   const [phase, setPhase] = useState<Phase>("intro");
   const [stats, setStats] = useState<Stats>(initialStats);
   const [outcomes, setOutcomes] = useState<Outcome[]>([]);
+  const [adaptive, setAdaptive] = useState<AdaptiveDifficultyState>(createAdaptiveDifficultyState(1));
   const shownAt = useRef(0);
 
   useEffect(() => {
@@ -46,7 +49,9 @@ export function AttentionTraining() {
   });
 
   function start() {
-    setSession(createAttentionSession(stats.bestAccuracy));
+    const next = createAttentionSession(stats.bestAccuracy);
+    setSession(next);
+    setAdaptive(createAdaptiveDifficultyState(next.difficulty));
     setIndex(0);
     setSelected(null);
     setScore(0);
@@ -59,9 +64,20 @@ export function AttentionTraining() {
     const task = session.tasks[index];
     const correct = optionIndex === task.answer;
     const reaction = Math.round(performance.now() - shownAt.current);
+    const nextAdaptive = applyAdaptiveDifficultyResult(adaptive, correct);
     setSelected(optionIndex);
     if (correct) setScore((value) => value + 1);
     setOutcomes((values) => [...values, { mode: task.mode, correct, reaction }]);
+    setAdaptive(nextAdaptive);
+
+    if (nextAdaptive.transition !== "hold" && nextAdaptive.level !== session.difficulty) {
+      const replacement = createAttentionSession(percentForDifficulty(nextAdaptive.level));
+      setSession({
+        ...replacement,
+        difficulty: nextAdaptive.level,
+        tasks: [...session.tasks.slice(0, index + 1), ...replacement.tasks.slice(index + 1)],
+      });
+    }
     setPhase("feedback");
   }
 
@@ -98,19 +114,19 @@ export function AttentionTraining() {
   const averageReaction = outcomes.length ? Math.round(outcomes.reduce((sum,item)=>sum+item.reaction,0)/outcomes.length) : 0;
 
   return (
-    <section className={styles.trainer} aria-live="polite">
+    <section className={styles.trainer} aria-live="polite" data-adaptive-level={adaptive.level}>
       <div className={styles.stats}>
         <span>Sessions <strong>{stats.sessions}</strong></span>
         <span>Bestwert <strong>{stats.bestAccuracy}%</strong></span>
         <span>Beste Ø-Reaktion <strong>{stats.bestReaction ? `${stats.bestReaction} ms` : "–"}</strong></span>
-        <span>{session ? `Level ${session.difficulty}` : "Attention 2.0"}</span>
+        <span>{session ? `Dynamik ${adaptive.level} · ${difficultyLabel(adaptive.level)}` : "Attention Lab · Adaptive Difficulty V5"}</span>
       </div>
 
       {phase === "intro" && (
         <div className={styles.stage}>
-          <p className="eyebrow">Attention Lab 2.0</p>
+          <p className="eyebrow">Attention Lab · Adaptive Difficulty V5</p>
           <h2>Fokus wechseln. Störreize hemmen. Tempo halten.</h2>
-          <p>Acht bis zehn dynamische Aufgaben mischen Go/No-Go, visuelle Suche, Regelwechsel, Reaktionshemmung, geteilte Aufmerksamkeit, Tempo und Interferenz. Umfang, Reizdichte und Konfliktniveau steigen mit deinem Trainingsstand.</p>
+          <p>Attention V5 passt Reizdichte, Konfliktniveau und Zieltempo jetzt auch innerhalb der laufenden Session an. Drei sichere Treffer können um genau eine Stufe erhöhen; zwei Fehler in Folge stabilisieren um genau eine Stufe. Einzelne Fehler oder Glückstreffer lösen keinen abrupten Sprung aus.</p>
           <div className={styles.modeStrip} aria-label="Trainingsmodi"><span>Go/No-Go</span><span>Suche</span><span>Regelwechsel</span><span>Hemmung</span><span>Geteilt</span><span>Tempo</span><span>Störreiz</span></div>
           <button className="primary trainingButton" type="button" onClick={start}>Attention Session starten</button>
         </div>
@@ -118,7 +134,7 @@ export function AttentionTraining() {
 
       {phase === "question" && current && session && (
         <div className={styles.stage}>
-          <div className={styles.taskMeta}><span>{current.label}</span><span>Aufgabe {index + 1}/{session.tasks.length}</span><span>Zieltempo {session.targetMs} ms</span></div>
+          <div className={styles.taskMeta}><span>{current.label}</span><span>Aufgabe {index + 1}/{session.tasks.length}</span><span>Dynamik {adaptive.level} · {difficultyLabel(adaptive.level)}</span><span>Zieltempo {session.targetMs} ms</span></div>
           <h2>{current.prompt}</h2>
           <p className={styles.instruction}>{current.instruction}</p>
           <div className={`${styles.visualField} ${current.visual.length > 6 ? styles.denseField : ""}`} aria-label={current.visual.join(" ")}>
@@ -135,6 +151,7 @@ export function AttentionTraining() {
           <p className={`${styles.feedbackBadge} ${selected===current.answer ? styles.correct : styles.incorrect}`}>{selected===current.answer ? "Richtig" : "Noch nicht"}</p>
           <h2>{selected===current.answer ? "Aufmerksamkeitsregel getroffen." : `Richtig wäre: ${current.options[current.answer]}`}</h2>
           <p>{current.explanation}</p>
+          <p><strong>Adaptive Difficulty V5:</strong> {adaptive.reason}</p>
           <p className={styles.reaction}>Reaktionszeit: <strong>{outcomes.at(-1)?.reaction ?? 0} ms</strong></p>
           <button className="primary trainingButton" type="button" onClick={next}>{session && index===session.tasks.length-1 ? "Auswertung" : "Nächste Aufgabe"}</button>
         </div>
@@ -142,11 +159,11 @@ export function AttentionTraining() {
 
       {phase === "done" && session && (
         <div className={styles.stage}>
-          <p className="eyebrow">Session abgeschlossen</p>
+          <p className="eyebrow">Session abgeschlossen · Endniveau {adaptive.level} · {difficultyLabel(adaptive.level)}</p>
           <h2>{accuracy}% Genauigkeit</h2>
           <div className={styles.score}><strong>{score}</strong><span>/ {session.tasks.length}</span></div>
-          <div className={styles.summary}><span>Ø Reaktion <strong>{averageReaction} ms</strong></span><span>Level <strong>{session.difficulty}</strong></span><span>Modi <strong>{new Set(session.tasks.map((task)=>task.mode)).size}</strong></span></div>
-          <p>Die nächste Session mischt die Modi erneut und passt Umfang, Reizdichte und Konfliktniveau an deinen bisherigen Bestwert an. Der Wert ist ein Trainingswert und keine medizinische Diagnose.</p>
+          <div className={styles.summary}><span>Ø Reaktion <strong>{averageReaction} ms</strong></span><span>Dynamik <strong>{adaptive.level}</strong></span><span>Modi <strong>{new Set(session.tasks.map((task)=>task.mode)).size}</strong></span></div>
+          <p>Die nächste Session startet wieder evidenzbasiert. Innerhalb der Einheit reagiert V5 konservativ auf stabile Treffer- und Fehlerfolgen.</p>
           <button className="primary trainingButton" type="button" onClick={start}>Neue Attention Session</button>
         </div>
       )}
