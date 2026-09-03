@@ -1,0 +1,22 @@
+/* V11 Lighthouse accessibility hardening.
+   Loaded after all legacy/global layers so CSS-module navigation colors stay deterministic. */
+
+[class*="HomeDashboardV11"][class*="sidebar"] [class*="navItem"]{
+  background:#064e59!important;
+  color:#ffffff!important;
+}
+
+[class*="HomeDashboardV11"][class*="sidebar"] [class*="navItem"] small{
+  color:#eef8f9!important;
+  opacity:1!important;
+}
+
+[class*="HomeDashboardV11"][class*="sidebar"] [class*="navItem"]:hover,
+[class*="HomeDashboardV11"][class*="sidebar"] [class*="navItem"]:focus-visible{
+  background:#0a6570!important;
+}
+
+[class*="HomeDashboardV11"][class*="sidebar"] [class*="navItem"][class*="active"]{
+  background:linear-gradient(90deg,#0a7f8d,#086f7b)!important;
+  color:#ffffff!important;
+}
