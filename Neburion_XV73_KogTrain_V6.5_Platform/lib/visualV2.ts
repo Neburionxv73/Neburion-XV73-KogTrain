@@ -26,9 +26,13 @@ function scoreForDifficulty(difficulty: Difficulty): number {
   return 7;
 }
 
-export function createVisualSession(bestScore: number, completedSessions = 0): VisualSession {
+export function createVisualSession(
+  bestScore: number,
+  completedSessions = 0,
+  forcedDifficulty?: Difficulty,
+): VisualSession {
   const percent = Math.round((bestScore / VISUAL_SESSION_LENGTH) * 100);
-  const difficulty = difficultyFromEvidence({
+  const difficulty = forcedDifficulty ?? difficultyFromEvidence({
     percent,
     attempts: completedSessions * VISUAL_SESSION_LENGTH,
   });
@@ -37,7 +41,7 @@ export function createVisualSession(bestScore: number, completedSessions = 0): V
   const candidates: VisualTask[] = [];
 
   // Generate several independent sessions so every visual mode gets a much
-  // larger candidate pool before the final balanced V4 selection is made.
+  // larger candidate pool before the final balanced selection is made.
   for (let round = 0; round < 7; round += 1) {
     const session = createBaseVisualSession(scoreForDifficulty(difficulty));
     candidates.push(...session.tasks);
