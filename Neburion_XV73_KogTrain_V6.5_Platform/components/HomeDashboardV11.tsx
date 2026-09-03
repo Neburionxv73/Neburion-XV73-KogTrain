@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { getProgressSnapshot, type ProgressSnapshot } from "@/lib/progress";
+import { GranularWeaknessV1 } from "./GranularWeaknessV1";
 import styles from "./HomeDashboardV11.module.css";
 
 const NAV_AREAS = [
@@ -63,6 +64,7 @@ export function HomeDashboardV11() {
           {NAV_AREAS.map(item => <Link className={styles.navItem} key={item.label} href={item.href}><span>{item.icon}</span><div><strong>{item.label}</strong><small>{item.sub}</small></div></Link>)}
           <p>Fortschritt</p>
           <a className={styles.navItem} href="#fortschritt"><span>▥</span><div><strong>Statistiken</strong></div></a>
+          <a className={styles.navItem} href="#analyse"><span>⌁</span><div><strong>Feinanalyse</strong></div></a>
           <a className={styles.navItem} href="#rhythmus"><span>↶</span><div><strong>Verlauf</strong></div></a>
           <p>Einstellungen</p>
           <Link className={styles.navItem} href="/account"><span>♙</span><div><strong>Profil</strong></div></Link>
@@ -110,6 +112,8 @@ export function HomeDashboardV11() {
             <Link className={styles.primaryButton} href="/training/journey">Training starten <span>→</span></Link>
           </section>
         </div>
+
+        <div id="analyse"><GranularWeaknessV1 /></div>
 
         <section className={styles.rhythm} id="rhythmus">
           <div><span>Letzte 7 Tage</span><h2>Trainings-<br/>rhythmus</h2></div>
