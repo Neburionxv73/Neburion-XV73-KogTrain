@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { LogicTraining2 } from "@/components/LogicTraining2";
+import { LogicTraining } from "@/components/LogicTraining";
 import { LabViewportStyle } from "@/components/LabViewportStyle";
 
 export const metadata = {
-  title: "Logic Lab 2.0 · Neburion XV73 V6.6",
-  description: "Dynamisches Logiktraining mit Zahlenreihen, Regelketten, Analogien, Schlussfolgerungen, Matrizen, Operatoren und Raumlogik.",
+  title: "Logic Lab 2.5 · Adaptive Difficulty V5",
+  description: "Adaptives Logiktraining mit Zahlenreihen, Regelketten, Analogien, Schlussfolgerungen, Matrizen, Operatoren und Raumlogik.",
 };
 
 export default function LogicPage() {
@@ -13,15 +13,15 @@ export default function LogicPage() {
       <LabViewportStyle />
       <div className="trainingTopbar">
         <Link className="backLink" href="/#training">← Trainingswelten</Link>
-        <span>Logic Lab 2.0 · V6.6</span>
+        <span>Logic Lab 2.5 · Adaptive Difficulty V5</span>
       </div>
       <section className="trainingShell">
         <header className="trainingIntro">
-          <p className="eyebrow">Logic Lab 2.0</p>
+          <p className="eyebrow">Logic Lab 2.5 · Adaptive Difficulty V5</p>
           <h1>Regeln erkennen. Schlüsse ziehen. Probleme lösen.</h1>
-          <p>Acht dynamische Aufgaben kombinieren Zahlenreihen, Regelketten, Analogien, Schlussfolgerungen, Matrizen, Operatorlogik, Ausschlussaufgaben und räumliches Denken. Schwierigkeit und Inhalte passen sich an deinen bisherigen Bestwert an.</p>
+          <p>Acht dynamische Aufgaben kombinieren Zahlenreihen, Regelketten, Analogien, Schlussfolgerungen, Matrizen, Operatorlogik, Ausschlussaufgaben und räumliches Denken. Das Startniveau basiert auf deinem bisherigen Training und passt sich innerhalb der Session schrittweise an.</p>
         </header>
-        <LogicTraining2 />
+        <LogicTraining />
         <p className="trainingDisclaimer">Dieses Training dient Lern- und Übungszwecken und stellt keine medizinische Diagnose oder Behandlung dar.</p>
       </section>
     </main>
