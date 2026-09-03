@@ -45,10 +45,10 @@ export default function Home() {
         <div>
           <p className="eyebrow">01 · Trainingsstart</p>
           <h2 id="journey-teaser-title">Eine klare Entscheidung vor jeder Einheit.</h2>
-          <p>Wähle 5, 10 oder 15 Minuten. Danach entscheidest du zwischen persönlichem Lernmix, Spezial-Lab oder Gehirnfit & Alltag. Von dort führt dich KogTrain ohne Umwege durch die Session.</p>
+          <p>Wähle 10, 20 oder 30 Minuten. Danach entscheidest du zwischen persönlichem Lernmix, Spezial-Lab oder Gehirnfit & Alltag. Von dort führt dich KogTrain ohne Umwege durch die Session.</p>
         </div>
         <div className="journeyTeaserMeta">
-          <span><strong>5 / 10 / 15</strong><small>Minuten</small></span>
+          <span><strong>10 / 20 / 30</strong><small>Minuten</small></span>
           <span><strong>3</strong><small>Trainingswege</small></span>
           <Link prefetch={false} className="primary" href="/training/journey">Einheit zusammenstellen →</Link>
         </div>
@@ -86,7 +86,7 @@ export default function Home() {
 
       <DeferredProgressCoachDashboard />
 
-      <footer><span>Neburion XV73 · KogTrain V6.6</span><span>Lern- & Trainingsplattform</span></footer>
+      <footer><span>Neburion XV73 · KogTrain V6.7</span><span>Lern- & Trainingsplattform</span></footer>
     </main>
   );
 }
