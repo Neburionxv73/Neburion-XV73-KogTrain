@@ -7,6 +7,11 @@ const BrainFitTraining = dynamic(
   { ssr: false },
 );
 
+const BrainFitAdaptiveV5 = dynamic(
+  () => import("./BrainFitAdaptiveV5").then((module) => module.BrainFitAdaptiveV5),
+  { ssr: false },
+);
+
 const BrainFitCompletionPanel = dynamic(
   () => import("./BrainFitCompletionPanel").then((module) => module.BrainFitCompletionPanel),
   { ssr: false },
@@ -21,6 +26,7 @@ export function BrainFitClient() {
   return (
     <>
       <BrainFitTraining />
+      <BrainFitAdaptiveV5 />
       <BrainFitCompletionPanel />
       <UnifiedTrainingCoach />
     </>
