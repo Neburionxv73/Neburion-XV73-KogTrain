@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { getProgressSnapshot, type LabProgress, type ProgressSnapshot } from "@/lib/progress";
+import { getProgressSnapshot, type LabProgress, type ProgressSnapshot, type ProgressTrend } from "@/lib/progress";
 import styles from "./ProgressCoachDashboard.module.css";
 
 function useProgressSnapshot() {
@@ -62,6 +62,14 @@ function performanceFor(lab: LabProgress): string {
   return "Im Aufbau";
 }
 
+function trendLabel(trend: ProgressTrend): string {
+  if (!trend.sessions) return "Noch keine Daten";
+  if (trend.deltaBest === null || trend.sessions < 2) return "Noch zu wenig Verlauf";
+  if (trend.deltaBest >= 5) return `+${trend.deltaBest} Punkte`;
+  if (trend.deltaBest <= -5) return `${trend.deltaBest} Punkte`;
+  return "Stabil";
+}
+
 export function CoachHeroCard() {
   const snapshot = useProgressSnapshot();
 
@@ -108,6 +116,7 @@ export function ProgressCoachDashboard() {
   const weeklyPercent = Math.min(100, Math.round((snapshot.weekSessions / snapshot.weeklyGoal) * 100));
   const levelPercent = Math.min(100, Math.round((snapshot.xpInLevel / snapshot.xpToNextLevel) * 100));
   const maxDay = Math.max(1, ...snapshot.recentDays.map((day) => day.count));
+  const maxDay30 = Math.max(1, ...snapshot.recentDays30.map((day) => day.count));
   const coveragePercent = Math.round((snapshot.trainedAreas / snapshot.labs.length) * 100);
   const highEvidenceAreas = snapshot.labs.filter((lab) => lab.sessions >= 6).length;
   const evidencePercent = Math.round((highEvidenceAreas / snapshot.labs.length) * 100);
@@ -122,7 +131,7 @@ export function ProgressCoachDashboard() {
           <div>
             <p className="eyebrow">Fortschritt & Übersicht</p>
             <h2 id="progress-2-title">Dein Training klar im Blick.</h2>
-            <p>Hier siehst du deine tatsächlich gespeicherten Trainingswerte aus Spezial-Labs und Gehirnfit & Alltag. Progress Insights V4 trennt Leistung, Trainingsmenge und Evidenz, damit einzelne gute Sessions nicht überbewertet werden.</p>
+            <p>Hier siehst du ausschließlich tatsächlich gespeicherte Trainingswerte. Progress Insights V4 trennt Leistung, Trainingsmenge und Evidenz; Learning Development V5 ergänzt jetzt einen echten 7- und 30-Tage-Verlauf ohne künstlich erzeugte Trenddaten.</p>
           </div>
           <div className={styles.levelCard}>
             <span>Level {snapshot.level}</span>
@@ -149,27 +158,34 @@ export function ProgressCoachDashboard() {
             <span>{rhythmLabel}</span>
           </div>
           <div className={styles.insightGrid}>
-            <article>
-              <span>Trainingsabdeckung</span>
-              <strong>{coveragePercent}%</strong>
-              <p>{snapshot.trainedAreas} von {snapshot.labs.length} Bereichen besitzen echte Trainingsdaten.</p>
-            </article>
-            <article>
-              <span>Belastbare Evidenz</span>
-              <strong>{evidencePercent}%</strong>
-              <p>{highEvidenceAreas} Bereiche haben mindestens 6 gespeicherte Sessions.</p>
-            </article>
-            <article>
-              <span>Stärkster Bereich</span>
-              <strong>{snapshot.strongest?.label ?? "Noch offen"}</strong>
-              <p>{snapshot.strongest ? `${snapshot.strongest.bestPercent}% Bestwert bei ${snapshot.strongest.sessions} Sessions.` : "Noch keine ausreichenden Trainingsdaten vorhanden."}</p>
-            </article>
-            <article>
-              <span>Wenigste Evidenz</span>
-              <strong>{leastTrained?.label ?? "Noch offen"}</strong>
-              <p>{leastTrained ? `${leastTrained.sessions} Sessions · ${evidenceFor(leastTrained.sessions).label}.` : "Noch keine Bereiche verfügbar."}</p>
-            </article>
+            <article><span>Trainingsabdeckung</span><strong>{coveragePercent}%</strong><p>{snapshot.trainedAreas} von {snapshot.labs.length} Bereichen besitzen echte Trainingsdaten.</p></article>
+            <article><span>Belastbare Evidenz</span><strong>{evidencePercent}%</strong><p>{highEvidenceAreas} Bereiche haben mindestens 6 gespeicherte Sessions.</p></article>
+            <article><span>Stärkster Bereich</span><strong>{snapshot.strongest?.label ?? "Noch offen"}</strong><p>{snapshot.strongest ? `${snapshot.strongest.bestPercent}% Bestwert bei ${snapshot.strongest.sessions} Sessions.` : "Noch keine ausreichenden Trainingsdaten vorhanden."}</p></article>
+            <article><span>Wenigste Evidenz</span><strong>{leastTrained?.label ?? "Noch offen"}</strong><p>{leastTrained ? `${leastTrained.sessions} Sessions · ${evidenceFor(leastTrained.sessions).label}.` : "Noch keine Bereiche verfügbar."}</p></article>
           </div>
+        </div>
+
+        <div className={styles.developmentPanel} aria-labelledby="learning-development-v5-title">
+          <div className={styles.insightHead}>
+            <div><p className="eyebrow">Learning Development V5</p><h3 id="learning-development-v5-title">7 und 30 Tage echte Entwicklung.</h3></div>
+            <span>Nur gespeicherte Messpunkte</span>
+          </div>
+          <div className={styles.developmentSummary}>
+            <article><span>7 Tage</span><strong>{snapshot.trend7.sessions} Sessions</strong><small>{snapshot.trend7.activeDays} aktive Tage · {trendLabel(snapshot.trend7)}</small></article>
+            <article><span>30 Tage</span><strong>{snapshot.trend30.sessions} Sessions</strong><small>{snapshot.trend30.activeDays} aktive Tage · {trendLabel(snapshot.trend30)}</small></article>
+            <article><span>Letzter Messwert</span><strong>{snapshot.trend30.lastBest !== null ? `${snapshot.trend30.lastBest}%` : "–"}</strong><small>gespeicherter Bestwert zum letzten Aktivitätspunkt</small></article>
+          </div>
+          {snapshot.activityCount > 0 ? (
+            <div className={styles.timeline30} aria-label="Trainingsaktivität der letzten 30 Tage">
+              {snapshot.recentDays30.map((day, index) => (
+                <div key={day.date} className={styles.timelineDay} title={`${day.label}: ${day.count} Sessions${day.bestPercent !== null ? ` · ${day.bestPercent}%` : ""}`}>
+                  <span style={{ height: `${Math.max(day.count ? 18 : 3, (day.count / maxDay30) * 100)}%` }} />
+                  {(index === 0 || index === 14 || index === 29) && <small>{day.label}</small>}
+                </div>
+              ))}
+            </div>
+          ) : <p className={styles.developmentEmpty}>Der 30-Tage-Verlauf beginnt mit der ersten neu erfassten Session in diesem Speicherbereich.</p>}
+          <p className={styles.developmentNote}>Die Kurve zeigt reale Session-Aktivität. Leistungsänderungen basieren auf den Bestwerten, die beim jeweiligen Aktivitätspunkt tatsächlich gespeichert wurden; fehlende Tage werden nicht künstlich aufgefüllt.</p>
         </div>
 
         <div className={styles.twoColumn}>
@@ -180,14 +196,7 @@ export function ProgressCoachDashboard() {
                 const evidence = evidenceFor(item.sessions);
                 return (
                   <Link href={item.href} className={styles.labRow} key={item.id}>
-                    <div>
-                      <strong>{item.label}</strong>
-                      <small>{item.sessions} Sessions · {item.accent}</small>
-                      <div className={styles.labSignals}>
-                        <span data-tone={evidence.tone}>{evidence.label}</span>
-                        <span>{performanceFor(item)}</span>
-                      </div>
-                    </div>
+                    <div><strong>{item.label}</strong><small>{item.sessions} Sessions · {item.accent}</small><div className={styles.labSignals}><span data-tone={evidence.tone}>{evidence.label}</span><span>{performanceFor(item)}</span></div></div>
                     <div className={styles.labValue}><span>{item.sessions ? `${item.bestPercent}%` : "–"}</span><div className={styles.bar}><i style={{ width: `${item.sessions ? item.bestPercent : 0}%` }} /></div></div>
                   </Link>
                 );
@@ -197,16 +206,8 @@ export function ProgressCoachDashboard() {
 
           <div className={styles.panel} id="coach">
             <div className={styles.panelHead}><div><p className="eyebrow">Trainingsziele</p><h3>Heute und diese Woche</h3></div><span>übersichtlich</span></div>
-            <div className={styles.goalBlock}>
-              <div><span>Tagesziel</span><strong>{snapshot.todaySessions}/{snapshot.dailyGoal}</strong></div>
-              <div className={styles.bar}><span style={{ width: `${dailyPercent}%` }} /></div>
-              <small>{dailyPercent >= 100 ? "Tagesziel erreicht. Weitere Sessions sind optional." : "Noch eine kurze Session bringt dich dem Tagesziel näher."}</small>
-            </div>
-            <div className={styles.goalBlock}>
-              <div><span>Wochenziel</span><strong>{snapshot.weekSessions}/{snapshot.weeklyGoal}</strong></div>
-              <div className={styles.bar}><span style={{ width: `${weeklyPercent}%` }} /></div>
-              <small>{weeklyPercent >= 100 ? "Wochenziel erreicht." : `${weeklyPercent}% des Wochenziels sind geschafft.`}</small>
-            </div>
+            <div className={styles.goalBlock}><div><span>Tagesziel</span><strong>{snapshot.todaySessions}/{snapshot.dailyGoal}</strong></div><div className={styles.bar}><span style={{ width: `${dailyPercent}%` }} /></div><small>{dailyPercent >= 100 ? "Tagesziel erreicht. Weitere Sessions sind optional." : "Noch eine kurze Session bringt dich dem Tagesziel näher."}</small></div>
+            <div className={styles.goalBlock}><div><span>Wochenziel</span><strong>{snapshot.weekSessions}/{snapshot.weeklyGoal}</strong></div><div className={styles.bar}><span style={{ width: `${weeklyPercent}%` }} /></div><small>{weeklyPercent >= 100 ? "Wochenziel erreicht." : `${weeklyPercent}% des Wochenziels sind geschafft.`}</small></div>
             <Link className={styles.heroLink} href="/training/journey">Training starten →</Link>
           </div>
         </div>
@@ -215,16 +216,9 @@ export function ProgressCoachDashboard() {
           <div><p className="eyebrow">Letzte 7 Tage</p><h3>Trainingsrhythmus</h3></div>
           {snapshot.activityCount > 0 ? (
             <div className={styles.activityChart} aria-label="Sessions der letzten sieben Tage">
-              {snapshot.recentDays.map((day) => (
-                <div key={day.label} className={styles.dayColumn}><div className={styles.dayTrack}><span style={{ height: `${Math.max(day.count ? 18 : 4, (day.count / maxDay) * 100)}%` }} /></div><strong>{day.count}</strong><small>{day.label}</small></div>
-              ))}
+              {snapshot.recentDays.map((day) => <div key={day.label} className={styles.dayColumn}><div className={styles.dayTrack}><span style={{ height: `${Math.max(day.count ? 18 : 4, (day.count / maxDay) * 100)}%` }} /></div><strong>{day.count}</strong><small>{day.label}</small></div>)}
             </div>
-          ) : (
-            <div className={styles.emptyActivity}>
-              <strong>Noch keine datierte Aktivität</strong>
-              <p>Der 7-Tage-Verlauf beginnt mit der ersten Session, die auf diesem Speicherbereich abgeschlossen wird.</p>
-            </div>
-          )}
+          ) : <div className={styles.emptyActivity}><strong>Noch keine datierte Aktivität</strong><p>Der 7-Tage-Verlauf beginnt mit der ersten Session, die auf diesem Speicherbereich abgeschlossen wird.</p></div>}
         </div>
 
         <p className={styles.notice}>Aktivitätsserie und Tages-/Wochenverlauf werden lokal pro Browser-Domain gespeichert. Vercel-Preview-URLs besitzen technisch getrennte Speicherbereiche; deshalb für dauerhafte Fortschrittswerte dieselbe stabile KogTrain-Adresse verwenden.</p>
