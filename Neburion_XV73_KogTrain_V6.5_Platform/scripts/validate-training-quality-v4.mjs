@@ -51,7 +51,7 @@ expect("Logic V4: advanced sequence/rule tasks active", logicV2.includes("v4-seq
 expect("Logic V4: deduction and operator depth active", logicV2.includes("v4-ded") && logicV2.includes("v4-op"));
 expect("Logic V4: long anti-repeat history", logicV2.includes("logic-v4") && logicV2.includes("144"));
 
-expect("Language V4: adaptive quality UI active", languageTraining.includes("Adaptive Quality V4"));
+expect("Language V4: adaptive quality UI active", hasAdaptiveQualityLabel(languageTraining));
 expect("Language V4: dedicated V4 task bank active", languageV2.includes("V4_BANK") && languageV2.includes("v4-syn-") && languageV2.includes("v4-ctx-"));
 expect("Language V4: rolling history minimum 32", historyAtLeast(languageTraining, 32));
 expect("Language V4: rolling history read/write active", languageTraining.includes("readRecentTaskIds") && languageTraining.includes("rememberTaskIds"));
