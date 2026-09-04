@@ -245,14 +245,38 @@
 }
 
 @media(max-width:560px){
+  [class*="HomeDashboardV11"][class*="appShell"],
+  [class*="HomeDashboardV11"][class*="sidebar"],
+  [class*="HomeDashboardV11"][class*="content"],
+  [class*="HomeDashboardV11"][class*="topRow"],
+  [class*="HomeDashboardV11"][class*="sidebar"] [class*="nav"],
+  [class*="HomeDashboardV11"][class*="sidebar"] [class*="navItem"],
+  [class*="HomeDashboardV11"][class*="sidebar"] [class*="logout"]{
+    box-sizing:border-box!important;
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+  }
+
+  [class*="HomeDashboardV11"][class*="appShell"]{
+    overflow-x:clip!important;
+  }
+
   [class*="HomeDashboardV11"][class*="sidebar"]{
     padding:14px 12px!important;
+    overflow-x:hidden!important;
   }
   [class*="HomeDashboardV11"][class*="sidebar"] [class*="nav"]{
-    grid-template-columns:1fr 1fr!important;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+    overflow-x:hidden!important;
+  }
+  [class*="HomeDashboardV11"][class*="sidebar"] [class*="navItem"],
+  [class*="HomeDashboardV11"][class*="sidebar"] [class*="logout"]{
+    overflow-x:hidden!important;
   }
   [class*="HomeDashboardV11"][class*="content"]{
     padding:16px 10px 24px!important;
+    overflow-x:hidden!important;
   }
   [class*="HomeDashboardV11"][class*="welcome"] h1{
     font-size:30px!important;
