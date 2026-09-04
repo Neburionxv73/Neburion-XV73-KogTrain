@@ -11,12 +11,12 @@ const NAV_AREAS = [
   { label: "Memory", sub: "Gedächtnis", href: "/training/memory", icon: "◉" },
   { label: "Attention", sub: "Aufmerksamkeit", href: "/training/attention", icon: "◎" },
   { label: "Logic", sub: "Logik", href: "/training/logic", icon: "◇" },
-  { label: "Language", sub: "Sprache", href: "/training/language", icon: "◌" },
+  { label: "Language", sub: "Sprache", href: "/training/language", icon: "▣" },
   { label: "Visual", sub: "Visuell", href: "/training/visual", icon: "◉" },
   { label: "Gehirnfit", sub: "Rätsel & Alltag", href: "/training/brain-fit", icon: "✦" },
 ];
 
-const ICONS = ["◉", "◎", "◇", "◌", "◉", "✦"];
+const ICONS = ["◉", "◎", "◇", "▣", "◉", "✦"];
 const COLORS = ["teal", "blue", "violet", "orange", "pink", "green"] as const;
 
 function formatLast(value: string | null) {
@@ -51,6 +51,10 @@ export function HomeDashboardV11() {
   const todayPercent = Math.min(100, Math.round((today / Math.max(1, dailyGoal)) * 100));
   const weekPercent = Math.min(100, Math.round((week / Math.max(1, weeklyGoal)) * 100));
 
+  const displayLabs = labs.length
+    ? labs
+    : NAV_AREAS.map((item, index) => ({ id: item.label.toLowerCase(), label: item.label, accent: item.sub, href: item.href, sessions: 0, bestPercent: 0, icon: ICONS[index] }));
+
   return (
     <main className={styles.appShell}>
       <aside className={styles.sidebar} aria-label="Hauptnavigation">
@@ -60,23 +64,30 @@ export function HomeDashboardV11() {
         </div>
 
         <nav className={styles.nav}>
-          <Link className={`${styles.navItem} ${styles.active}`} href="/"><span>⌂</span><strong>Übersicht</strong></Link>
+          <Link className={`${styles.navItem} ${styles.active}`} href="/"><span>⌂</span><div><strong>Dashboard</strong></div><b>›</b></Link>
           <p>Trainingsbereiche</p>
-          {NAV_AREAS.map(item => <Link className={styles.navItem} key={item.label} href={item.href}><span>{item.icon}</span><div><strong>{item.label}</strong><small>{item.sub}</small></div></Link>)}
+          {NAV_AREAS.map(item => (
+            <Link className={styles.navItem} key={item.label} href={item.href}>
+              <span>{item.icon}</span><div><strong>{item.label}</strong><small>{item.sub}</small></div><b>›</b>
+            </Link>
+          ))}
           <p>Fortschritt</p>
           <a className={styles.navItem} href="#fortschritt"><span>▥</span><div><strong>Statistiken</strong></div></a>
-          <a className={styles.navItem} href="#analyse"><span>⌁</span><div><strong>Feinanalyse</strong></div></a>
-          <a className={styles.navItem} href="#wiederholung"><span>↻</span><div><strong>Wiederholung</strong></div></a>
-          <a className={styles.navItem} href="#rhythmus"><span>↶</span><div><strong>Verlauf</strong></div></a>
+          <a className={styles.navItem} href="#analyse"><span>♜</span><div><strong>Erfolge</strong></div></a>
+          <a className={styles.navItem} href="#rhythmus"><span>▣</span><div><strong>Kalender</strong></div></a>
+          <a className={styles.navItem} href="#wiederholung"><span>⌁</span><div><strong>Lernpfad</strong></div></a>
           <p>Einstellungen</p>
           <Link className={styles.navItem} href="/account"><span>♙</span><div><strong>Profil</strong></div></Link>
-          <Link className={styles.navItem} href="/account"><span>⚙</span><div><strong>Einstellungen</strong></div></Link>
+          <Link className={styles.navItem} href="/account"><span>⚙</span><div><strong>Optionen</strong></div></Link>
         </nav>
 
         <a className={styles.logout} href="#top"><span>↪</span> Abmelden</a>
       </aside>
 
       <section className={styles.content} id="top">
+        <div className={styles.heroBackdrop} aria-hidden="true" />
+        <div className={styles.quoteTop}>„Kleine Schritte. Große Entwicklung.“ <span>→</span></div>
+
         <div className={styles.topRow}>
           <div className={styles.welcome}>
             <span>Willkommen zurück!</span>
@@ -88,42 +99,57 @@ export function HomeDashboardV11() {
             <article><span className={styles.metricIcon}>▣</span><strong>{snapshot?.totalSessions ?? 0}</strong><b>Sessions</b><small>{snapshot?.activeDays7 ?? 0} aktive Tage</small></article>
             <article><span className={styles.metricIcon}>◷</span><strong>{snapshot?.streak ?? 0}</strong><b>Tage in Folge</b><small>Aktuelle Serie</small></article>
             <article><span className={styles.metricIcon}>↗</span><strong>{snapshot?.activityCount ?? 0}</strong><b>Trainingsminuten</b><small>Gesamtzeit</small></article>
-            <article><span className={`${styles.metricIcon} ${styles.orange}`}>☆</span><strong>{formatLast(snapshot?.lastSessionAt ?? null)}</strong><b>Letzter Wert</b><small>{snapshot?.hasTrainingData ? "Letzte Aktivität" : "Noch keine Daten"}</small></article>
+            <article><span className={`${styles.metricIcon} ${styles.orange}`}>★</span><strong>{formatLast(snapshot?.lastSessionAt ?? null)}</strong><b>Letzter Wert</b><small>{snapshot?.hasTrainingData ? "Letzte Aktivität" : "Noch keine Daten"}</small></article>
           </div>
         </div>
 
         <div className={styles.mainGrid} id="fortschritt">
           <section className={styles.panel}>
-            <div className={styles.panelHead}><div><span>Gesamtprofil</span><h2>Bereiche und Entwicklung</h2></div><em>{snapshot?.hasTrainingData ? `${snapshot.averageBest}% Ø` : "noch offen"}</em></div>
+            <div className={styles.panelHead}>
+              <div><span>Gesamtprofil</span><h2>Bereiche und Entwicklung</h2></div>
+              <a className={styles.ghostAction} href="#analyse">Alle anzeigen <span>→</span></a>
+            </div>
             <div className={styles.areaList}>
-              {(labs.length ? labs : NAV_AREAS.map((item,index) => ({ id:item.label.toLowerCase(), label:item.label, accent:item.sub, href:item.href, sessions:0, bestPercent:0, icon:ICONS[index] }))).map((lab,index) => {
+              {displayLabs.map((lab, index) => {
                 const color = COLORS[index % COLORS.length];
-                return <Link href={lab.href} className={styles.areaRow} key={lab.id}>
-                  <span className={`${styles.areaIcon} ${styles[color]}`}>{ICONS[index % ICONS.length]}</span>
-                  <div className={styles.areaCopy}><strong>{lab.label}</strong><small>{lab.accent}</small><div><i>Evidenz {lab.sessions >= 6 ? "hoch" : lab.sessions >= 3 ? "mittel" : "niedrig"}</i><i>{lab.sessions ? (lab.bestPercent >= 85 ? "Stark" : lab.bestPercent >= 65 ? "Stabil" : "Im Aufbau") : "Noch offen"}</i></div></div>
-                  <div className={styles.areaValue}><span>{lab.sessions} Sessions</span><b>{lab.sessions ? `${lab.bestPercent}%` : "–"}</b><div><i style={{width:`${lab.sessions ? lab.bestPercent : 0}%`}} /></div></div>
-                </Link>;
+                return (
+                  <div className={styles.areaRow} key={lab.id}>
+                    <span className={`${styles.areaIcon} ${styles[color]}`}>{ICONS[index % ICONS.length]}</span>
+                    <div className={styles.areaCopy}>
+                      <strong>{lab.label}</strong><small>{lab.accent}</small>
+                      <div><i>Evidenz {lab.sessions >= 6 ? "hoch" : lab.sessions >= 3 ? "mittel" : "niedrig"}</i><i>{lab.sessions ? (lab.bestPercent >= 85 ? "Stark" : lab.bestPercent >= 65 ? "Stabil" : "Im Aufbau") : "Noch offen"}</i></div>
+                    </div>
+                    <div className={styles.areaValue}><span>{lab.sessions} Sessions</span><div><i style={{width:`${lab.sessions ? lab.bestPercent : 0}%`}} /></div></div>
+                    <Link href={lab.href} className={styles.startButton}>Starten <span>→</span></Link>
+                  </div>
+                );
               })}
             </div>
+            <Link className={styles.moreButton} href="/training/journey"><span>＋</span><div><strong>Weitere Bereiche einblenden</strong><small>Noch mehr Trainings, speziell für dich.</small></div><b>›</b></Link>
           </section>
 
-          <section className={styles.panel}>
-            <div className={styles.panelHead}><div><span>Trainingsziele</span><h2>Heute und diese Woche</h2></div><em>Übersichtlich</em></div>
-            <div className={styles.goal}><div><strong>Tagesziel</strong><b>{today}/{dailyGoal}</b></div><div className={styles.track}><i style={{width:`${todayPercent}%`}} /></div><small>{todayPercent >= 100 ? "Tagesziel erreicht." : "Noch eine kurze Session bringt dich dem Tagesziel näher."}</small></div>
-            <div className={styles.goal}><div><strong>Wochenziel</strong><b>{week}/{weeklyGoal}</b></div><div className={styles.track}><i style={{width:`${weekPercent}%`}} /></div><small>{weekPercent}% des Wochenziels sind geschafft.</small></div>
-            <Link className={styles.primaryButton} href="/training/journey">Training starten <span>→</span></Link>
-          </section>
+          <div className={styles.sideStack}>
+            <section className={styles.panel}>
+              <div className={styles.panelHead}><div><span>Trainingsziele</span><h2>Heute und diese Woche</h2></div><em>Übersichtlich</em></div>
+              <div className={styles.goal}><div><strong>Tagesziel</strong><b>{today}/{dailyGoal}</b></div><div className={styles.track}><i style={{width:`${todayPercent}%`}} /></div><small>{todayPercent >= 100 ? "Tagesziel erreicht." : "Noch eine kurze Session bringt dich dem Tagesziel näher."}</small></div>
+              <div className={styles.goal}><div><strong>Wochenziel</strong><b>{week}/{weeklyGoal}</b></div><div className={styles.track}><i style={{width:`${weekPercent}%`}} /></div><small>{weekPercent}% des Wochenziels sind geschafft.</small></div>
+              <Link className={styles.primaryButton} href="/training/journey"><span className={styles.playIcon}>▶</span> Training starten <span>→</span></Link>
+            </section>
+
+            <aside className={styles.quoteCard}><span>❝</span><div><strong>Konstanz schlägt Intensität.</strong><small>Dein KogTrain Team</small></div></aside>
+            <aside className={styles.tipCard}><span>💡</span><div><strong>Schon gewusst?</strong><p>Regelmäßiges, kurzes Training ist effektiver als seltene, lange Einheiten.</p></div><b>›</b></aside>
+          </div>
         </div>
 
-        <div id="analyse"><GranularWeaknessV1 /></div>
-        <div id="wiederholung"><TargetedRepeatV1 /></div>
+        <div className={styles.deepSection} id="analyse"><GranularWeaknessV1 /></div>
+        <div className={styles.deepSection} id="wiederholung"><TargetedRepeatV1 /></div>
 
         <section className={styles.rhythm} id="rhythmus">
-          <div><span>Letzte 7 Tage</span><h2>Trainings-<br/>rhythmus</h2></div>
+          <div><span>Letzte 7 Tage</span><h2>Trainingsrhythmus</h2></div>
           <div className={styles.emptyState}><span>🗓️</span><div><strong>{snapshot?.activityCount ? "Aktivität vorhanden" : "Noch keine datierte Aktivität"}</strong><p>{snapshot?.activityCount ? "Dein 7-Tage-Verlauf basiert auf tatsächlich gespeicherten Sessions." : "Der 7-Tage-Verlauf beginnt mit der ersten Session, die auf diesem Speicherbereich abgeschlossen wird."}</p></div></div>
         </section>
 
-        <footer className={styles.notice}><span>ⓘ</span><p>Aktivitätsserie und Tages-/Wochenverlauf werden lokal pro Browser-Domain gespeichert. Vercel-Preview-URLs besitzen technisch getrennte Speicherbereiche; deshalb für dauerhafte Fortschrittswerte dieselbe stabile KogTrain-Adresse verwenden.</p></footer>
+        <footer className={styles.notice}><span>ⓘ</span><p>Aktivitätsserie und Tages-/Wochenverlauf werden lokal pro Browser-Domain gespeichert. Für dauerhaft sichtbare Fortschrittswerte dieselbe stabile KogTrain-Adresse verwenden.</p></footer>
       </section>
     </main>
   );
