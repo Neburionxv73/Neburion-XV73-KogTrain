@@ -15,6 +15,7 @@ export type PlayerCloudState = {
 const ACTIVE_PLAYER_KEY = "neburion-v67-active-player";
 const PLAYER_LIST_KEY = "neburion-v67-player-list";
 const LEGACY_PLAYER_ID = "legacy-primary";
+const DYNAMIC_HISTORY_PREFIX = "neburion-v66-task-history:";
 
 export const MANAGED_PROGRESS_KEYS = [
   "neburion-v65-progress-events",
@@ -35,6 +36,20 @@ export const MANAGED_PROGRESS_KEYS = [
 
 function safeId(value: string): string {
   return value.trim().toLowerCase().replace(/[^a-z0-9-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 48);
+}
+
+function dynamicProgressKeys(): string[] {
+  if (typeof window === "undefined") return [];
+  const keys: string[] = [];
+  for (let index = 0; index < localStorage.length; index += 1) {
+    const key = localStorage.key(index);
+    if (key?.startsWith(DYNAMIC_HISTORY_PREFIX)) keys.push(key);
+  }
+  return keys;
+}
+
+function allProgressKeys(extra: readonly string[] = []): string[] {
+  return [...new Set([...MANAGED_PROGRESS_KEYS, ...dynamicProgressKeys(), ...extra])];
 }
 
 function writePlayerList(players: PlayerIdentity[]): void {
@@ -100,7 +115,7 @@ export function writePlayerJson(playerId: string, key: string, value: unknown): 
 
 export function migrateLegacyPlayerKeys(playerId: string, keys: readonly string[] = MANAGED_PROGRESS_KEYS): void {
   if (typeof window === "undefined") return;
-  keys.forEach((key) => {
+  allProgressKeys(keys).forEach((key) => {
     const scoped = playerStorageKey(playerId, key);
     if (localStorage.getItem(scoped) !== null) return;
     const legacy = localStorage.getItem(key);
@@ -110,7 +125,7 @@ export function migrateLegacyPlayerKeys(playerId: string, keys: readonly string[
 
 export function snapshotActivePlayerProgress(playerId = getActivePlayer().id): void {
   if (typeof window === "undefined") return;
-  MANAGED_PROGRESS_KEYS.forEach((key) => {
+  allProgressKeys().forEach((key) => {
     const value = localStorage.getItem(key);
     const scoped = playerStorageKey(playerId, key);
     if (value === null) localStorage.removeItem(scoped);
@@ -120,7 +135,13 @@ export function snapshotActivePlayerProgress(playerId = getActivePlayer().id): v
 
 export function restorePlayerProgress(playerId: string): void {
   if (typeof window === "undefined") return;
-  MANAGED_PROGRESS_KEYS.forEach((key) => {
+  const scopedPrefix = `neburion-v67-player:${safeId(playerId)}:${DYNAMIC_HISTORY_PREFIX}`;
+  const scopedDynamic: string[] = [];
+  for (let index = 0; index < localStorage.length; index += 1) {
+    const key = localStorage.key(index);
+    if (key?.startsWith(scopedPrefix)) scopedDynamic.push(key.slice(`neburion-v67-player:${safeId(playerId)}:`.length));
+  }
+  allProgressKeys(scopedDynamic).forEach((key) => {
     const value = localStorage.getItem(playerStorageKey(playerId, key));
     if (value === null) localStorage.removeItem(key);
     else localStorage.setItem(key, value);
@@ -143,7 +164,7 @@ export function createAndActivatePlayer(name: string): PlayerIdentity {
   const cleanName = name.trim() || "Spieler";
   const id = `${safeId(cleanName) || "player"}-${Date.now().toString(36)}`;
   const identity = setActivePlayer(id, cleanName);
-  MANAGED_PROGRESS_KEYS.forEach((key) => localStorage.removeItem(key));
+  allProgressKeys().forEach((key) => localStorage.removeItem(key));
   return identity;
 }
 
@@ -151,7 +172,7 @@ export function exportActivePlayerState(): PlayerCloudState {
   const player = getActivePlayer();
   snapshotActivePlayerProgress(player.id);
   const progress: Record<string, string | null> = {};
-  MANAGED_PROGRESS_KEYS.forEach((key) => { progress[key] = localStorage.getItem(key); });
+  allProgressKeys().forEach((key) => { progress[key] = localStorage.getItem(key); });
   return { schemaVersion: 1, player, progress, exportedAt: new Date().toISOString() };
 }
 
@@ -160,7 +181,8 @@ export function importPlayerState(state: PlayerCloudState): void {
   const identity: PlayerIdentity = { ...state.player, id: safeId(state.player.id), schemaVersion: 1 };
   registerPlayer(identity);
   localStorage.setItem(ACTIVE_PLAYER_KEY, JSON.stringify(identity));
-  MANAGED_PROGRESS_KEYS.forEach((key) => {
+  const keys = allProgressKeys(Object.keys(state.progress).filter((key) => key.startsWith(DYNAMIC_HISTORY_PREFIX)));
+  keys.forEach((key) => {
     const value = state.progress[key];
     const scoped = playerStorageKey(identity.id, key);
     if (typeof value === "string") {
