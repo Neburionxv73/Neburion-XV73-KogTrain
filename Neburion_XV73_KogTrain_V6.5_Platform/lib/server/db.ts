@@ -3,8 +3,17 @@ import postgres from "postgres";
 let client: ReturnType<typeof postgres> | null = null;
 let schemaReady: Promise<void> | null = null;
 
+function resolveDatabaseUrl() {
+  return process.env.DATABASE_URL
+    ?? process.env.DATABASE_POSTGRES_URL
+    ?? process.env.DATABASE_POSTGRES_PRISMA_URL
+    ?? process.env.POSTGRES_URL
+    ?? process.env.POSTGRES_PRISMA_URL
+    ?? null;
+}
+
 export function getSql() {
-  const url = process.env.DATABASE_URL;
+  const url = resolveDatabaseUrl();
   if (!url) throw new Error("DATABASE_URL_NOT_CONFIGURED");
   if (!client) client = postgres(url, { ssl: "require", max: 1, prepare: false });
   return client;
