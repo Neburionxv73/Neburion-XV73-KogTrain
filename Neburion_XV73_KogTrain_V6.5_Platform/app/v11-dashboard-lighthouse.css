@@ -1,22 +1,22 @@
-/* V11 dashboard isolation + Lighthouse accessibility hardening.
-   Loaded after all legacy/global layers so the approved dashboard reference
-   cannot be distorted by global h1/h2/nav !important rules. */
+/* Raptor Delta V12 dashboard isolation + QA guard.
+   Loaded after global foundation layers. Keep only the rules required to prevent
+   legacy !important typography/nav styles from distorting the approved V12 dashboard. */
 
 [class*="HomeDashboardV11"][class*="appShell"]{
   min-height:100vh!important;
   display:grid!important;
-  grid-template-columns:258px minmax(0,1fr)!important;
-  background:#f5f8fb!important;
-  color:#122236!important;
-  overflow:visible!important;
+  grid-template-columns:260px minmax(0,1fr)!important;
+  background:#eef5f7!important;
+  color:#102437!important;
+  overflow-x:clip!important;
 }
 
 [class*="HomeDashboardV11"][class*="sidebar"]{
   position:sticky!important;
   top:0!important;
-  width:auto!important;
   height:100vh!important;
-  padding:28px 18px 18px!important;
+  width:auto!important;
+  padding:26px 20px 18px!important;
   display:flex!important;
   flex-direction:column!important;
   overflow:hidden!important;
@@ -26,107 +26,101 @@
   display:flex!important;
   flex-direction:column!important;
   flex-wrap:nowrap!important;
-  gap:4px!important;
+  gap:5px!important;
   width:100%!important;
   min-width:0!important;
   overflow-y:auto!important;
   overflow-x:hidden!important;
   padding:0!important;
+  scrollbar-width:none!important;
 }
+[class*="HomeDashboardV11"][class*="sidebar"] [class*="nav"]::-webkit-scrollbar{display:none!important;}
 
 [class*="HomeDashboardV11"][class*="sidebar"] [class*="nav"]>p{
-  width:auto!important;
-  margin:18px 8px 6px!important;
+  margin:17px 4px 5px!important;
   padding:0!important;
-  color:#c6e5e8!important;
-  font-size:12px!important;
+  color:#a9d2d6!important;
+  font-size:11px!important;
   line-height:1.3!important;
-  font-weight:800!important;
+  font-weight:850!important;
   letter-spacing:.16em!important;
   text-transform:uppercase!important;
 }
 
 [class*="HomeDashboardV11"][class*="sidebar"] [class*="navItem"]{
+  box-sizing:border-box!important;
   width:100%!important;
   min-width:0!important;
+  max-width:100%!important;
   min-height:48px!important;
-  padding:8px 10px!important;
-  border:0!important;
-  border-radius:10px!important;
-  display:flex!important;
+  height:auto!important;
+  padding:8px 12px!important;
+  border-radius:12px!important;
+  display:grid!important;
+  grid-template-columns:30px minmax(0,1fr) auto!important;
   align-items:center!important;
-  justify-content:flex-start!important;
-  gap:11px!important;
-  background:#064e59!important;
-  color:#ffffff!important;
+  justify-content:stretch!important;
+  gap:10px!important;
+  color:#fff!important;
   white-space:normal!important;
-  font-size:14px!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
 }
-
 [class*="HomeDashboardV11"][class*="sidebar"] [class*="navItem"]>span{
-  width:22px!important;
-  flex:0 0 22px!important;
+  width:30px!important;
+  height:30px!important;
+  flex:0 0 auto!important;
   padding:0!important;
-  text-align:center!important;
-  font-size:18px!important;
+  display:grid!important;
+  place-items:center!important;
+  font-size:16px!important;
 }
-
 [class*="HomeDashboardV11"][class*="sidebar"] [class*="navItem"] strong{
   display:block!important;
   color:#fff!important;
-  font-size:14px!important;
-  line-height:1.2!important;
+  font-size:13px!important;
+  line-height:1.15!important;
 }
-
 [class*="HomeDashboardV11"][class*="sidebar"] [class*="navItem"] small{
   display:block!important;
   margin-top:3px!important;
-  color:#eef8f9!important;
-  opacity:1!important;
-  font-size:13px!important;
-  line-height:1.25!important;
+  color:#cde2e5!important;
+  font-size:11px!important;
+  line-height:1.3!important;
 }
-
-[class*="HomeDashboardV11"][class*="sidebar"] [class*="navItem"]:hover,
-[class*="HomeDashboardV11"][class*="sidebar"] [class*="navItem"]:focus-visible{
-  background:#0a6570!important;
-}
-
 [class*="HomeDashboardV11"][class*="sidebar"] [class*="navItem"][class*="active"]{
-  background:linear-gradient(90deg,#0a7f8d,#086f7b)!important;
-  color:#ffffff!important;
+  background:linear-gradient(90deg,#0b929f,#087783)!important;
 }
 
 [class*="HomeDashboardV11"][class*="content"]{
   min-width:0!important;
-  padding:28px 30px 34px!important;
+  padding:26px 26px 40px!important;
+  overflow-x:hidden!important;
 }
 
 [class*="HomeDashboardV11"][class*="topRow"]{
   display:grid!important;
-  grid-template-columns:minmax(300px,.9fr) minmax(0,1.9fr)!important;
-  gap:24px!important;
-  align-items:start!important;
-  margin-bottom:18px!important;
+  grid-template-columns:minmax(310px,.86fr) minmax(0,1.7fr)!important;
+  gap:30px!important;
+  align-items:center!important;
+  margin-bottom:24px!important;
 }
 
-/* Approved V11 desktop typography: compact dashboard, not marketing-hero scale. */
 [class*="HomeDashboardV11"][class*="welcome"] h1{
-  margin:8px 0 6px!important;
-  max-width:540px!important;
-  font-size:clamp(34px,2.6vw,40px)!important;
-  line-height:1.08!important;
-  letter-spacing:-.035em!important;
-  font-weight:760!important;
-  color:#13283a!important;
+  margin:10px 0 8px!important;
+  max-width:520px!important;
+  color:#102739!important;
+  font-size:clamp(34px,3vw,49px)!important;
+  line-height:1.03!important;
+  letter-spacing:-.045em!important;
+  font-weight:820!important;
   text-wrap:balance!important;
   hyphens:none!important;
 }
-
 [class*="HomeDashboardV11"][class*="welcome"] p{
   margin:0!important;
-  color:#4f6578!important;
-  font-size:16px!important;
+  color:#4c6b76!important;
+  font-size:15px!important;
   line-height:1.5!important;
 }
 
@@ -134,114 +128,33 @@
 [class*="HomeDashboardV11"] [class*="rhythm"] h2{
   margin:7px 0 0!important;
   max-width:none!important;
+  color:#10293b!important;
   font-size:24px!important;
   line-height:1.1!important;
   letter-spacing:-.03em!important;
-  color:#13283a!important;
   hyphens:none!important;
 }
 
-[class*="HomeDashboardV11"] [class*="panelHead"] span,
-[class*="HomeDashboardV11"] [class*="rhythm"]>div:first-child>span{
-  font-size:12px!important;
-  line-height:1.3!important;
-}
-
-/* V11 sidebar overflow isolation: only the whole navigation rail may scroll.
-   Individual links must never become scroll containers or clip their labels. */
-[class*="HomeDashboardV11"][class*="sidebar"] [class*="navItem"],
-[class*="HomeDashboardV11"][class*="sidebar"] [class*="logout"]{
-  flex:0 0 auto!important;
-  width:100%!important;
-  min-width:0!important;
-  max-width:100%!important;
-  height:auto!important;
-  overflow:visible!important;
-  overflow-x:visible!important;
-  overflow-y:visible!important;
-  scrollbar-width:none!important;
-  white-space:normal!important;
-  text-overflow:clip!important;
-}
-
-[class*="HomeDashboardV11"][class*="sidebar"] [class*="navItem"]::-webkit-scrollbar,
-[class*="HomeDashboardV11"][class*="sidebar"] [class*="logout"]::-webkit-scrollbar{
-  display:none!important;
-  width:0!important;
-  height:0!important;
-}
-
-[class*="HomeDashboardV11"][class*="sidebar"] [class*="navItem"]>div{
-  min-width:0!important;
-  max-width:100%!important;
-  overflow:visible!important;
-}
-
-[class*="HomeDashboardV11"][class*="sidebar"] [class*="navItem"] strong,
-[class*="HomeDashboardV11"][class*="sidebar"] [class*="navItem"] small{
-  width:auto!important;
-  max-width:100%!important;
-  overflow:visible!important;
-  white-space:normal!important;
-  text-overflow:clip!important;
-}
-
-@media(min-width:861px){
-  [class*="HomeDashboardV11"][class*="sidebar"]{
-    overflow:hidden!important;
-  }
-  [class*="HomeDashboardV11"][class*="sidebar"] [class*="nav"]{
-    flex:1 1 auto!important;
-    min-height:0!important;
-    overflow-y:auto!important;
-    overflow-x:hidden!important;
-    scrollbar-width:thin!important;
-    scrollbar-gutter:stable!important;
-  }
+[class*="HomeDashboardV11"] [class*="primaryButton"],
+[class*="HomeDashboardV11"] [class*="startButton"],
+[class*="HomeDashboardV11"] [class*="moreButton"],
+[class*="HomeDashboardV11"] [class*="ghostAction"]{
+  text-decoration:none!important;
 }
 
 @media(max-width:1180px){
-  [class*="HomeDashboardV11"][class*="appShell"]{
-    grid-template-columns:220px minmax(0,1fr)!important;
-  }
-  [class*="HomeDashboardV11"][class*="content"]{
-    padding:24px 20px!important;
-  }
-  [class*="HomeDashboardV11"][class*="topRow"]{
-    grid-template-columns:1fr!important;
-  }
+  [class*="HomeDashboardV11"][class*="appShell"]{grid-template-columns:220px minmax(0,1fr)!important;}
+  [class*="HomeDashboardV11"][class*="content"]{padding:22px 18px 32px!important;}
+  [class*="HomeDashboardV11"][class*="topRow"]{grid-template-columns:1fr!important;gap:18px!important;}
 }
 
 @media(max-width:860px){
-  [class*="HomeDashboardV11"][class*="appShell"]{
-    display:block!important;
-  }
-  [class*="HomeDashboardV11"][class*="sidebar"]{
-    position:relative!important;
-    height:auto!important;
-    padding:16px!important;
-    overflow:visible!important;
-  }
-  [class*="HomeDashboardV11"][class*="sidebar"] [class*="nav"]{
-    display:grid!important;
-    grid-template-columns:repeat(3,minmax(0,1fr))!important;
-    gap:4px!important;
-    overflow:visible!important;
-  }
-  [class*="HomeDashboardV11"][class*="sidebar"] [class*="nav"]>p{
-    grid-column:1/-1!important;
-    margin:12px 4px 4px!important;
-  }
-  [class*="HomeDashboardV11"][class*="sidebar"] [class*="navItem"]{
-    min-height:46px!important;
-  }
-  [class*="HomeDashboardV11"][class*="content"]{
-    padding:20px 16px 28px!important;
-  }
-  [class*="HomeDashboardV11"][class*="welcome"] h1{
-    font-size:clamp(32px,5.8vw,40px)!important;
-    max-width:16ch!important;
-  }
+  [class*="HomeDashboardV11"][class*="appShell"]{display:block!important;}
+  [class*="HomeDashboardV11"][class*="sidebar"]{position:relative!important;height:auto!important;padding:16px!important;overflow:visible!important;}
+  [class*="HomeDashboardV11"][class*="sidebar"] [class*="nav"]{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important;overflow:visible!important;}
+  [class*="HomeDashboardV11"][class*="sidebar"] [class*="nav"]>p{grid-column:1/-1!important;margin:12px 4px 4px!important;}
+  [class*="HomeDashboardV11"][class*="content"]{padding:18px 14px 28px!important;}
+  [class*="HomeDashboardV11"][class*="welcome"] h1{font-size:clamp(32px,5.8vw,42px)!important;max-width:16ch!important;}
 }
 
 @media(max-width:560px){
@@ -252,131 +165,16 @@
   [class*="HomeDashboardV11"][class*="sidebar"] [class*="nav"],
   [class*="HomeDashboardV11"][class*="sidebar"] [class*="navItem"],
   [class*="HomeDashboardV11"][class*="sidebar"] [class*="logout"]{
-    box-sizing:border-box!important;
-    width:100%!important;
-    max-width:100%!important;
-    min-width:0!important;
+    box-sizing:border-box!important;width:100%!important;max-width:100%!important;min-width:0!important;
   }
-
-  [class*="HomeDashboardV11"][class*="appShell"]{
-    overflow-x:clip!important;
-  }
-
-  [class*="HomeDashboardV11"][class*="sidebar"]{
-    padding:14px 12px!important;
-    overflow-x:hidden!important;
-  }
-  [class*="HomeDashboardV11"][class*="sidebar"] [class*="nav"]{
-    grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
-    overflow-x:hidden!important;
-  }
-  [class*="HomeDashboardV11"][class*="sidebar"] [class*="navItem"],
-  [class*="HomeDashboardV11"][class*="sidebar"] [class*="logout"]{
-    overflow-x:hidden!important;
-  }
-  [class*="HomeDashboardV11"][class*="content"]{
-    padding:16px 10px 24px!important;
-    overflow-x:hidden!important;
-  }
-  [class*="HomeDashboardV11"][class*="welcome"] h1{
-    font-size:30px!important;
-    line-height:1.08!important;
-    max-width:100%!important;
-  }
+  [class*="HomeDashboardV11"][class*="sidebar"]{padding:14px 12px!important;overflow-x:hidden!important;}
+  [class*="HomeDashboardV11"][class*="sidebar"] [class*="nav"]{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;overflow-x:hidden!important;}
+  [class*="HomeDashboardV11"][class*="sidebar"] [class*="navItem"]{grid-template-columns:28px minmax(0,1fr)!important;min-height:50px!important;padding:8px 10px!important;overflow:hidden!important;}
+  [class*="HomeDashboardV11"][class*="sidebar"] [class*="navItem"]>b{display:none!important;}
+  [class*="HomeDashboardV11"][class*="content"]{padding:14px 10px 24px!important;overflow-x:hidden!important;}
+  [class*="HomeDashboardV11"][class*="welcome"] h1{font-size:32px!important;line-height:1.06!important;max-width:100%!important;}
   [class*="HomeDashboardV11"] [class*="panelHead"] h2,
-  [class*="HomeDashboardV11"] [class*="rhythm"] h2{
-    font-size:21px!important;
-  }
-
-  /* Raptor Delta V12 mobile action treatment.
-     Remove the oversized right-hand progress/arrow rail and turn each area row
-     into a calm, single-action button with consistent touch spacing. */
-  [class*="HomeDashboardV11"] [class*="areaList"]{
-    display:grid!important;
-    gap:10px!important;
-    border:0!important;
-    border-radius:0!important;
-    overflow:visible!important;
-    background:transparent!important;
-  }
-  [class*="HomeDashboardV11"] [class*="areaRow"]{
-    box-sizing:border-box!important;
-    width:100%!important;
-    max-width:100%!important;
-    min-width:0!important;
-    min-height:56px!important;
-    padding:11px 13px!important;
-    display:grid!important;
-    grid-template-columns:40px minmax(0,1fr)!important;
-    gap:11px!important;
-    align-items:center!important;
-    border:1px solid #d6e2e5!important;
-    border-radius:14px!important;
-    background:#fff!important;
-    box-shadow:0 5px 16px rgba(29,42,50,.055)!important;
-    overflow:hidden!important;
-    text-decoration:none!important;
-  }
-  [class*="HomeDashboardV11"] [class*="areaRow"]:hover,
-  [class*="HomeDashboardV11"] [class*="areaRow"]:focus-visible{
-    background:#f4fafb!important;
-    border-color:#9fcbd0!important;
-    box-shadow:0 7px 20px rgba(8,127,140,.10)!important;
-    transform:none!important;
-  }
-  [class*="HomeDashboardV11"] [class*="areaIcon"]{
-    width:40px!important;
-    height:40px!important;
-    min-width:40px!important;
-    border-radius:12px!important;
-  }
-  [class*="HomeDashboardV11"] [class*="areaCopy"]{
-    min-width:0!important;
-    padding:0!important;
-  }
-  [class*="HomeDashboardV11"] [class*="areaCopy"] strong{
-    font-size:14px!important;
-    line-height:1.3!important;
-  }
-  [class*="HomeDashboardV11"] [class*="areaCopy"] small{
-    margin-top:3px!important;
-    font-size:12px!important;
-    line-height:1.4!important;
-  }
-  [class*="HomeDashboardV11"] [class*="areaValue"]{
-    display:none!important;
-  }
-  [class*="HomeDashboardV11"] [class*="areaRow"]::before,
-  [class*="HomeDashboardV11"] [class*="areaRow"]::after{
-    content:none!important;
-    display:none!important;
-  }
-
-  [class*="HomeDashboardV11"] [class*="primaryButton"]{
-    box-sizing:border-box!important;
-    width:100%!important;
-    max-width:100%!important;
-    min-height:54px!important;
-    margin-top:16px!important;
-    padding:0 18px!important;
-    border:1px solid #087f8c!important;
-    border-radius:14px!important;
-    background:#087f8c!important;
-    color:#fff!important;
-    display:flex!important;
-    align-items:center!important;
-    justify-content:center!important;
-    gap:8px!important;
-    font-size:14px!important;
-    line-height:1.25!important;
-    font-weight:800!important;
-    text-align:center!important;
-    box-shadow:0 8px 20px rgba(8,127,140,.16)!important;
-    overflow:hidden!important;
-  }
-  [class*="HomeDashboardV11"] [class*="primaryButton"]::before,
-  [class*="HomeDashboardV11"] [class*="primaryButton"]::after{
-    content:none!important;
-    display:none!important;
-  }
+  [class*="HomeDashboardV11"] [class*="rhythm"] h2{font-size:21px!important;}
+  [class*="HomeDashboardV11"] [class*="startButton"]{width:100%!important;min-height:46px!important;border-radius:12px!important;}
+  [class*="HomeDashboardV11"] [class*="primaryButton"]{width:100%!important;min-height:54px!important;border-radius:12px!important;}
 }
