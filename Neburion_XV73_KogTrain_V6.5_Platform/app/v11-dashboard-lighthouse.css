@@ -287,4 +287,96 @@
   [class*="HomeDashboardV11"] [class*="rhythm"] h2{
     font-size:21px!important;
   }
+
+  /* Raptor Delta V12 mobile action treatment.
+     Remove the oversized right-hand progress/arrow rail and turn each area row
+     into a calm, single-action button with consistent touch spacing. */
+  [class*="HomeDashboardV11"] [class*="areaList"]{
+    display:grid!important;
+    gap:10px!important;
+    border:0!important;
+    border-radius:0!important;
+    overflow:visible!important;
+    background:transparent!important;
+  }
+  [class*="HomeDashboardV11"] [class*="areaRow"]{
+    box-sizing:border-box!important;
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    min-height:56px!important;
+    padding:11px 13px!important;
+    display:grid!important;
+    grid-template-columns:40px minmax(0,1fr)!important;
+    gap:11px!important;
+    align-items:center!important;
+    border:1px solid #d6e2e5!important;
+    border-radius:14px!important;
+    background:#fff!important;
+    box-shadow:0 5px 16px rgba(29,42,50,.055)!important;
+    overflow:hidden!important;
+    text-decoration:none!important;
+  }
+  [class*="HomeDashboardV11"] [class*="areaRow"]:hover,
+  [class*="HomeDashboardV11"] [class*="areaRow"]:focus-visible{
+    background:#f4fafb!important;
+    border-color:#9fcbd0!important;
+    box-shadow:0 7px 20px rgba(8,127,140,.10)!important;
+    transform:none!important;
+  }
+  [class*="HomeDashboardV11"] [class*="areaIcon"]{
+    width:40px!important;
+    height:40px!important;
+    min-width:40px!important;
+    border-radius:12px!important;
+  }
+  [class*="HomeDashboardV11"] [class*="areaCopy"]{
+    min-width:0!important;
+    padding:0!important;
+  }
+  [class*="HomeDashboardV11"] [class*="areaCopy"] strong{
+    font-size:14px!important;
+    line-height:1.3!important;
+  }
+  [class*="HomeDashboardV11"] [class*="areaCopy"] small{
+    margin-top:3px!important;
+    font-size:12px!important;
+    line-height:1.4!important;
+  }
+  [class*="HomeDashboardV11"] [class*="areaValue"]{
+    display:none!important;
+  }
+  [class*="HomeDashboardV11"] [class*="areaRow"]::before,
+  [class*="HomeDashboardV11"] [class*="areaRow"]::after{
+    content:none!important;
+    display:none!important;
+  }
+
+  [class*="HomeDashboardV11"] [class*="primaryButton"]{
+    box-sizing:border-box!important;
+    width:100%!important;
+    max-width:100%!important;
+    min-height:54px!important;
+    margin-top:16px!important;
+    padding:0 18px!important;
+    border:1px solid #087f8c!important;
+    border-radius:14px!important;
+    background:#087f8c!important;
+    color:#fff!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:8px!important;
+    font-size:14px!important;
+    line-height:1.25!important;
+    font-weight:800!important;
+    text-align:center!important;
+    box-shadow:0 8px 20px rgba(8,127,140,.16)!important;
+    overflow:hidden!important;
+  }
+  [class*="HomeDashboardV11"] [class*="primaryButton"]::before,
+  [class*="HomeDashboardV11"] [class*="primaryButton"]::after{
+    content:none!important;
+    display:none!important;
+  }
 }
