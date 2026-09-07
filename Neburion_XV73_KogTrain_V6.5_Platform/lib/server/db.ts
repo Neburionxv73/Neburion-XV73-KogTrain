@@ -25,11 +25,18 @@ export function ensureSchema() {
       const sql = getSql();
       await sql`create table if not exists kogtrain_users (
         id text primary key,
-        email text unique not null,
+        email text unique,
+        login_name text unique,
         display_name text not null,
         password_hash text not null,
+        recovery_code_hash text,
         created_at timestamptz not null default now()
       )`;
+      await sql`alter table kogtrain_users add column if not exists login_name text`;
+      await sql`alter table kogtrain_users add column if not exists recovery_code_hash text`;
+      await sql`alter table kogtrain_users alter column email drop not null`;
+      await sql`update kogtrain_users set login_name = lower(email) where login_name is null and email is not null`;
+      await sql`create unique index if not exists kogtrain_users_login_name_unique on kogtrain_users(login_name) where login_name is not null`;
       await sql`create table if not exists kogtrain_player_state (
         user_id text primary key references kogtrain_users(id) on delete cascade,
         payload jsonb not null,
