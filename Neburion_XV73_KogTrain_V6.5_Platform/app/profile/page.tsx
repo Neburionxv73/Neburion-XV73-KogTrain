@@ -4,7 +4,7 @@ import { PlayerProfileManager } from "@/components/PlayerProfileManager";
 import "./profile-v12.css";
 
 export const metadata: Metadata = {
-  title: "Spielerprofile · KogTrain V6.7",
+  title: "Spielerprofile · KogTrain V12",
   description: "Eigene Spielerprofile mit getrennten Lernständen, XP und Trainingsfortschritten verwalten.",
   robots: { index: false, follow: false },
 };
@@ -14,7 +14,7 @@ export default function ProfilePage() {
     <main className="profileV12">
       <div className="profileV12__topbar">
         <Link href="/">← Zur Plattform</Link>
-        <span>KogTrain V6.7 · Spielerprofile</span>
+        <span>KogTrain V12 · Spielerprofile</span>
       </div>
 
       <section className="profileV12__shell">
