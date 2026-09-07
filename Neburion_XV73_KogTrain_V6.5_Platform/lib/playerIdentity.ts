@@ -32,6 +32,10 @@ export const MANAGED_PROGRESS_KEYS = [
   "neburion-v65-focus-preferences",
   "neburion-v65-personal-plan-v31",
   "neburion-v65-personal-stats-v31",
+  // V6.7/V12 unified progress contains the cross-lab XP, level, session count,
+  // average and trained-area summary. It must travel with the player on a
+  // second device just like the underlying lab evidence.
+  "neburion-v67-unified-progress-v2",
 ] as const;
 
 function safeId(value: string): string {
