@@ -22,7 +22,12 @@ const checks = [
   ["cloud save endpoint is authenticated", state.includes("verifySessionToken") && state.includes("kogtrain_player_state")],
   ["cloud payload size is bounded", state.includes("750_000")],
   ["portable player state export exists", identity.includes("exportActivePlayerState") && identity.includes("importPlayerState")],
+  ["unified XP and level state is cloud-managed", identity.includes('"neburion-v67-unified-progress-v2"')],
+  ["dynamic training history is cloud-managed", identity.includes("DYNAMIC_HISTORY_PREFIX") && identity.includes("dynamicProgressKeys")],
   ["cloud bridge performs restore and save", bridge.includes("importPlayerState") && bridge.includes('method: "PUT"')],
+  ["cloud restore happens before save enablement", bridge.indexOf("importPlayerState(data.state)") < bridge.indexOf("hydrated = true")],
+  ["cloud saves are serialized", bridge.includes("saving = true") && bridge.includes("savePending = true")],
+  ["cloud checkpoints on device lifecycle", bridge.includes('"pagehide"') && bridge.includes('"visibilitychange"') && bridge.includes('"online"')],
   ["cloud bridge mounted globally", layout.includes("<CloudPlayerBridge />")],
   ["account UI exists", accountPage.includes("<AccountPanel />")],
 ];
