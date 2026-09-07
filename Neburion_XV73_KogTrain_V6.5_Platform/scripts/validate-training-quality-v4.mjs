@@ -15,6 +15,8 @@ const hasAdaptiveQualityLabel = (source) =>
   source.includes("Dynamik 1") ||
   source.includes("Dynamik 2") ||
   source.includes("Dynamik 3");
+const hasForcedVisualRegeneration = (source) =>
+  /createVisualSession\(\s*stats\.bestScore\s*,\s*stats\.sessions\s*,\s*nextAdaptive\.level\s*\)/.test(source);
 
 const dynamicTraining = read("lib/dynamicTraining.ts");
 const adaptiveDifficultyV5 = read("lib/adaptiveDifficultyV5.ts");
@@ -64,7 +66,7 @@ expect("Visual V4: expanded independent candidate rounds", visualV2.includes("ro
 expect("Visual V4: fresh-first selection active", visualV2.includes("readRecentTaskIds") && visualV2.includes("recent.has"));
 expect("Visual V4: balanced selection active", visualV2.includes("balancedByMode"));
 expect("Visual V4: long anti-repeat history", visualV2.includes("HISTORY_LIMIT = 144"));
-expect("Visual V5: forced difficulty regeneration active", visualV2.includes("forcedDifficulty") && visualTraining.includes("createVisualSession(stats.bestScore, stats.sessions, nextAdaptive.level)"));
+expect("Visual V5: forced difficulty regeneration active", visualV2.includes("forcedDifficulty") && hasForcedVisualRegeneration(visualTraining));
 
 expect("BrainFit V4: all eight areas retained", ["sudoku","words","crossword","memory","categories","sequence","everydayMath","timeOrder"].every((area) => brainFit.includes(`\"${area}\"`)));
 expect("BrainFit V4: evidence-based area mode retained", brainFit.includes("adaptiveMode") && brainFit.includes("stat.sessions>=4") && brainFit.includes("stat.bestScore"));
