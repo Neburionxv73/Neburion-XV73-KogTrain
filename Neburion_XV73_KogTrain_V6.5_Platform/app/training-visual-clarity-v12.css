@@ -1,0 +1,39 @@
+/* V12 Visual Clarity — user-tested mobile training refinement */
+
+/* Word search: make selection and found-state unmistakable. */
+button[class*="wordCell"]{border-width:2px!important;border-color:#6dbeb7!important;background:#fff!important;color:#17324c!important;box-shadow:inset 0 0 0 1px rgba(11,146,150,.05)!important}
+button[class*="wordCell"][data-selected="true"]{background:#075f68!important;border-color:#043f46!important;color:#fff!important;box-shadow:0 0 0 3px #75e2d2,0 5px 14px rgba(4,63,70,.28)!important;transform:scale(.94)!important}
+button[class*="wordCell"][data-selected="true"]:focus-visible{outline:3px solid #ffb84d!important;outline-offset:2px!important}
+[class*="wordList"] span[data-found="true"]{display:flex!important;align-items:center!important;gap:.45rem!important;color:#075f68!important;font-weight:950!important;text-decoration:none!important}
+[class*="wordList"] span[data-found="true"]::before{content:"✓";display:grid;place-items:center;width:1.45rem;height:1.45rem;border-radius:50%;background:#075f68;color:#fff;font-size:.8rem;flex:0 0 auto}
+
+/* Visual lab: turn comparison into two explicit rows instead of a loose 3x3 impression. */
+[class*="compareBoard"]{border-color:#7ca9b7!important;background:#edf7f8!important;box-shadow:0 10px 28px rgba(20,51,59,.08)!important}
+[class*="compareRow"]{border-color:#a8cbd0!important;box-shadow:0 4px 12px rgba(20,51,59,.06)!important}
+[class*="compareRow"]>strong{background:#075f68!important;color:#fff!important}
+[class*="compareDivider"]{color:#075f68!important;font-weight:950!important}
+[class*="compareDivider"]::before,[class*="compareDivider"]::after{background:#65bdb5!important}
+
+/* Position task: movement sequence is the primary instruction; start cell is unmistakable. */
+[class*="movementStrip"]{border:2px solid #0b9296!important;background:#e6faf7!important;box-shadow:0 8px 20px rgba(11,146,150,.10)!important}
+[class*="movementStrip"]>strong{color:#064f55!important;font-weight:950!important}
+[class*="movementStrip"] span{background:#075f68!important;border-color:#043f46!important;color:#fff!important;box-shadow:0 4px 12px rgba(4,63,70,.2)!important}
+[class*="positionCell"][data-start="true"]{background:#c9f5eb!important;border-color:#075f68!important;box-shadow:0 0 0 4px rgba(11,146,150,.2)!important}
+[class*="positionCell"][data-start="true"] b,[class*="positionCell"][data-start="true"] i{color:#043f46!important}
+
+/* Memory/sequence question: make each slot feel like a sequence position. */
+[data-visual-mode="memory"] [class*="visualBoard"]{display:flex!important;flex-wrap:nowrap!important;gap:10px!important;padding:18px!important;background:#edf7f8!important;border:2px solid #8bbbc0!important}
+[data-visual-mode="memory"] [class*="visualBoard"] span{min-width:0!important;flex:1 1 0!important;min-height:70px!important;border:2px solid #9bbfc5!important;border-radius:14px!important;background:#fff!important;color:#14243a!important;box-shadow:0 4px 10px rgba(20,51,59,.07)!important}
+[data-visual-mode="memory"] [class*="visualBoard"] span:last-child{border-color:#0b9296!important;background:#e6faf7!important;box-shadow:0 0 0 3px rgba(11,146,150,.13)!important}
+
+@media(max-width:640px){
+  button[class*="wordCell"]{border-width:2px!important}
+  button[class*="wordCell"][data-selected="true"]{box-shadow:0 0 0 2px #75e2d2,0 4px 10px rgba(4,63,70,.25)!important}
+  [class*="compareBoard"]{padding:10px!important}
+  [class*="compareRow"]{padding:9px!important}
+  [class*="compareRow"]>strong{min-height:36px!important}
+  [class*="movementStrip"]{padding:12px!important}
+  [class*="movementStrip"] span{width:46px!important;height:46px!important}
+  [data-visual-mode="memory"] [class*="visualBoard"]{padding:12px 10px!important;gap:7px!important}
+  [data-visual-mode="memory"] [class*="visualBoard"] span{min-height:60px!important;padding:5px!important;font-size:clamp(22px,8vw,34px)!important}
+}
