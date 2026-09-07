@@ -60,7 +60,7 @@ export function HomeDashboardV11() {
       <aside className={styles.sidebar} aria-label="Hauptnavigation">
         <div className={styles.brand}>
           <span className={styles.brandMark}>✺</span>
-          <div><strong>KogTrain V6.7</strong><small>Lern Plattform</small></div>
+          <div><strong>KogTrain V12</strong><small>Lern Plattform</small></div>
         </div>
 
         <nav className={styles.nav}>
