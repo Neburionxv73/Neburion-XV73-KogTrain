@@ -26,6 +26,7 @@ export function AccountPanel() {
   const [recoveryCode, setRecoveryCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [issuedRecoveryCode, setIssuedRecoveryCode] = useState("");
+  const [recoveryConfirmed, setRecoveryConfirmed] = useState(false);
   const [message, setMessage] = useState("Accountstatus wird geprüft …");
   const [busy, setBusy] = useState(false);
   const [syncState, setSyncState] = useState<SyncState>("idle");
@@ -65,6 +66,7 @@ export function AccountPanel() {
     event.preventDefault();
     setBusy(true);
     setIssuedRecoveryCode("");
+    setRecoveryConfirmed(false);
     setMessage("Wird verarbeitet …");
     try {
       const payload = mode === "register"
@@ -74,128 +76,81 @@ export function AccountPanel() {
           : { action: "login", identifier: loginName, password };
       const response = await fetch("/api/account", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(payload) });
       const data = await response.json() as { user?: User; error?: string; recoveryCode?: string; recovered?: boolean };
-      if (!response.ok) {
-        setMessage(data.error ?? "Vorgang fehlgeschlagen.");
-        return;
-      }
+      if (!response.ok) { setMessage(data.error ?? "Vorgang fehlgeschlagen."); return; }
       if (mode === "recover" && data.recovered) {
-        setMode("login");
-        setPassword("");
-        setNewPassword("");
-        setRecoveryCode("");
+        setMode("login"); setPassword(""); setNewPassword(""); setRecoveryCode("");
         setMessage("Passwort geändert. Du kannst dich jetzt mit deinem Kontonamen anmelden.");
         return;
       }
-      if (!data.user) {
-        setMessage("Anmeldung fehlgeschlagen.");
-        return;
-      }
+      if (!data.user) { setMessage("Anmeldung fehlgeschlagen."); return; }
       setUser(data.user);
       if (data.recoveryCode) {
         setIssuedRecoveryCode(data.recoveryCode);
-        setMessage("Konto erstellt. Speichere den Wiederherstellungscode sicher.");
-      } else setMessage("Angemeldet. Dein Spielstand wird jetzt geräteübergreifend synchronisiert.");
-      sessionStorage.removeItem(`kogtrain-cloud-hydrated:${data.user.id}`);
-      if (!data.recoveryCode) window.setTimeout(() => window.location.reload(), 500);
+        setMessage("Konto erstellt. Bestätige zuerst, dass du den Wiederherstellungscode sicher gespeichert hast.");
+      } else {
+        setRecoveryConfirmed(true);
+        setMessage("Angemeldet. Dein Spielstand wird jetzt geräteübergreifend synchronisiert.");
+        sessionStorage.removeItem(`kogtrain-cloud-hydrated:${data.user.id}`);
+        window.setTimeout(() => window.location.reload(), 500);
+      }
     } finally { setBusy(false); }
+  }
+
+  function confirmRecoveryCode() {
+    if (!user || !issuedRecoveryCode) return;
+    setRecoveryConfirmed(true);
+    sessionStorage.removeItem(`kogtrain-cloud-hydrated:${user.id}`);
+    setMessage("Wiederherstellungscode bestätigt. Cloud-Synchronisierung ist jetzt freigegeben.");
+    window.setTimeout(() => window.location.reload(), 500);
   }
 
   function createLocal(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const clean = name.trim();
-    if (!clean) {
-      setMessage("Bitte einen Spielernamen eingeben.");
-      return;
-    }
+    if (!clean) { setMessage("Bitte einen Spielernamen eingeben."); return; }
     createAndActivatePlayer(clean);
     setMessage("Privates Spielerprofil erstellt. Es wird kein Cloud-Konto benötigt.");
     window.setTimeout(() => window.location.assign("/"), 350);
   }
 
   async function syncNow() {
-    if (!user || busy) return;
-    setBusy(true);
-    setSyncState("syncing");
-    setSyncMessage("Synchronisierung läuft …");
+    if (!user || busy || !recoveryConfirmed) return;
+    setBusy(true); setSyncState("syncing"); setSyncMessage("Synchronisierung läuft …");
     try {
       const response = await fetch("/api/player-state", { method: "PUT", headers: { "content-type": "application/json" }, credentials: "same-origin", body: JSON.stringify({ state: exportActivePlayerState() }) });
       const data = await response.json() as { updatedAt?: string; error?: string };
-      if (!response.ok) {
-        setSyncState("error");
-        setSyncMessage(data.error ?? "Cloud-Synchronisierung fehlgeschlagen.");
-        return;
-      }
-      setSyncState("synced");
-      setUpdatedAt(data.updatedAt ?? new Date().toISOString());
-      setSyncMessage("Cloud-Spielstand wurde manuell gespeichert.");
-    } catch {
-      setSyncState("error");
-      setSyncMessage("Cloud-Synchronisierung fehlgeschlagen.");
-    } finally { setBusy(false); }
+      if (!response.ok) { setSyncState("error"); setSyncMessage(data.error ?? "Cloud-Synchronisierung fehlgeschlagen."); return; }
+      setSyncState("synced"); setUpdatedAt(data.updatedAt ?? new Date().toISOString()); setSyncMessage("Cloud-Spielstand wurde manuell gespeichert.");
+    } catch { setSyncState("error"); setSyncMessage("Cloud-Synchronisierung fehlgeschlagen."); }
+    finally { setBusy(false); }
   }
 
   async function logout() {
-    setBusy(true);
-    await fetch("/api/account", { method: "DELETE" });
-    setUser(null);
-    setSyncState("idle");
-    setUpdatedAt(null);
-    setMode("local");
-    setMessage("Abgemeldet. Lokale Spielerprofile bleiben auf diesem Gerät erhalten.");
-    setBusy(false);
+    setBusy(true); await fetch("/api/account", { method: "DELETE" });
+    setUser(null); setSyncState("idle"); setUpdatedAt(null); setMode("local"); setRecoveryConfirmed(false); setIssuedRecoveryCode("");
+    setMessage("Abgemeldet. Lokale Spielerprofile bleiben auf diesem Gerät erhalten."); setBusy(false);
   }
 
   if (user) {
     const dot = syncState === "synced" ? "#198754" : syncState === "syncing" ? "#d28a00" : syncState === "error" ? "#c53a3a" : "#6d7d86";
     return <section style={{ padding: "1.5rem", border: "1px solid #cbdde1", borderRadius: 24, background: "#fff", display: "grid", gap: "1rem" }}>
-      <div>
-        <p style={{ margin: 0, fontWeight: 900, color: "#087f82", textTransform: "uppercase", letterSpacing: ".08em" }}>Angemeldet</p>
-        <h2 style={{ fontSize: "clamp(2rem,5vw,3.5rem)", margin: ".5rem 0" }}>{user.name}</h2>
-        <p style={{ margin: 0 }}>Kontoname: <strong>{user.loginName}</strong></p>
-      </div>
-      {issuedRecoveryCode && <div style={{ padding: "1rem", border: "2px solid #0b9296", borderRadius: 16, background: "#effcf9" }}>
-        <strong>Wiederherstellungscode</strong>
-        <code style={{ display: "block", marginTop: 8, fontSize: "1.1rem", wordBreak: "break-all" }}>{issuedRecoveryCode}</code>
-        <p style={{ marginBottom: 0 }}>Diesen Code jetzt sicher notieren. Er wird nicht erneut im Klartext angezeigt.</p>
+      <div><p style={{ margin: 0, fontWeight: 900, color: "#087f82", textTransform: "uppercase", letterSpacing: ".08em" }}>Angemeldet</p><h2 style={{ fontSize: "clamp(2rem,5vw,3.5rem)", margin: ".5rem 0" }}>{user.name}</h2><p style={{ margin: 0 }}>Kontoname: <strong>{user.loginName}</strong></p></div>
+      {issuedRecoveryCode && !recoveryConfirmed && <div style={{ padding: "1rem", border: "2px solid #0b9296", borderRadius: 16, background: "#effcf9" }}>
+        <strong>Wiederherstellungscode jetzt sichern</strong><code style={{ display: "block", marginTop: 8, fontSize: "1.1rem", wordBreak: "break-all" }}>{issuedRecoveryCode}</code>
+        <p>Dieser Code ist dein einziger Weg, ein vergessenes Passwort zurückzusetzen. Er wird später nicht erneut im Klartext angezeigt.</p>
+        <button type="button" onClick={confirmRecoveryCode} style={{ ...buttonStyle, border: 0, background: "linear-gradient(135deg,#12b8ad,#4b7ff2)", color: "white" }}>Code sicher gespeichert – bestätigen</button>
       </div>}
-      <div style={{ padding: "1rem", border: "1px solid #d8e5e8", borderRadius: 16, background: "#f8fbfc" }} aria-live="polite">
-        <div style={{ display: "flex", alignItems: "center", gap: ".65rem", flexWrap: "wrap" }}><span aria-hidden="true" style={{ width: 11, height: 11, borderRadius: "50%", background: dot, boxShadow: `0 0 0 4px ${dot}20` }} /><strong>{syncState === "synced" ? "Cloud synchronisiert" : syncState === "syncing" ? "Synchronisierung läuft" : syncState === "error" ? "Cloud-Fehler" : "Cloud bereit"}</strong></div>
-        <p style={{ margin: ".55rem 0 .2rem" }}>{syncMessage}</p>
-        <small style={{ color: "#526875" }}>Letzte Cloud-Speicherung: {formatDate(updatedAt)}</small>
-      </div>
+      <div style={{ padding: "1rem", border: "1px solid #d8e5e8", borderRadius: 16, background: "#f8fbfc" }} aria-live="polite"><div style={{ display: "flex", alignItems: "center", gap: ".65rem", flexWrap: "wrap" }}><span aria-hidden="true" style={{ width: 11, height: 11, borderRadius: "50%", background: dot, boxShadow: `0 0 0 4px ${dot}20` }} /><strong>{syncState === "synced" ? "Cloud synchronisiert" : syncState === "syncing" ? "Synchronisierung läuft" : syncState === "error" ? "Cloud-Fehler" : "Cloud bereit"}</strong></div><p style={{ margin: ".55rem 0 .2rem" }}>{issuedRecoveryCode && !recoveryConfirmed ? "Cloud-Sync startet nach Bestätigung des Recovery-Codes." : syncMessage}</p><small style={{ color: "#526875" }}>Letzte Cloud-Speicherung: {formatDate(updatedAt)}</small></div>
       <p style={{ margin: 0 }}>{message}</p>
-      <div style={{ display: "flex", gap: ".75rem", flexWrap: "wrap" }}>
-        <button type="button" onClick={syncNow} disabled={busy} style={{ ...buttonStyle, border: 0, background: "linear-gradient(135deg,#12b8ad,#4b7ff2)", color: "white" }}>{syncState === "syncing" ? "Speichert …" : "Jetzt synchronisieren"}</button>
-        <button type="button" onClick={logout} disabled={busy} style={buttonStyle}>Abmelden</button>
-      </div>
+      <div style={{ display: "flex", gap: ".75rem", flexWrap: "wrap" }}><button type="button" onClick={syncNow} disabled={busy || !recoveryConfirmed} style={{ ...buttonStyle, border: 0, background: "linear-gradient(135deg,#12b8ad,#4b7ff2)", color: "white", opacity: recoveryConfirmed ? 1 : .55 }}>{syncState === "syncing" ? "Speichert …" : "Jetzt synchronisieren"}</button><button type="button" onClick={logout} disabled={busy} style={buttonStyle}>Abmelden</button></div>
     </section>;
   }
 
   return <section style={{ display: "grid", gap: "1.25rem" }}>
-    <div style={{ padding: "1rem 1.25rem", borderRadius: 18, background: "#effcf9", border: "1px solid #b9e3dc" }}>
-      <strong>Datenschutz zuerst:</strong> Die Plattform verwendet für Spielerzugänge keine E-Mail-Adressen. Du kannst lokal nur mit einem Spielernamen starten oder für Cloud-Sync einen Kontonamen mit Passwort anlegen.
-    </div>
-    <div style={{ display: "flex", gap: ".75rem", flexWrap: "wrap" }}>
-      <button type="button" onClick={() => setMode("local")} aria-pressed={mode === "local"} style={buttonStyle}>Privat starten</button>
-      <button type="button" onClick={() => setMode("register")} aria-pressed={mode === "register"} style={buttonStyle}>Cloud-Konto erstellen</button>
-      <button type="button" onClick={() => setMode("login")} aria-pressed={mode === "login"} style={buttonStyle}>Anmelden</button>
-      <button type="button" onClick={() => setMode("recover")} aria-pressed={mode === "recover"} style={buttonStyle}>Passwort vergessen</button>
-    </div>
-
-    {mode === "local" ? <form onSubmit={createLocal} style={{ padding: "1.5rem", border: "1px solid #cbdde1", borderRadius: 24, background: "#fff", display: "grid", gap: "1rem" }}>
-      <h2 style={{ margin: 0, fontSize: "clamp(1.6rem,4vw,2.4rem)" }}>Privates Spielerprofil</h2>
-      <p style={{ margin: 0 }}>Nur ein Spielername wird auf diesem Gerät gespeichert. Kein Passwort und keine Registrierung notwendig.</p>
-      <label>Spielername<input value={name} onChange={(e) => setName(e.target.value)} required maxLength={40} autoComplete="off" style={inputStyle} /></label>
-      <button type="submit" style={{ ...buttonStyle, border: 0, background: "linear-gradient(135deg,#12b8ad,#4b7ff2)", color: "white" }}>Privates Profil erstellen</button>
-      <p aria-live="polite" style={{ margin: 0 }}>{message}</p>
-    </form> : <form onSubmit={submitCloud} style={{ padding: "1.5rem", border: "1px solid #cbdde1", borderRadius: 24, background: "#fff", display: "grid", gap: "1rem" }}>
-      {mode === "register" && <label>Spielername<input value={name} onChange={(e) => setName(e.target.value)} required maxLength={40} style={inputStyle} /></label>}
-      <label>Kontoname<input value={loginName} onChange={(e) => setLoginName(e.target.value)} required minLength={3} maxLength={48} autoComplete="username" style={inputStyle} /></label>
-      {mode !== "recover" && <label>Passwort<input type="password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={8} required autoComplete={mode === "register" ? "new-password" : "current-password"} style={inputStyle} /></label>}
-      {mode === "recover" && <><label>Wiederherstellungscode<input value={recoveryCode} onChange={(e) => setRecoveryCode(e.target.value)} required autoComplete="off" style={inputStyle} /></label><label>Neues Passwort<input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} minLength={8} required autoComplete="new-password" style={inputStyle} /></label></>}
-      <button type="submit" disabled={busy} style={{ ...buttonStyle, border: 0, background: "linear-gradient(135deg,#12b8ad,#4b7ff2)", color: "white" }}>{busy ? "Bitte warten …" : mode === "register" ? "Cloud-Konto erstellen" : mode === "recover" ? "Passwort zurücksetzen" : "Anmelden"}</button>
-      {mode === "register" && <p style={{ margin: 0, color: "#526875" }}>Nach der Erstellung erhältst du einen einmaligen Wiederherstellungscode. Bewahre ihn sicher auf, damit du dein Passwort später zurücksetzen kannst.</p>}
-      <p aria-live="polite" style={{ margin: 0 }}>{message}</p>
+    <div style={{ padding: "1rem 1.25rem", borderRadius: 18, background: "#effcf9", border: "1px solid #b9e3dc" }}><strong>Datenschutz zuerst:</strong> Die Plattform verwendet für Spielerzugänge keine E-Mail-Adressen. Du kannst lokal nur mit einem Spielernamen starten oder für Cloud-Sync einen Kontonamen mit Passwort anlegen.</div>
+    <div style={{ display: "flex", gap: ".75rem", flexWrap: "wrap" }}><button type="button" onClick={() => setMode("local")} aria-pressed={mode === "local"} style={buttonStyle}>Privat starten</button><button type="button" onClick={() => setMode("register")} aria-pressed={mode === "register"} style={buttonStyle}>Cloud-Konto erstellen</button><button type="button" onClick={() => setMode("login")} aria-pressed={mode === "login"} style={buttonStyle}>Anmelden</button><button type="button" onClick={() => setMode("recover")} aria-pressed={mode === "recover"} style={buttonStyle}>Passwort vergessen</button></div>
+    {mode === "local" ? <form onSubmit={createLocal} style={{ padding: "1.5rem", border: "1px solid #cbdde1", borderRadius: 24, background: "#fff", display: "grid", gap: "1rem" }}><h2 style={{ margin: 0, fontSize: "clamp(1.6rem,4vw,2.4rem)" }}>Privates Spielerprofil</h2><p style={{ margin: 0 }}>Nur ein Spielername wird auf diesem Gerät gespeichert. Kein Passwort und keine Registrierung notwendig.</p><label>Spielername<input value={name} onChange={(e) => setName(e.target.value)} required maxLength={40} autoComplete="off" style={inputStyle} /></label><button type="submit" style={{ ...buttonStyle, border: 0, background: "linear-gradient(135deg,#12b8ad,#4b7ff2)", color: "white" }}>Privates Profil erstellen</button><p aria-live="polite" style={{ margin: 0 }}>{message}</p></form> : <form onSubmit={submitCloud} style={{ padding: "1.5rem", border: "1px solid #cbdde1", borderRadius: 24, background: "#fff", display: "grid", gap: "1rem" }}>
+      {mode === "register" && <label>Spielername<input value={name} onChange={(e) => setName(e.target.value)} required maxLength={40} style={inputStyle} /></label>}<label>Kontoname<input value={loginName} onChange={(e) => setLoginName(e.target.value)} required minLength={3} maxLength={48} autoComplete="username" style={inputStyle} /></label>{mode !== "recover" && <label>Passwort<input type="password" value={password} onChange={(e) => setPassword(e.target.value)} minLength={8} required autoComplete={mode === "register" ? "new-password" : "current-password"} style={inputStyle} /></label>}{mode === "recover" && <><label>Wiederherstellungscode<input value={recoveryCode} onChange={(e) => setRecoveryCode(e.target.value)} required autoComplete="off" style={inputStyle} /></label><label>Neues Passwort<input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} minLength={8} required autoComplete="new-password" style={inputStyle} /></label></>}<button type="submit" disabled={busy} style={{ ...buttonStyle, border: 0, background: "linear-gradient(135deg,#12b8ad,#4b7ff2)", color: "white" }}>{busy ? "Bitte warten …" : mode === "register" ? "Cloud-Konto erstellen" : mode === "recover" ? "Passwort zurücksetzen" : "Anmelden"}</button>{mode === "register" && <p style={{ margin: 0, color: "#526875" }}>Nach der Erstellung musst du bestätigen, dass der einmalige Wiederherstellungscode sicher gespeichert wurde. Erst danach startet die Cloud-Synchronisierung.</p>}<p aria-live="polite" style={{ margin: 0 }}>{message}</p>
     </form>}
   </section>;
 }
