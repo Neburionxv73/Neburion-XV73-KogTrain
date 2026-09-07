@@ -18,19 +18,20 @@ import "./a11y-contrast-final-v97.css";
 import "./raptor-v103-clean-foundation.css";
 import "./v11-readability.css";
 import "./v11-dashboard-lighthouse.css";
+import "./training-visual-clarity-v12.css";
 
 const isProduction = process.env.VERCEL_ENV === "production";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : undefined);
 
 export const metadata: Metadata = {
   metadataBase: siteUrl ? new URL(siteUrl) : undefined,
-  title: { default: "Neburion XV73 · KogTrain V6.7", template: "%s · Neburion XV73" },
+  title: { default: "Neburion XV73 · KogTrain V12", template: "%s · Neburion XV73" },
   applicationName: "Neburion XV73 KogTrain",
   description: "Freundlich gestaltete Lern- und Trainingsplattform mit Mathematik, Sprache, Englisch, Aufmerksamkeit, Reaktion, Gedächtnis, Logik, visuellen Übungen und Gehirnfit & Alltag.",
   keywords: ["KogTrain", "Lernplattform", "Gedächtnistraining", "Aufmerksamkeit", "Logiktraining", "Sprachtraining", "Gehirnfit"],
   category: "education",
   robots: isProduction ? { index: true, follow: true } : { index: false, follow: false },
-  openGraph: { type: "website", locale: "de_AT", siteName: "Neburion XV73 KogTrain", title: "Neburion XV73 · KogTrain V6.7", description: "Persönlicher Lernmix, getrennte Spielerprofile, Cloud-Spielstände, Spezial-Labs und Gehirnfit in einer klaren Trainingsplattform." },
+  openGraph: { type: "website", locale: "de_AT", siteName: "Neburion XV73 KogTrain", title: "Neburion XV73 · KogTrain V12", description: "Persönlicher Lernmix, getrennte Spielerprofile, Cloud-Spielstände, Spezial-Labs und Gehirnfit in einer klaren Trainingsplattform." },
 };
 
 export const viewport: Viewport = { width: "device-width", initialScale: 1, colorScheme: "light", themeColor: "#F8FAFC" };
