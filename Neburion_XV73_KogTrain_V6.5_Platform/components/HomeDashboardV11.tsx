@@ -77,8 +77,7 @@ export function HomeDashboardV11() {
           <a className={styles.navItem} href="#rhythmus"><span>▣</span><div><strong>Kalender</strong></div></a>
           <a className={styles.navItem} href="#wiederholung"><span>⌁</span><div><strong>Lernpfad</strong></div></a>
           <p>Einstellungen</p>
-          <Link className={styles.navItem} href="/account"><span>♙</span><div><strong>Profil</strong></div></Link>
-          <Link className={styles.navItem} href="/account"><span>⚙</span><div><strong>Optionen</strong></div></Link>
+          <Link className={styles.navItem} href="/profile"><span>♙</span><div><strong>Profil</strong></div></Link>
         </nav>
 
         <a className={styles.logout} href="#top"><span>↪</span> Abmelden</a>
