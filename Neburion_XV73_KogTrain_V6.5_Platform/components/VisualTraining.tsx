@@ -11,6 +11,7 @@ type Outcome = { mode: VisualMode; correct: boolean };
 type Phase = "intro" | "preview" | "question" | "feedback" | "done";
 const initialStats: VisualStats = { sessions: 0, bestScore: 0, modeStats: {} };
 const labels: Record<VisualMode, string> = { rotation:"Rotation",mirror:"Spiegelung",pattern:"Musterreihe",matrix:"Matrix",position:"Positionswechsel",search:"Visuelle Suche",compare:"Formvergleich",memory:"Kurzzeitgedächtnis" };
+const positionLabels=["oben links","oben Mitte","oben rechts","Mitte links","Mitte","Mitte rechts","unten links","unten Mitte","unten rechts"];
 
 export function VisualTraining() {
   const [session,setSession]=useState<VisualSession|null>(null); const [index,setIndex]=useState(0); const [selected,setSelected]=useState<number|null>(null); const [outcomes,setOutcomes]=useState<Outcome[]>([]); const [phase,setPhase]=useState<Phase>("intro"); const [stats,setStats]=useState<VisualStats>(initialStats); const [adaptive,setAdaptive]=useState<AdaptiveDifficultyState>(createAdaptiveDifficultyState(1)); const current=session?.tasks[index];
@@ -22,11 +23,37 @@ export function VisualTraining() {
   function answer(optionIndex:number){if(!current||!session||phase!=="question")return;const correct=optionIndex===current.answer;const nextAdaptive=applyAdaptiveDifficultyResult(adaptive,correct);setSelected(optionIndex);setOutcomes(v=>[...v,{mode:current.mode,correct}]);setAdaptive(nextAdaptive);if(nextAdaptive.transition!=="hold"&&nextAdaptive.level!==session.difficulty){const replacement=createVisualSession(stats.bestScore,stats.sessions,nextAdaptive.level);setSession({...replacement,difficulty:nextAdaptive.level,tasks:[...session.tasks.slice(0,index+1),...replacement.tasks.slice(index+1)]})}setPhase("feedback")}
   function next(){if(!session)return;if(index<session.tasks.length-1){enterTask(session,index+1);return}const score=outcomes.filter(i=>i.correct).length;const modeStats={...stats.modeStats};outcomes.forEach(item=>{const previous=modeStats[item.mode]??{attempts:0,correct:0};modeStats[item.mode]={attempts:previous.attempts+1,correct:previous.correct+(item.correct?1:0)}});const nextStats={sessions:stats.sessions+1,bestScore:Math.max(stats.bestScore,score),modeStats};setStats(nextStats);try{localStorage.setItem(VISUAL_STORAGE_KEY,JSON.stringify(nextStats))}catch{}setPhase("done")}
   const score=outcomes.filter(i=>i.correct).length; const percent=session?Math.round((score/session.tasks.length)*100):0;
+
+  function questionVisual(){
+    if(!current)return null;
+    if(current.mode==="compare"){
+      const separator=current.visual.indexOf("|");
+      const left=separator>=0?current.visual.slice(0,separator):current.visual;
+      const right=separator>=0?current.visual.slice(separator+1):[];
+      return <div className={styles.compareBoard} aria-label={`Reihe A: ${left.join(" ")}. Reihe B: ${right.join(" ")}`}>
+        <div className={styles.compareRow}><strong>Reihe A</strong><div>{left.map((item,itemIndex)=><span key={`a-${item}-${itemIndex}`}>{item}</span>)}</div></div>
+        <div className={styles.compareDivider} aria-hidden="true"><span>vergleichen</span></div>
+        <div className={styles.compareRow}><strong>Reihe B</strong><div>{right.map((item,itemIndex)=><span key={`b-${item}-${itemIndex}`}>{item}</span>)}</div></div>
+      </div>;
+    }
+    if(current.mode==="position"){
+      const startIndex=current.visual.findIndex(item=>item==="●");
+      const moves=current.id.split("-").slice(2).join("").split("").filter(item=>["↑","→","↓","←"].includes(item));
+      return <div className={styles.positionExercise}>
+        <div className={styles.movementStrip} aria-label={`Bewegungsfolge: ${moves.join(" ")}`}><strong>Bewegungsfolge</strong><div>{moves.map((move,moveIndex)=><span key={`${move}-${moveIndex}`}>{move}</span>)}</div></div>
+        <div className={`${styles.visualBoard} ${styles.gridBoard} ${styles.positionBoard}`} aria-label={`Startposition: ${positionLabels[startIndex]??"unbekannt"}`}>
+          {current.visual.map((item,itemIndex)=><span key={`${item}-${itemIndex}`} className={styles.positionCell} data-start={itemIndex===startIndex} aria-label={itemIndex===startIndex?`Start: ${positionLabels[itemIndex]}`:positionLabels[itemIndex]}>{itemIndex===startIndex?<><b>START</b><i aria-hidden="true">●</i></>:<i aria-hidden="true">·</i>}</span>)}
+        </div>
+      </div>;
+    }
+    return <div className={`${styles.visualBoard} ${current.visual.length===9?styles.gridBoard:""}`} aria-label={current.visual.join(" ")}>{current.visual.map((item,itemIndex)=><span key={`${item}-${itemIndex}`}>{item}</span>)}</div>;
+  }
+
   return <section className={styles.trainer} aria-live="polite" data-adaptive-level={adaptive.level}>
     <div className={styles.stats}><span>Sessions <strong>{stats.sessions}</strong></span><span>Bestwert <strong>{stats.bestScore}/{VISUAL_SESSION_LENGTH}</strong></span><span>{session?`Dynamik ${adaptive.level} · ${difficultyLabel(adaptive.level)}`:"Visual Lab · Adaptive Difficulty V5"}</span></div>
     {phase==="intro"&&<div className={styles.stage}><p className="eyebrow">8 visuelle Trainingsmodi · Adaptive Difficulty V5</p><h2>Sehen. Vergleichen. Erinnern. Räumlich denken.</h2><p>Visual V5 passt die visuelle Schwierigkeit jetzt auch während der laufenden Session an. Drei sichere Treffer können die folgenden Aufgaben um genau eine Stufe anheben; zwei Fehler in Folge stabilisieren um genau eine Stufe. Einzelne Antworten lösen keinen abrupten Sprung aus.</p><div className={styles.modeGrid}>{Object.values(labels).map(label=><span key={label}>{label}</span>)}</div><button className="primary trainingButton" type="button" onClick={start}>Visual Session starten</button></div>}
     {phase==="preview"&&current?.preview&&<div className={styles.stage} data-visual-mode={current.mode}><p className="eyebrow">{labels[current.mode]} · Aufgabe {index+1}/{VISUAL_SESSION_LENGTH} · Dynamik {adaptive.level} {difficultyLabel(adaptive.level)}</p><h2>Präge dir die Reihenfolge ein.</h2><div className={styles.previewBadge}>Nur kurz sichtbar</div><div className={styles.visualBoard} aria-label={`Zu merkende Folge: ${current.preview.join(" ")}`}>{current.preview.map((item,itemIndex)=><span key={`${item}-${itemIndex}`}>{item}</span>)}</div><p>Danach wird nach einer Position in dieser Folge gefragt.</p></div>}
-    {phase==="question"&&current&&session&&<div className={styles.stage} data-visual-mode={current.mode}><p className="eyebrow">{labels[current.mode]} · Aufgabe {index+1}/{session.tasks.length} · Dynamik {adaptive.level} {difficultyLabel(adaptive.level)}</p><h2>{current.prompt}</h2><div className={`${styles.visualBoard} ${current.visual.length===9?styles.gridBoard:""}`} aria-label={current.visual.join(" ")}>{current.visual.map((item,itemIndex)=><span key={`${item}-${itemIndex}`}>{item}</span>)}</div><div className={styles.options}>{current.options.map((option,optionIndex)=><button key={`${current.id}-${optionIndex}`} type="button" onClick={()=>answer(optionIndex)}><kbd>{optionIndex+1}</kbd>{option}</button>)}</div></div>}
+    {phase==="question"&&current&&session&&<div className={styles.stage} data-visual-mode={current.mode}><p className="eyebrow">{labels[current.mode]} · Aufgabe {index+1}/{session.tasks.length} · Dynamik {adaptive.level} {difficultyLabel(adaptive.level)}</p><h2>{current.prompt}</h2>{questionVisual()}<div className={styles.options}>{current.options.map((option,optionIndex)=><button key={`${current.id}-${optionIndex}`} type="button" onClick={()=>answer(optionIndex)}><kbd>{optionIndex+1}</kbd>{option}</button>)}</div></div>}
     {phase==="feedback"&&current&&selected!==null&&<div className={styles.stage}><p className={`${styles.feedbackBadge} ${selected===current.answer?styles.correct:styles.incorrect}`}>{selected===current.answer?"Richtig":"Noch nicht"}</p><h2>{selected===current.answer?"Visuell korrekt erkannt.":`Richtig wäre: ${current.options[current.answer]}`}</h2><p>{current.explanation}</p><p><strong>Adaptive Difficulty V5:</strong> {adaptive.reason}</p><button className="primary trainingButton" type="button" onClick={next}>{session&&index===session.tasks.length-1?"Auswertung":"Nächste Aufgabe"}</button></div>}
     {phase==="done"&&session&&<div className={styles.stage}><p className="eyebrow">Session abgeschlossen · Endniveau {adaptive.level} {difficultyLabel(adaptive.level)}</p><h2>{percent}% richtig</h2><div className={styles.score}><strong>{score}</strong><span>/ {session.tasks.length}</span></div><div className={styles.modeStats}>{(Object.entries(stats.modeStats) as [VisualMode,ModeStat][]).map(([mode,value])=><div key={mode}><span>{labels[mode]}</span><strong>{value.attempts?Math.round((value.correct/value.attempts)*100):0}%</strong></div>)}</div><p>Die nächste Session startet wieder evidenzbasiert und passt sich anschließend schrittweise innerhalb der Einheit an.</p><button className="primary trainingButton" type="button" onClick={start}>Neue Visual Session</button></div>}
   </section>;
