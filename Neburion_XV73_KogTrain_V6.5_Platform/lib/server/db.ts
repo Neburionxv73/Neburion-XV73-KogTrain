@@ -32,10 +32,26 @@ export function ensureSchema() {
         created_at timestamptz not null default now()
       )`;
 
-      // Migration path for older installations that still contain an email column.
       await sql`alter table kogtrain_users add column if not exists login_name text`;
       await sql`alter table kogtrain_users add column if not exists recovery_code_hash text`;
-      await sql`update kogtrain_users set login_name = lower(email) where login_name is null and email is not null`;
+
+      // One-time compatibility migration for databases created before email-free accounts.
+      // Dynamic SQL keeps fresh databases valid when the legacy email column does not exist.
+      await sql.unsafe(`
+        DO $$
+        BEGIN
+          IF EXISTS (
+            SELECT 1
+            FROM information_schema.columns
+            WHERE table_schema = 'public'
+              AND table_name = 'kogtrain_users'
+              AND column_name = 'email'
+          ) THEN
+            EXECUTE 'UPDATE kogtrain_users SET login_name = lower(email) WHERE login_name IS NULL AND email IS NOT NULL';
+          END IF;
+        END $$;
+      `);
+
       await sql`update kogtrain_users set login_name = 'spieler-' || left(id, 8) where login_name is null`;
       await sql`alter table kogtrain_users alter column login_name set not null`;
       await sql`create unique index if not exists kogtrain_users_login_name_unique on kogtrain_users(login_name)`;
