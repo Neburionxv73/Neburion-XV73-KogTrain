@@ -8,6 +8,7 @@ const account = read("app/api/account/route.ts");
 const state = read("app/api/player-state/route.ts");
 const identity = read("lib/playerIdentity.ts");
 const bridge = read("components/CloudPlayerBridge.tsx");
+const accountPanel = read("components/AccountPanel.tsx");
 const layout = read("app/layout.tsx");
 const accountPage = read("app/account/page.tsx");
 
@@ -15,10 +16,17 @@ const checks = [
   ["postgres dependency present", Boolean(pkg.dependencies?.postgres)],
   ["database requires DATABASE_URL", db.includes("DATABASE_URL_NOT_CONFIGURED")],
   ["schema separates users and player state", db.includes("kogtrain_users") && db.includes("kogtrain_player_state")],
+  ["privacy-first schema allows optional email", db.includes("alter column email drop not null") && db.includes("login_name")],
+  ["recovery code hash is stored", db.includes("recovery_code_hash")],
   ["passwords use scrypt", auth.includes("scryptSync") && auth.includes("timingSafeEqual")],
   ["sessions require AUTH_SECRET", auth.includes("AUTH_SECRET_NOT_CONFIGURED") && auth.includes("httpOnly") === false],
   ["account endpoint supports register/login", account.includes('action === "register"') && account.includes("verifyPassword")],
+  ["username login works without email", account.includes("login_name") && account.includes("identifier") && account.includes("email || null")],
+  ["password recovery uses recovery code", account.includes('action === "recover"') && account.includes("recovery_code_hash") && account.includes("newPassword")],
   ["session cookie is httpOnly", account.includes("httpOnly: true") && account.includes('sameSite: "lax"')],
+  ["privacy-first local profile UI exists", accountPanel.includes("Ohne E-Mail starten") && accountPanel.includes("createAndActivatePlayer")],
+  ["email is optional in cloud registration UI", accountPanel.includes("E-Mail <small>(optional)</small>")],
+  ["password recovery UI exists", accountPanel.includes("Passwort vergessen") && accountPanel.includes("Wiederherstellungscode")],
   ["cloud save endpoint is authenticated", state.includes("verifySessionToken") && state.includes("kogtrain_player_state")],
   ["cloud payload size is bounded", state.includes("750_000")],
   ["portable player state export exists", identity.includes("exportActivePlayerState") && identity.includes("importPlayerState")],
@@ -38,4 +46,4 @@ for (const [name, pass] of checks) {
   if (!pass) failed++;
 }
 if (failed) process.exit(1);
-console.log(`V6.7 cloud account foundation PASS (${checks.length}/${checks.length})`);
+console.log(`V6.7 cloud/privacy account foundation PASS (${checks.length}/${checks.length})`);
