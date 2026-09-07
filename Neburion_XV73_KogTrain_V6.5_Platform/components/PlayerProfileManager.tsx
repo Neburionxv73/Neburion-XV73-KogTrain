@@ -16,13 +16,13 @@ export function PlayerProfileManager() {
   function activate(playerId: string) { if (playerId === active.id) return; switchActivePlayer(playerId); refresh(); window.location.reload(); }
 
   return <section style={{ display: "grid", gap: "1.25rem" }}>
-    <div style={{ ...card, background: "linear-gradient(135deg,#073c42,#0b555b)", color: "white", border: 0 }}>
-      <p style={{ margin: 0, fontWeight: 900, letterSpacing: ".1em", textTransform: "uppercase", color: "#9edbd8", fontSize: ".78rem" }}>Aktiver Spielstand</p>
+    <div style={{ ...card, background: "linear-gradient(135deg,#073c42,#0b555b)", color: "#ffffff", border: 0 }}>
+      <p style={{ margin: 0, fontWeight: 900, letterSpacing: ".1em", textTransform: "uppercase", color: "#b9f3ef", fontSize: ".78rem" }}>Aktiver Spielstand</p>
       <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap" }}>
-        <div><h2 style={{ margin: ".55rem 0 .35rem", fontSize: "clamp(2rem,5vw,3.4rem)", lineHeight: 1 }}>{active.name}</h2><p style={{ margin: 0, color: "#d4e9e9" }}>Dieses Profil ist aktuell für alle Trainingsbereiche aktiv.</p></div>
-        <span style={{ display: "inline-flex", alignItems: "center", gap: ".5rem", padding: ".55rem .8rem", borderRadius: 999, background: "rgba(255,255,255,.1)", color: "#eaffff", fontWeight: 800 }}><i aria-hidden="true" style={{ width: 9, height: 9, borderRadius: "50%", background: "#57d9a8" }} /> Aktiv</span>
+        <div><h2 style={{ margin: ".55rem 0 .35rem", fontSize: "clamp(2rem,5vw,3.4rem)", lineHeight: 1, color: "#ffffff", textShadow: "0 1px 2px rgba(0,0,0,.18)" }}>{active.name}</h2><p style={{ margin: 0, color: "#ffffff" }}>Dieses Profil ist aktuell für alle Trainingsbereiche aktiv.</p></div>
+        <span style={{ display: "inline-flex", alignItems: "center", gap: ".5rem", padding: ".55rem .8rem", borderRadius: 999, background: "rgba(255,255,255,.12)", color: "#ffffff", fontWeight: 800 }}><i aria-hidden="true" style={{ width: 9, height: 9, borderRadius: "50%", background: "#57d9a8" }} /> Aktiv</span>
       </div>
-      <p style={{ margin: "1rem 0 0", color: "#bcd5d7", fontSize: ".9rem" }}>Profil-ID: <code style={{ color: "#fff" }}>{active.id}</code></p>
+      <p style={{ margin: "1rem 0 0", color: "#d8eeee", fontSize: ".9rem" }}>Profil-ID: <code style={{ color: "#ffffff", fontWeight: 800 }}>{active.id}</code></p>
     </div>
 
     <div style={card}>
