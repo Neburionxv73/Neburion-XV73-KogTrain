@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PlayerProfileManager } from "@/components/PlayerProfileManager";
+import "./profile-v12.css";
 
 export const metadata: Metadata = {
   title: "Spielerprofile · KogTrain V6.7",
@@ -10,17 +11,36 @@ export const metadata: Metadata = {
 
 export default function ProfilePage() {
   return (
-    <main className="trainingPage">
-      <div className="trainingTopbar">
-        <Link className="backLink" href="/">← Zur Plattform</Link>
+    <main className="profileV12">
+      <div className="profileV12__topbar">
+        <Link href="/">← Zur Plattform</Link>
         <span>KogTrain V6.7 · Spielerprofile</span>
       </div>
-      <section style={{ width: "min(1180px, calc(100% - 2rem))", margin: "4rem auto 6rem" }}>
-        <p style={{ fontWeight: 900, letterSpacing: ".1em", textTransform: "uppercase", color: "#087f82" }}>V6.7 · Spielerprofile</p>
-        <h1 style={{ fontSize: "clamp(2.8rem, 7vw, 6rem)", lineHeight: ".98", maxWidth: "12ch", margin: ".5rem 0 1.5rem" }}>Dein Lernen. Dein Spielstand.</h1>
-        <p style={{ fontSize: "1.1rem", lineHeight: 1.7, maxWidth: "68ch", marginBottom: "1.25rem", color: "#425d6d" }}>Jedes Profil erhält einen getrennten lokalen Lernstand. Beim Wechsel werden die Trainingsdaten des aktuellen Profils gesichert und ausschließlich die Daten des gewählten Profils geladen.</p>
-        <p style={{ marginBottom: "3rem" }}><Link href="/account" style={{ display: "inline-block", minHeight: 48, padding: ".8rem 1.1rem", borderRadius: 12, background: "#0b9296", color: "white", fontWeight: 900, textDecoration: "none" }}>Konto & Cloud-Sync einrichten →</Link></p>
-        <PlayerProfileManager />
+
+      <section className="profileV12__shell">
+        <header className="profileV12__hero">
+          <div>
+            <p className="profileV12__eyebrow">Persönlicher Lernbereich</p>
+            <h1>Dein Lernen. Dein Spielstand.</h1>
+            <p className="profileV12__lead">Verwalte getrennte Spielerprofile, ohne Trainingsstände zu vermischen. XP, Level, Skill-Werte und adaptive Trainingsdaten bleiben eindeutig dem aktiven Profil zugeordnet.</p>
+          </div>
+
+          <aside className="profileV12__cloud">
+            <span>Optional · geräteübergreifend</span>
+            <strong>Cloud-Sync</strong>
+            <p>Lokale Profile funktionieren ohne Konto. Für mehrere Geräte kannst du zusätzlich einen privaten Cloud-Zugang mit Kontoname und Passwort verwenden.</p>
+            <Link href="/account">Konto & Cloud-Sync →</Link>
+          </aside>
+        </header>
+
+        <div className="profileV12__privacy">
+          <span aria-hidden="true">🔒</span>
+          <div><b>Datenschutz zuerst.</b> Für Spielerzugänge wird keine E-Mail-Adresse benötigt. Ein lokales Profil bleibt vollständig auf diesem Gerät, solange du Cloud-Sync nicht aktivierst.</div>
+        </div>
+
+        <div className="profileV12__manager">
+          <PlayerProfileManager />
+        </div>
       </section>
     </main>
   );
