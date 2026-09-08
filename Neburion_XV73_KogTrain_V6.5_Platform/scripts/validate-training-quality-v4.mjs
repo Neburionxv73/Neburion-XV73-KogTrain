@@ -50,6 +50,7 @@ expect("Attention V4: adaptive quality UI active", attentionTraining.includes("c
 expect("Attention V4: advanced modes retained", ["go-no-go","visual-search","rule-switch","inhibition","divided","speed","interference"].every((mode) => attention.includes(`\"${mode}\"`)));
 expect("Attention V4: variable depth and balanced selection active", attention.includes("taskCount") && attention.includes("finalizeBalancedSessionTasks") && attention.includes("attention-v4"));
 expect("Attention V4: anti-repeat history minimum retained", attention.includes("112"));
+expect("Attention V5: varied attention archetypes retained", attention.includes("visualOddOneOut") && attention.includes("featureSwitch") && attention.includes("dividedCount") && attention.includes("directionInterference"));
 
 expect("Logic adaptive quality UI active", hasAdaptiveQualityLabel(logicTraining));
 expect("Logic V4: advanced sequence/rule tasks active", logicV2.includes("v4-seq") && logicV2.includes("v4-rule"));
@@ -77,9 +78,9 @@ expect("BrainFit V4: all eight areas retained", ["sudoku","words","crossword","m
 expect("BrainFit V4: evidence-based area mode retained", brainFit.includes("adaptiveMode") && brainFit.includes("stat.sessions>=4") && brainFit.includes("stat.bestScore"));
 expect("BrainFit V4: long anti-repeat history", brainFit.includes("BRAIN_FIT_V4_HISTORY_LIMIT = 144") && brainFit.includes("brainfit-${area}-v4"));
 expect("BrainFit V4: word-search content pool expanded", brainFit.includes("PLANET") && brainFit.includes("KOMPASS") && brainFitTraining.includes("rememberRotation"));
-expect("BrainFit V4: crossword pool expanded and adaptive depth retained", brainFit.includes("KALENDER") && brainFit.includes("FLUGHAFEN") && brainFitTraining.includes('mode==="relaxed"?4:mode==="normal"?6:8'));
-expect("BrainFit V4: memory pair depth retained", brainFitTraining.includes('mode==="relaxed"?4:mode==="normal"?6:8') && brainFitTraining.includes("MEMORY_POOL"));
-expect("BrainFit V4: Sudoku clue depth retained", brainFitTraining.includes('mode==="relaxed"?8:mode==="normal"?6:4') && brainFitTraining.includes("isValidSudokuGrid"));
+expect("BrainFit V4: crossword pool expanded and adaptive depth retained", brainFit.includes("KALENDER") && brainFit.includes("FLUGHAFEN") && brainFitTraining.includes('mode===\"relaxed\"?4:mode===\"normal\"?6:8'));
+expect("BrainFit V4: memory pair depth retained", brainFitTraining.includes('mode===\"relaxed\"?4:mode===\"normal\"?6:8') && brainFitTraining.includes("MEMORY_POOL"));
+expect("BrainFit V4: Sudoku clue depth retained", brainFitTraining.includes('mode===\"relaxed\"?8:mode===\"normal\"?6:4') && brainFitTraining.includes("isValidSudokuGrid"));
 expect("BrainFit V4: quiz content has normal/challenge tiers", brainFit.includes('level:BrainFitMode') && brainFit.includes('"challenge"') && brainFit.includes('rank[task.level??"relaxed"]<=rank[mode]'));
 expect("BrainFit V4: category reasoning depth expanded", brainFit.includes("Schlussverfahren") && brainFit.includes("Semantik"));
 expect("BrainFit V4: sequence reasoning depth expanded", brainFit.includes("2 · 5 · 11 · 23 · 47") && brainFit.includes("3 · 4 · 7 · 11 · 18 · 29"));
