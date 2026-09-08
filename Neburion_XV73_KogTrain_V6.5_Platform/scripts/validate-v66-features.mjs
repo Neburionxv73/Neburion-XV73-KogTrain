@@ -31,8 +31,8 @@ const homeDashboardV11 = read("components/HomeDashboardV11.tsx");
 const journey = read("components/UnifiedTrainingJourney.tsx");
 const home = read("app/page.tsx");
 
-// V6.6 is a frozen regression baseline. Later trainers and dashboards may replace
-// the active UI, but the behavior introduced in V6.6 must remain present or be superseded.
+// V6.6 is a frozen regression baseline. Later trainers, dashboards and language
+// layers may replace literal UI labels, while the underlying behavior must remain.
 expect("V6.6 baseline: dynamic history reader exists", dynamicTraining.includes("readRecentTaskIds"));
 expect("V6.6 baseline: dynamic history writer exists", dynamicTraining.includes("rememberTaskIds"));
 expect("V6.6 baseline: fresh task selection helper exists", dynamicTraining.includes("chooseFresh"));
@@ -63,10 +63,16 @@ expect("V6.6 baseline: BrainFit client boundary wires both training panels", bra
 expect("V6.6 baseline: BrainFit completion pool expanded", (brainFitCompletion.match(/area:\"missingWords\"/g) ?? []).length >= 10 && (brainFitCompletion.match(/area:\"orientation\"/g) ?? []).length >= 10);
 
 const legacyProgressMounted = home.includes("DeferredProgressCoachDashboard");
-const v11ProgressMounted = home.includes("HomeDashboardV11") && homeDashboardV11.includes("getProgressSnapshot") && homeDashboardV11.includes('id="fortschritt"') && homeDashboardV11.includes("Bereiche und Entwicklung") && homeDashboardV11.includes("Heute und diese Woche");
+const v11ProgressMounted = home.includes("HomeDashboardV11")
+  && homeDashboardV11.includes("getProgressSnapshot")
+  && homeDashboardV11.includes('id=\"fortschritt\"')
+  && homeDashboardV11.includes("todaySessions")
+  && homeDashboardV11.includes("dailyGoal")
+  && homeDashboardV11.includes("weekSessions")
+  && homeDashboardV11.includes("weeklyGoal");
 expect("V6.6 baseline: Progress dashboard is mounted on home", legacyProgressMounted || v11ProgressMounted);
-expect("V6.6 baseline: Progress tracks trained areas", progress.includes("trainedAreas") && (progressUi.includes("Trainierte Bereiche") || homeDashboardV11.includes("Bereiche und Entwicklung")));
-expect("V6.6 baseline: Progress tracks active days", progress.includes("activeDays7") && (progressUi.includes("Aktive Tage") || homeDashboardV11.includes("aktive Tage")));
+expect("V6.6 baseline: Progress tracks trained areas", progress.includes("trainedAreas") && (progressUi.includes("Trainierte Bereiche") || homeDashboardV11.includes("displayLabs")));
+expect("V6.6 baseline: Progress tracks active days", progress.includes("activeDays7") && (progressUi.includes("Aktive Tage") || homeDashboardV11.includes("activeDays7")));
 expect("V6.6 baseline: Progress tracks last session", progress.includes("lastSessionAt") && (progressUi.includes("Letzte Session") || homeDashboardV11.includes("lastSessionAt")));
 expect("V6.6 baseline: Journey documents full session flow",journey.includes("startHref") && journey.includes("Nach jeder Station") && journey.includes("Fortschritt ansehen") && journey.includes("Jetzt {duration} Minuten starten"));
 const forbiddenRecommendationUi = ["Empfehlung öffnen", "Empfohlen", "Nächster Fokus", "Heute sinnvoll", "Coach-Empfehlung"];
