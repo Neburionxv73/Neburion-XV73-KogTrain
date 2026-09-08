@@ -1,4 +1,4 @@
-import { chooseDiverse, createSessionSeed, difficultyFromPercent, randomInt, shuffled, type Difficulty } from "@/lib/dynamicTraining";
+import { chooseExperienceMix, createSessionSeed, difficultyFromPercent, randomInt, shuffled, type Difficulty } from "@/lib/dynamicTraining";
 
 export type AttentionMode = "go-no-go" | "visual-search" | "rule-switch" | "inhibition" | "divided" | "speed" | "interference";
 
@@ -100,9 +100,10 @@ export function createAttentionSession(bestAccuracy: number): AttentionSession {
     speed(seed+9,difficulty), speed(seed+10,difficulty), speed(seed+19,difficulty),
     interference(seed+11), interference(seed+12), interference(seed+20),
   ];
+  const activeModes = seed % 2 === 0 ? 5 : 6;
   return {
     difficulty,
-    tasks: shuffled(chooseDiverse(tasks, 8, (task) => task.mode, 2)),
+    tasks: chooseExperienceMix(tasks, 8, (task) => task.mode, activeModes, 2),
     targetMs: difficulty===3 ? 650 : difficulty===2 ? 800 : 950,
   };
 }
