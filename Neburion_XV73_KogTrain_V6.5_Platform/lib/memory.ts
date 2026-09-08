@@ -1,4 +1,4 @@
-import { chooseDiverse, createSessionSeed, difficultyFromPercent, randomInt, shuffled, type Difficulty } from "@/lib/dynamicTraining";
+import { chooseExperienceMix, createSessionSeed, difficultyFromPercent, randomInt, shuffled, type Difficulty } from "@/lib/dynamicTraining";
 
 export type MemoryMode = "digits" | "reverse" | "words" | "symbols" | "positions" | "recognition" | "nback1" | "nback2";
 export type MemoryTask = {
@@ -100,10 +100,11 @@ export function createMemorySession(bestScore: number): MemorySession {
     nbackTask(1, difficulty, seed + 7), nbackTask(1, difficulty, seed + 17),
     nbackTask(2, difficulty, seed + 8), nbackTask(2, difficulty, seed + 18),
   ];
+  const activeModes = seed % 2 === 0 ? 5 : 6;
   return {
     difficulty,
     showMs: difficulty === 3 ? 3200 : difficulty === 2 ? 3800 : 4400,
-    tasks: shuffled(chooseDiverse(tasks, MEMORY_SESSION_LENGTH, (task) => task.mode, 2)),
+    tasks: chooseExperienceMix(tasks, MEMORY_SESSION_LENGTH, (task) => task.mode, activeModes, 2),
   };
 }
 
