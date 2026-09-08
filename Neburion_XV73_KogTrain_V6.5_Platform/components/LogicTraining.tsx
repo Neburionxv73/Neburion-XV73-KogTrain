@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { createLogicSession, LOGIC_SESSION_LENGTH, LOGIC_STORAGE_KEY, type LogicMode, type LogicSession } from "@/lib/logicV2";
 import { applyAdaptiveDifficultyResult, createAdaptiveDifficultyState, difficultyLabel, scoreForDifficulty, type AdaptiveDifficultyState } from "@/lib/adaptiveDifficultyV5";
-import { localizeTrainingText, localizedDifficultyLabel } from "@/lib/trainingLocale";
+import { localizedDifficultyLabel } from "@/lib/trainingLocale";
+import { localizeSessionText } from "@/lib/sessionLocale";
 import { usePlatformLanguage } from "./PlatformLanguageProvider";
 import styles from "./LogicTraining.module.css";
 
@@ -14,7 +15,7 @@ type Phase = "intro" | "question" | "feedback" | "done";
 const initialStats: LogicStats = { sessions: 0, bestScore: 0, modeStats: {} };
 
 export function LogicTraining() {
-  const {language,pick}=usePlatformLanguage(); const tr=(value:string|undefined)=>localizeTrainingText(value,language); const dl=(level:1|2|3)=>localizedDifficultyLabel(difficultyLabel(level),language);
+  const {language,pick}=usePlatformLanguage(); const tr=(value:string|undefined)=>localizeSessionText(value,language); const dl=(level:1|2|3)=>localizedDifficultyLabel(difficultyLabel(level),language);
   const labels: Record<LogicMode, string> = {sequence:pick("Zahlenfolge","Number sequence"),rule:pick("Regel","Rule"),analogy:pick("Analogie","Analogy"),deduction:pick("Schlussfolgerung","Deduction"),matrix:"Matrix",operator:"Operator",exclusion:pick("Ausschluss","Exclusion"),spatial:pick("Räumliche Logik","Spatial logic")};
   const [session,setSession]=useState<LogicSession|null>(null),[index,setIndex]=useState(0),[selected,setSelected]=useState<number|null>(null),[outcomes,setOutcomes]=useState<Outcome[]>([]),[phase,setPhase]=useState<Phase>("intro"),[stats,setStats]=useState<LogicStats>(initialStats),[adaptive,setAdaptive]=useState<AdaptiveDifficultyState>(createAdaptiveDifficultyState(1));
   const current=session?.tasks[index];
