@@ -12,7 +12,7 @@ const exact:Record<string,string>={
  "Tier-Sudoku":"Animal Sudoku","Tier-Sudoku 4×4":"Animal Sudoku 4×4","Wortsuchraster":"Word search","Wörter im Raster finden":"Find words in the grid","Kreuzworträtsel":"Crossword","Memory":"Memory","Tier-Memory":"Animal Memory",
  "Kategorien":"Categories","Reihen & Folgen":"Sequences & patterns","Alltagsrechnen":"Everyday math","Zeit & Reihenfolge":"Time & order",
  "Rätsel":"Puzzle","Wörter":"Words","Sprache & Wissen":"Language & knowledge","Erinnern":"Memory","Gesuchte Wörter":"Words to find","Auswahl prüfen":"Check selection","Auswahl löschen":"Clear selection","Raster prüfen":"Check grid",
- "Waagrecht":"Across","Senkrecht":"Down","Gelöst ✓":"Solved ✓","Abgeschlossen":"Complete","Bereit":"Ready","Einheit starten":"Start set","Nächste Aufgabe":"Next task","Auswertung":"Results","Richtig ✓":"Correct ✓",
+ "Waagrecht":"Across","Senkrecht":"Down","Gelöst ✓":"Solved ✓","Abgeschlossen":"Complete","Bereit":"Ready","Einheit starten":"Start set","Neue Einheit":"New set","Neue Variante":"New variant","Nächste Aufgabe":"Next task","Auswertung":"Results","Richtig ✓":"Correct ✓",
  "Noch sind nicht alle Kreuzungen richtig. Prüfe die gemeinsamen Buchstaben.":"Not all crossings are correct yet. Check the shared letters.","Das Kreuzworträtsel ist vollständig richtig. ✓":"The crossword is completely correct. ✓",
  "Geschafft – alle Begriffe und Kreuzungen stimmen. ✓":"Done — all words and crossings are correct. ✓","Alle Wörter gefunden. ✓":"All words found. ✓","Alle Paare gefunden – sehr schön. ✓":"All pairs found — great work. ✓",
  "Sehr gut – das Tier-Sudoku ist vollständig und regelkonform gelöst. ✓":"Great — the Animal Sudoku is complete and valid. ✓","Trainingsmodus":"Training mode",
