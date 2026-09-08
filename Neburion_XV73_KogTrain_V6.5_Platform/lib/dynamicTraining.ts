@@ -65,18 +65,31 @@ export function rememberTaskIds(scope: string, ids: readonly string[], max = 32)
   if (typeof window === "undefined") return;
   try {
     const previous = readRecentTaskIds(scope, max);
-    const merged = [...previous, ...ids].filter((id, index, all) => all.lastIndexOf(id) === index).slice(-max);
+    // Keep chronological occurrences instead of de-duplicating them. Repeated
+    // appearances therefore carry a stronger penalty in future sessions.
+    const merged = [...previous, ...ids].slice(-max);
     window.localStorage.setItem(`${HISTORY_PREFIX}${scope}`, JSON.stringify(merged));
   } catch {
     // Training remains usable when browser storage is unavailable.
   }
 }
 
+export function recencyPenalty(id: string, recentIds: readonly string[]): number {
+  let penalty = 0;
+  recentIds.forEach((recentId, index) => {
+    if (recentId !== id) return;
+    const age = recentIds.length - index;
+    penalty += Math.max(1, 18 - Math.min(age, 17));
+  });
+  return penalty;
+}
+
 export function chooseFresh<T extends { id: string }>(items: readonly T[], count: number, recentIds: readonly string[] = []): T[] {
-  const recent = new Set(recentIds);
-  const fresh = shuffled(items.filter((item) => !recent.has(item.id)));
-  const fallback = shuffled(items.filter((item) => recent.has(item.id)));
-  return [...fresh, ...fallback].slice(0, Math.min(count, items.length));
+  return shuffled(items)
+    .map((item) => ({ item, penalty: recencyPenalty(item.id, recentIds), tie: Math.random() }))
+    .sort((a, b) => a.penalty - b.penalty || a.tie - b.tie)
+    .slice(0, Math.min(count, items.length))
+    .map(({ item }) => item);
 }
 
 /**
@@ -86,10 +99,7 @@ export function chooseFresh<T extends { id: string }>(items: readonly T[], count
  */
 export function finalizeSessionTasks<T extends { id: string }>(scope: string, tasks: readonly T[], maxHistory = 32, count = tasks.length): T[] {
   const recentIds = readRecentTaskIds(scope, maxHistory);
-  const recent = new Set(recentIds);
-  const fresh = shuffled(tasks.filter((task) => !recent.has(task.id)));
-  const repeated = shuffled(tasks.filter((task) => recent.has(task.id)));
-  const result = [...fresh, ...repeated].slice(0, Math.min(count, tasks.length));
+  const result = chooseFresh(tasks, Math.min(count, tasks.length), recentIds);
   rememberTaskIds(scope, result.map((task) => task.id), maxHistory);
   return result;
 }
@@ -120,21 +130,84 @@ export function balancedByMode<T extends { mode: string }>(items: readonly T[], 
 }
 
 /**
- * Anti-repeat selector for generated pools. Fresh tasks are balanced by mode
- * first; only when a mode has no fresh candidate do recent tasks become eligible.
+ * Session Recipe Engine: each round activates only a subset of available modes.
+ * This changes the macro-rhythm of the session instead of merely shuffling the
+ * same one-of-each-mode sequence. A mode may appear at most twice by default.
+ */
+export function selectSessionRecipe<T extends { id: string; mode: string }>(
+  items: readonly T[],
+  count: number,
+  recentIds: readonly string[] = [],
+  minActiveModes = 5,
+  maxActiveModes = 6,
+  maxPerMode = 2,
+): T[] {
+  if (count <= 0 || items.length === 0) return [];
+
+  const allModes = [...new Set(items.map((item) => item.mode))];
+  if (!allModes.length) return [];
+
+  const safeMaxPerMode = Math.max(1, maxPerMode);
+  const minimumModesNeeded = Math.max(1, Math.ceil(Math.min(count, items.length) / safeMaxPerMode));
+  const lower = Math.min(allModes.length, Math.max(minimumModesNeeded, minActiveModes));
+  const upper = Math.min(allModes.length, Math.max(lower, maxActiveModes), Math.min(count, allModes.length));
+  const activeCount = lower === upper ? lower : randomInt(lower, upper);
+  const activeModes = shuffled(allModes).slice(0, activeCount);
+
+  const groups = new Map<string, T[]>();
+  activeModes.forEach((mode) => {
+    const ranked = shuffled(items.filter((item) => item.mode === mode))
+      .map((item) => ({ item, penalty: recencyPenalty(item.id, recentIds), tie: Math.random() }))
+      .sort((a, b) => a.penalty - b.penalty || a.tie - b.tie)
+      .map(({ item }) => item);
+    groups.set(mode, ranked);
+  });
+
+  const target = Math.min(count, items.length);
+  const desired = new Map(activeModes.map((mode) => [mode, 1]));
+  let remaining = Math.max(0, target - activeModes.length);
+
+  while (remaining > 0) {
+    const eligible = shuffled(activeModes.filter((mode) => {
+      const wanted = desired.get(mode) ?? 0;
+      const available = groups.get(mode)?.length ?? 0;
+      return wanted < safeMaxPerMode && wanted < available;
+    }));
+    if (!eligible.length) break;
+    for (const mode of eligible) {
+      if (remaining <= 0) break;
+      desired.set(mode, (desired.get(mode) ?? 0) + 1);
+      remaining -= 1;
+    }
+  }
+
+  const selected: T[] = [];
+  activeModes.forEach((mode) => {
+    const wanted = desired.get(mode) ?? 0;
+    selected.push(...(groups.get(mode) ?? []).slice(0, wanted));
+  });
+
+  if (selected.length < target) {
+    const selectedSet = new Set(selected);
+    const fallback = chooseFresh(items.filter((item) => !selectedSet.has(item)), target - selected.length, recentIds);
+    selected.push(...fallback);
+  }
+
+  return shuffled(selected).slice(0, target);
+}
+
+/**
+ * Anti-repeat selector for generated pools plus experience-level recipe diversity.
+ * Typical 8-task sessions now use 5–6 active modes with at most two tasks per mode.
  */
 export function finalizeBalancedSessionTasks<T extends { id: string; mode: string }>(scope: string, tasks: readonly T[], count: number, maxHistory = 48): T[] {
   const recentIds = readRecentTaskIds(scope, maxHistory);
-  const recent = new Set(recentIds);
-  const fresh = tasks.filter((task) => !recent.has(task.id));
-  const repeated = tasks.filter((task) => recent.has(task.id));
-  const selectedFresh = balancedByMode(fresh, count);
-  const selectedIds = new Set(selectedFresh.map((task) => task.id));
-  const remaining = count - selectedFresh.length;
-  const fallback = remaining > 0
-    ? balancedByMode(repeated.filter((task) => !selectedIds.has(task.id)), remaining)
-    : [];
-  const result = shuffled([...selectedFresh, ...fallback]).slice(0, Math.min(count, tasks.length));
+  const availableModes = new Set(tasks.map((task) => task.mode)).size;
+  const maxPerMode = 2;
+  const minimumModesNeeded = Math.ceil(Math.min(count, tasks.length) / maxPerMode);
+  const minActiveModes = Math.min(availableModes, Math.max(minimumModesNeeded, Math.min(5, availableModes)));
+  const maxActiveModes = Math.min(availableModes, Math.max(minActiveModes, Math.min(6, availableModes)));
+  const result = selectSessionRecipe(tasks, count, recentIds, minActiveModes, maxActiveModes, maxPerMode);
   rememberTaskIds(scope, result.map((task) => task.id), maxHistory);
   return result;
 }
