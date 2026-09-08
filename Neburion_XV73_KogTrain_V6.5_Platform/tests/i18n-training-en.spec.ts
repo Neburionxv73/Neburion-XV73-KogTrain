@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 const routes = [
   ["/training/memory", "Remember. Connect. Recall."],
@@ -9,8 +9,36 @@ const routes = [
   ["/training/brain-fit", "BrainFit & everyday skills"],
 ] as const;
 
-async function english(page: import("@playwright/test").Page) {
+const germanSessionPatterns = /\b(Aufgabe|Welche|Welcher|Welches|Wie oft|Scanne|Merke|Präge|Ziffer|Wörter|Richtig wäre|Nächste Aufgabe|Auswertung|Dynamik|Bestwert|Reaktionszeit|Zieltempo|Trainingshinweis|Noch nicht|Regel erkannt|Schlüsse ziehen|Räumlich denken)\b/i;
+
+async function english(page: Page) {
   await page.addInitScript(() => localStorage.setItem("neburion-kogtrain-language", "en"));
+}
+
+async function assertSessionEnglish(page: Page) {
+  const text = await page.locator("main").innerText();
+  expect(text).not.toMatch(germanSessionPatterns);
+  await expect(page.locator("html")).toHaveAttribute("lang", "en");
+}
+
+async function advanceChoiceSession(page: Page, rounds = 3) {
+  for (let round = 0; round < rounds; round += 1) {
+    await assertSessionEnglish(page);
+    const taskButtons = page.locator("main button").filter({ hasNotText: /^(DE|EN)$/ });
+    const visible = taskButtons.filter({ visible: true });
+    const option = visible.filter({ has: page.locator("kbd") }).first();
+    if (await option.count()) await option.click();
+    else {
+      const candidate = visible.filter({ hasNotText: /Training worlds|Start .*session|New .*session/i }).first();
+      if (await candidate.count()) await candidate.click();
+    }
+    await page.waitForTimeout(80);
+    await assertSessionEnglish(page);
+    const next = page.getByRole("button", { name: /Next task|Results/i }).first();
+    if (await next.count()) await next.click();
+    else break;
+    await page.waitForTimeout(80);
+  }
 }
 
 test.describe("English training mode", () => {
@@ -23,46 +51,55 @@ test.describe("English training mode", () => {
     });
   }
 
-  test("Memory started task remains English", async ({ page }) => {
+  test("Memory session uses English through memorize and recall", async ({ page }) => {
     await english(page); await page.goto("/training/memory");
     await page.getByRole("button", { name: /Start Memory Lab V5/i }).click();
-    await expect(page.getByText(/Task 1\//i)).toBeVisible();
-    await expect(page.getByText(/Aufgabe 1\//i)).toHaveCount(0);
+    await assertSessionEnglish(page);
+    await page.waitForTimeout(4800);
+    await assertSessionEnglish(page);
+    await expect(page.locator("main")).not.toContainText("Wörter mit Leerzeichen eingeben");
+    await expect(page.locator("main")).not.toContainText("Antwort prüfen");
   });
 
-  test("Attention started task remains English", async ({ page }) => {
+  test("Attention session stays English across multiple generated tasks", async ({ page }) => {
     await english(page); await page.goto("/training/attention");
     await page.getByRole("button", { name: /Start Attention session/i }).click();
-    await expect(page.getByText(/Task 1\//i)).toBeVisible();
-    await expect(page.getByText(/Aufgabe 1\//i)).toHaveCount(0);
+    await advanceChoiceSession(page, 4);
+    await expect(page.locator("main")).not.toContainText("Wie oft erscheint");
+    await expect(page.locator("main")).not.toContainText("Scanne das Feld");
   });
 
-  test("Logic started task uses English prompt", async ({ page }) => {
+  test("Logic session stays English across multiple generated tasks", async ({ page }) => {
     await english(page); await page.goto("/training/logic");
     await page.getByRole("button", { name: /Start Logic session/i }).click();
-    await expect(page.getByText(/Task 1\//i)).toBeVisible();
-    await expect(page.getByText("Welche Ausgabe ist korrekt?", { exact: true })).toHaveCount(0);
+    await advanceChoiceSession(page, 4);
+    await expect(page.locator("main")).not.toContainText("Welche Zahl fehlt innerhalb der Folge?");
+    await expect(page.locator("main")).not.toContainText("Welche Ausgabe ist korrekt?");
   });
 
-  test("Language started task uses native English bank", async ({ page }) => {
+  test("Language session uses native English tasks across multiple rounds", async ({ page }) => {
     await english(page); await page.goto("/training/language");
     await page.getByRole("button", { name: /Start Language session/i }).click();
-    await expect(page.getByText(/Task 1\//i)).toBeVisible();
+    await advanceChoiceSession(page, 4);
     await expect(page.locator("main")).not.toContainText("Welches Wort");
     await expect(page.locator("main")).not.toContainText("Welche Fortsetzung");
   });
 
-  test("Visual intro and started memory preview are localized", async ({ page }) => {
+  test("Visual session stays English across multiple generated tasks", async ({ page }) => {
     await english(page); await page.goto("/training/visual");
     await page.getByRole("button", { name: /Start Visual session/i }).click();
-    await expect(page.locator("main")).not.toContainText("Aufgabe 1/");
+    await page.waitForTimeout(3400);
+    await assertSessionEnglish(page);
+    await advanceChoiceSession(page, 3);
     await expect(page.locator("main")).not.toContainText("Präge dir die Reihenfolge ein.");
   });
 
-  test("BrainFit core controls are English", async ({ page }) => {
+  test("BrainFit dynamic controls and task areas remain English", async ({ page }) => {
     await english(page); await page.goto("/training/brain-fit");
     await expect(page.getByRole("button", { name: "Relaxed", exact: true })).toBeVisible();
+    await assertSessionEnglish(page);
     await expect(page.locator("main")).not.toContainText("Fortschritt ohne Leistungsdruck.");
     await expect(page.locator("main")).not.toContainText("Tier-Sudoku");
+    await expect(page.locator("main")).not.toContainText("Noch untrainiert");
   });
 });
