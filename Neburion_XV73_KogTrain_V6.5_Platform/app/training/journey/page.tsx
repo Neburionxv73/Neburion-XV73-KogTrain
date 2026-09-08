@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { UnifiedTrainingJourney } from "@/components/UnifiedTrainingJourney";
+import { TrainingTopbar } from "@/components/TrainingTopbar";
 
 export const metadata: Metadata = {
   title: "Heute trainieren · Adaptive Training Journey V4",
@@ -10,10 +10,10 @@ export const metadata: Metadata = {
 
 export default function JourneyPage(){
   return <main className="trainingPage">
-    <div className="trainingTopbar">
-      <Link className="backLink" href="/">← Zur Plattform</Link>
-      <span>Learning Expansion 4.0 · Adaptive Training Journey V4</span>
-    </div>
+    <TrainingTopbar
+      titleDe="Learning Expansion 4.0 · Adaptive Training Journey V4"
+      titleEn="Learning Expansion 4.0 · Adaptive Training Journey V4"
+    />
     <UnifiedTrainingJourney />
   </main>;
 }
