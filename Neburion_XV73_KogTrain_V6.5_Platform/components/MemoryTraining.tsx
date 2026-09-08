@@ -1,19 +1,21 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { createMemorySession, MEMORY_SESSION_LENGTH, MEMORY_STORAGE_KEY, normalizeMemoryInput, type MemoryMode, type MemorySession, type MemoryTask } from "@/lib/memory";
+import { adaptiveDifficulty, scoreForDifficulty } from "@/lib/adaptiveDifficulty";
+import { createMemorySession, MEMORY_SESSION_LENGTH, MEMORY_STORAGE_KEY, normalizeMemoryInput, type MemoryMode, type MemorySession } from "@/lib/memory";
+import type { Difficulty } from "@/lib/dynamicTraining";
 import styles from "./MemoryTraining.module.css";
 
 type Phase = "intro" | "memorize" | "recall" | "feedback" | "complete";
 type ModeStat = { attempts: number; correct: number };
-type SavedProgress = { bestScore: number; completedSessions: number; lastScore: number; modeStats: Record<MemoryMode, ModeStat> };
+type SavedProgress = { bestScore: number; completedSessions: number; lastScore: number; modeStats: Record<MemoryMode, ModeStat>; recentPercents: number[]; adaptiveLevel: Difficulty };
 type SessionResult = { mode: MemoryMode; correct: boolean };
 
 const emptyModeStats: Record<MemoryMode, ModeStat> = {
   digits:{attempts:0,correct:0}, reverse:{attempts:0,correct:0}, words:{attempts:0,correct:0}, symbols:{attempts:0,correct:0},
   positions:{attempts:0,correct:0}, recognition:{attempts:0,correct:0}, nback1:{attempts:0,correct:0}, nback2:{attempts:0,correct:0},
 };
-const initialProgress: SavedProgress = { bestScore:0, completedSessions:0, lastScore:0, modeStats:emptyModeStats };
+const initialProgress: SavedProgress = { bestScore:0, completedSessions:0, lastScore:0, modeStats:emptyModeStats, recentPercents:[], adaptiveLevel:1 };
 
 function renderPositionPattern(value: string, className: string) {
   const positions = value.replace("pos:", "").split(",").map(Number);
@@ -41,6 +43,8 @@ export function MemoryTraining() {
         completedSessions:parsed.completedSessions ?? 0,
         lastScore:parsed.lastScore ?? 0,
         modeStats:{...emptyModeStats,...(parsed.modeStats ?? {})},
+        recentPercents:parsed.recentPercents ?? [],
+        adaptiveLevel:parsed.adaptiveLevel ?? 1,
       });
     } catch { setProgress(initialProgress); }
   },[]);
@@ -51,8 +55,14 @@ export function MemoryTraining() {
     return ()=>window.clearTimeout(timer);
   },[phase,index,session]);
 
+  function getDecision(recentPercents = progress.recentPercents, modeStats = progress.modeStats, currentLevel = progress.adaptiveLevel) {
+    const modePercents = Object.values(modeStats).filter((stat)=>stat.attempts > 0).map((stat)=>Math.round(stat.correct/stat.attempts*100));
+    return adaptiveDifficulty({ recentPercents, modePercents, currentLevel });
+  }
+
   function start() {
-    setSession(createMemorySession(progress.bestScore));
+    const decision = getDecision();
+    setSession(createMemorySession(scoreForDifficulty(decision.level, MEMORY_SESSION_LENGTH)));
     setIndex(0); setAnswer(""); setSelected(null); setWasCorrect(null); setResults([]); setPhase("memorize");
   }
 
@@ -81,12 +91,15 @@ export function MemoryTraining() {
       setIndex((current)=>current+1); setAnswer(""); setSelected(null); setWasCorrect(null); setPhase("memorize"); return;
     }
     const finalScore = results.filter((result)=>result.correct).length;
+    const percent = Math.round(finalScore/MEMORY_SESSION_LENGTH*100);
     const nextModeStats = {...progress.modeStats};
     results.forEach((result)=>{
       const current = nextModeStats[result.mode] ?? {attempts:0,correct:0};
       nextModeStats[result.mode] = { attempts:current.attempts+1, correct:current.correct+(result.correct?1:0) };
     });
-    const nextProgress: SavedProgress = { bestScore:Math.max(progress.bestScore,finalScore), completedSessions:progress.completedSessions+1, lastScore:finalScore, modeStats:nextModeStats };
+    const recentPercents = [...progress.recentPercents,percent].slice(-6);
+    const decision = getDecision(recentPercents,nextModeStats,progress.adaptiveLevel);
+    const nextProgress: SavedProgress = { bestScore:Math.max(progress.bestScore,finalScore), completedSessions:progress.completedSessions+1, lastScore:finalScore, modeStats:nextModeStats, recentPercents, adaptiveLevel:decision.level };
     setProgress(nextProgress);
     try { localStorage.setItem(MEMORY_STORAGE_KEY,JSON.stringify(nextProgress)); } catch {}
     setPhase("complete");
@@ -95,16 +108,17 @@ export function MemoryTraining() {
   const liveScore = results.filter((result)=>result.correct).length;
   const modeEntries = Object.entries(progress.modeStats) as [MemoryMode,ModeStat][];
   const labels: Record<MemoryMode,string> = {digits:"Zahlen",reverse:"Rückwärts",words:"Wörter",symbols:"Symbole",positions:"Positionen",recognition:"Erkennen",nback1:"1-Back",nback2:"2-Back"};
+  const decision = getDecision();
 
   return (
     <section className={styles.trainer} aria-labelledby="memory-title">
       <div className={styles.header}>
         <div><p className="eyebrow">Memory Lab 2.0 · Multimodales Gedächtnistraining</p><h1 id="memory-title">Merken. Verknüpfen. Abrufen.</h1><p>Eine Session kombiniert acht unterschiedliche Gedächtnisaufgaben. Inhalt, Reihenfolge und Schwierigkeit werden jedes Mal neu erzeugt.</p></div>
-        <div className={styles.meta}><span>Bestwert <strong>{progress.bestScore}/{MEMORY_SESSION_LENGTH}</strong></span><span>Sessions <strong>{progress.completedSessions}</strong></span></div>
+        <div className={styles.meta}><span>Bestwert <strong>{progress.bestScore}/{MEMORY_SESSION_LENGTH}</strong></span><span>Sessions <strong>{progress.completedSessions}</strong></span><span>Adaptiv <strong>Level {decision.level}</strong></span></div>
       </div>
 
       <div className={styles.stage} aria-live="polite">
-        {phase === "intro" && <div className={styles.center}><p className="eyebrow">8 Modi · 1 Session</p><h2>Zahlen, Wörter, Symbole, Positionen und N-Back.</h2><p>Die Anzeigezeit und Komplexität passen sich deinem bisherigen Bestwert an. Jede Session enthält alle acht Trainingsformen einmal.</p><button className="primaryButton" type="button" onClick={start}>Memory Lab 2.0 starten</button></div>}
+        {phase === "intro" && <div className={styles.center}><p className="eyebrow">8 Modi · 1 Session</p><h2>Zahlen, Wörter, Symbole, Positionen und N-Back.</h2><p>Adaptive Difficulty 2.0 bewertet die letzten Sessions und dein Profil je Gedächtnismodus. Gute Serien erhöhen die Komplexität kontrolliert; bei Leistungsabfall wird sie stabilisiert oder reduziert.</p><button className="primaryButton" type="button" onClick={start}>Memory Lab 2.0 starten</button></div>}
 
         {phase === "memorize" && task && session && <div className={styles.center}><p className="roundLabel">{task.label} · Aufgabe {index+1}/{session.tasks.length} · Level {session.difficulty}</p><h2>{task.instruction}</h2>{task.grid ? <div className={styles.bigGrid}>{task.display.map((value,i)=><span key={i} data-active={value === "●"} />)}</div> : <div className={styles.sequence}>{task.display.map((value,i)=><span key={`${value}-${i}`}>{value}</span>)}</div>}<p className={styles.hint}>Verschwindet nach {(session.showMs/1000).toFixed(1).replace(".0","")} Sekunden.</p></div>}
 
@@ -112,7 +126,7 @@ export function MemoryTraining() {
 
         {phase === "feedback" && task && <div className={styles.center}><p className={`feedbackBadge ${wasCorrect ? "correct" : "incorrect"}`}>{wasCorrect ? "Richtig" : "Noch nicht"}</p><h2>{wasCorrect ? "Stark abgerufen." : "Diese Aufgabe war anders."}</h2><p>{task.explanation}</p>{!wasCorrect && <div className={styles.solution}><span>Gesuchte Antwort</span><strong>{task.expected.startsWith("pos:") ? renderPositionPattern(task.expected,styles.miniGrid) : task.expected.replaceAll("|"," · ")}</strong></div>}<button className="primaryButton" type="button" onClick={next}>{index === (session?.tasks.length ?? 1)-1 ? "Auswertung" : "Nächste Aufgabe"}</button></div>}
 
-        {phase === "complete" && <div className={styles.center}><p className="eyebrow">Session abgeschlossen</p><div className={styles.score}><strong>{liveScore}</strong><span>/ {MEMORY_SESSION_LENGTH}</span></div><h2>Gedächtnisprofil aktualisiert.</h2><p>Beim nächsten Start werden Inhalt und Reihenfolge vollständig neu zusammengestellt.</p><div className={styles.modeStats}>{modeEntries.map(([mode,stat])=>{const percent=stat.attempts?Math.round((stat.correct/stat.attempts)*100):0;return <div key={mode}><span>{labels[mode]}</span><strong>{stat.attempts ? `${percent}%` : "–"}</strong></div>})}</div><button className="primaryButton" type="button" onClick={start}>Neue Mixed Session</button></div>}
+        {phase === "complete" && <div className={styles.center}><p className="eyebrow">Session abgeschlossen</p><div className={styles.score}><strong>{liveScore}</strong><span>/ {MEMORY_SESSION_LENGTH}</span></div><h2>Gedächtnisprofil aktualisiert.</h2><p>Nächste adaptive Stufe: Level {decision.level}. Trend: {decision.trend === "up" ? "steigend" : decision.trend === "down" ? "fallend" : "stabil"}.</p><div className={styles.modeStats}>{modeEntries.map(([mode,stat])=>{const percent=stat.attempts?Math.round((stat.correct/stat.attempts)*100):0;return <div key={mode}><span>{labels[mode]}</span><strong>{stat.attempts ? `${percent}%` : "–"}</strong></div>})}</div><button className="primaryButton" type="button" onClick={start}>Neue Mixed Session</button></div>}
       </div>
 
       <div className="trainingNotice"><strong>Trainingshinweis</strong><p>Memory Lab 2.0 trainiert unterschiedliche Merk- und Abrufprozesse. Ergebnisse sind Trainingswerte und keine medizinische Diagnose.</p></div>
