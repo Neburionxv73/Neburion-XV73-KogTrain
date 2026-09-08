@@ -1,16 +1,18 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { adaptiveDifficulty, percentForDifficulty } from "@/lib/adaptiveDifficulty";
 import { createAttentionSession, type AttentionMode, type AttentionSession } from "@/lib/attention";
+import type { Difficulty } from "@/lib/dynamicTraining";
 import styles from "./AttentionTraining.module.css";
 
 type ModeStat = { attempts: number; correct: number };
-type Stats = { sessions: number; bestAccuracy: number; bestReaction: number; modeStats: Partial<Record<AttentionMode, ModeStat>> };
+type Stats = { sessions: number; bestAccuracy: number; bestReaction: number; modeStats: Partial<Record<AttentionMode, ModeStat>>; recentPercents: number[]; recentReactions: number[]; adaptiveLevel: Difficulty };
 type Outcome = { mode: AttentionMode; correct: boolean; reaction: number };
 type Phase = "intro" | "question" | "feedback" | "done";
 
 const STORAGE_KEY = "neburion-v65-attention-stats";
-const initialStats: Stats = { sessions: 0, bestAccuracy: 0, bestReaction: 0, modeStats: {} };
+const initialStats: Stats = { sessions: 0, bestAccuracy: 0, bestReaction: 0, modeStats: {}, recentPercents: [], recentReactions: [], adaptiveLevel: 1 };
 
 export function AttentionTraining() {
   const [session, setSession] = useState<AttentionSession | null>(null);
@@ -27,7 +29,7 @@ export function AttentionTraining() {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return;
       const saved = JSON.parse(raw);
-      setStats({ sessions: saved.sessions ?? 0, bestAccuracy: saved.bestAccuracy ?? 0, bestReaction: saved.bestReaction ?? 0, modeStats: saved.modeStats ?? {} });
+      setStats({ sessions: saved.sessions ?? 0, bestAccuracy: saved.bestAccuracy ?? 0, bestReaction: saved.bestReaction ?? 0, modeStats: saved.modeStats ?? {}, recentPercents: saved.recentPercents ?? [], recentReactions: saved.recentReactions ?? [], adaptiveLevel: saved.adaptiveLevel ?? 1 });
     } catch { setStats(initialStats); }
   }, []);
 
@@ -45,8 +47,16 @@ export function AttentionTraining() {
     return () => window.removeEventListener("keydown", handler);
   });
 
+  function decisionFor(recentPercents = stats.recentPercents, recentReactions = stats.recentReactions, modeStats = stats.modeStats, currentLevel = stats.adaptiveLevel) {
+    const modePercents = Object.values(modeStats).filter((value): value is ModeStat => Boolean(value?.attempts)).map((value) => Math.round(value.correct / value.attempts * 100));
+    const averageReactionMs = recentReactions.length ? Math.round(recentReactions.reduce((sum,value)=>sum+value,0)/recentReactions.length) : undefined;
+    const targetReactionMs = currentLevel === 3 ? 650 : currentLevel === 2 ? 800 : 950;
+    return adaptiveDifficulty({ recentPercents, modePercents, currentLevel, averageReactionMs, targetReactionMs });
+  }
+
   function start() {
-    setSession(createAttentionSession(stats.bestAccuracy));
+    const decision = decisionFor();
+    setSession(createAttentionSession(percentForDifficulty(decision.level)));
     setIndex(0);
     setSelected(null);
     setScore(0);
@@ -74,11 +84,17 @@ export function AttentionTraining() {
       const previous = modeStats[item.mode] ?? { attempts: 0, correct: 0 };
       modeStats[item.mode] = { attempts: previous.attempts + 1, correct: previous.correct + (item.correct ? 1 : 0) };
     });
+    const recentPercents = [...stats.recentPercents, accuracy].slice(-6);
+    const recentReactions = avgReaction ? [...stats.recentReactions, avgReaction].slice(-6) : stats.recentReactions;
+    const decision = decisionFor(recentPercents, recentReactions, modeStats, stats.adaptiveLevel);
     const next: Stats = {
       sessions: stats.sessions + 1,
       bestAccuracy: Math.max(stats.bestAccuracy, accuracy),
       bestReaction: avgReaction && (!stats.bestReaction || avgReaction < stats.bestReaction) ? avgReaction : stats.bestReaction,
       modeStats,
+      recentPercents,
+      recentReactions,
+      adaptiveLevel: decision.level,
     };
     setStats(next);
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(next)); } catch {}
@@ -96,6 +112,7 @@ export function AttentionTraining() {
   const current = session?.tasks[index];
   const accuracy = session ? Math.round((score / session.tasks.length) * 100) : 0;
   const averageReaction = outcomes.length ? Math.round(outcomes.reduce((sum,item)=>sum+item.reaction,0)/outcomes.length) : 0;
+  const decision = decisionFor();
 
   return (
     <section className={styles.trainer} aria-live="polite">
@@ -103,14 +120,14 @@ export function AttentionTraining() {
         <span>Sessions <strong>{stats.sessions}</strong></span>
         <span>Bestwert <strong>{stats.bestAccuracy}%</strong></span>
         <span>Beste Ø-Reaktion <strong>{stats.bestReaction ? `${stats.bestReaction} ms` : "–"}</strong></span>
-        <span>{session ? `Level ${session.difficulty}` : "Attention 2.0"}</span>
+        <span>Adaptiv <strong>Level {decision.level}</strong></span>
       </div>
 
       {phase === "intro" && (
         <div className={styles.stage}>
           <p className="eyebrow">Attention Lab 2.0</p>
           <h2>Fokus wechseln. Störreize hemmen. Tempo halten.</h2>
-          <p>Acht dynamische Aufgaben mischen Go/No-Go, visuelle Suche, Regelwechsel, Reaktionshemmung, geteilte Aufmerksamkeit, Tempo und Interferenz. Jede Session wird neu erzeugt.</p>
+          <p>Acht dynamische Aufgaben mischen Go/No-Go, visuelle Suche, Regelwechsel, Reaktionshemmung, geteilte Aufmerksamkeit, Tempo und Interferenz. Adaptive Difficulty 2.0 bewertet Genauigkeit, Reaktionszeit und den Verlauf der letzten Sessions.</p>
           <div className={styles.modeStrip} aria-label="Trainingsmodi"><span>Go/No-Go</span><span>Suche</span><span>Regelwechsel</span><span>Hemmung</span><span>Geteilt</span><span>Tempo</span><span>Störreiz</span></div>
           <button className="primary trainingButton" type="button" onClick={start}>Attention Session starten</button>
         </div>
@@ -145,8 +162,8 @@ export function AttentionTraining() {
           <p className="eyebrow">Session abgeschlossen</p>
           <h2>{accuracy}% Genauigkeit</h2>
           <div className={styles.score}><strong>{score}</strong><span>/ {session.tasks.length}</span></div>
-          <div className={styles.summary}><span>Ø Reaktion <strong>{averageReaction} ms</strong></span><span>Level <strong>{session.difficulty}</strong></span><span>Modi <strong>{new Set(session.tasks.map((task)=>task.mode)).size}</strong></span></div>
-          <p>Die nächste Session mischt die Modi erneut und passt die Schwierigkeit an deinen bisherigen Bestwert an. Der Wert ist ein Trainingswert und keine medizinische Diagnose.</p>
+          <div className={styles.summary}><span>Ø Reaktion <strong>{averageReaction} ms</strong></span><span>Nächstes Level <strong>{decision.level}</strong></span><span>Trend <strong>{decision.trend === "up" ? "↑" : decision.trend === "down" ? "↓" : "→"}</strong></span></div>
+          <p>Das adaptive System kombiniert Genauigkeit und Tempo. Eine einzelne starke oder schwache Runde reicht nicht für einen abrupten Levelwechsel.</p>
           <button className="primary trainingButton" type="button" onClick={start}>Neue Attention Session</button>
         </div>
       )}
