@@ -1,23 +1,18 @@
-import Link from "next/link";
 import { MemoryTraining } from "@/components/MemoryTraining";
 import { LabViewportStyle } from "@/components/LabViewportStyle";
+import { TrainingTopbar } from "@/components/TrainingTopbar";
 
 export const metadata = {
-  title: "Memory Lab 2.0 · Neburion XV73 V6.6",
-  description: "Multimodales Gedächtnistraining mit Zahlen, Wörtern, Symbolen, Raumpositionen, Wiedererkennung und N-Back.",
+  title: "Memory Lab 2.5 · KogTrain V12",
+  description: "Multimodal memory training / Multimodales Gedächtnistraining mit Zahlen, Wörtern, Symbolen, Raumpositionen, Wiedererkennung und N-Back.",
 };
 
 export default function MemoryLabPage() {
   return (
     <main className="trainingPage labPage">
       <LabViewportStyle />
-      <div className="trainingTopbar">
-        <Link href="/#training" className="backLink">← Trainingswelten</Link>
-        <span>Memory Lab 2.0 · V6.6</span>
-      </div>
-      <section className="trainingShell">
-        <MemoryTraining />
-      </section>
+      <TrainingTopbar href="/#training" backDe="Trainingswelten" backEn="Training worlds" titleDe="Memory Lab 2.5 · Adaptive Difficulty V5" titleEn="Memory Lab 2.5 · Adaptive Difficulty V5" />
+      <section className="trainingShell"><MemoryTraining /></section>
     </main>
   );
 }
