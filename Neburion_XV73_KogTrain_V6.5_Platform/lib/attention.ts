@@ -1,4 +1,4 @@
-import { createSessionSeed, difficultyFromPercent, randomInt, shuffled, type Difficulty } from "@/lib/dynamicTraining";
+import { chooseDiverse, createSessionSeed, difficultyFromPercent, randomInt, shuffled, type Difficulty } from "@/lib/dynamicTraining";
 
 export type AttentionMode = "go-no-go" | "visual-search" | "rule-switch" | "inhibition" | "divided" | "speed" | "interference";
 
@@ -91,11 +91,18 @@ function interference(seed: number): AttentionTask {
 export function createAttentionSession(bestAccuracy: number): AttentionSession {
   const difficulty = difficultyFromPercent(bestAccuracy);
   const seed = createSessionSeed();
-  const factories = [
-    ()=>goNoGo(seed+1), ()=>goNoGo(seed+2), ()=>visualSearch(seed+3,difficulty), ()=>visualSearch(seed+4,difficulty),
-    ()=>ruleSwitch(seed+5), ()=>ruleSwitch(seed+6), ()=>inhibition(seed+7), ()=>divided(seed+8,difficulty),
-    ()=>speed(seed+9,difficulty), ()=>speed(seed+10,difficulty), ()=>interference(seed+11), ()=>interference(seed+12),
+  const tasks: AttentionTask[] = [
+    goNoGo(seed+1), goNoGo(seed+2), goNoGo(seed+13),
+    visualSearch(seed+3,difficulty), visualSearch(seed+4,difficulty), visualSearch(seed+14,difficulty),
+    ruleSwitch(seed+5), ruleSwitch(seed+6), ruleSwitch(seed+15),
+    inhibition(seed+7), inhibition(seed+17),
+    divided(seed+8,difficulty), divided(seed+18,difficulty),
+    speed(seed+9,difficulty), speed(seed+10,difficulty), speed(seed+19,difficulty),
+    interference(seed+11), interference(seed+12), interference(seed+20),
   ];
-  const tasks = shuffled(factories).slice(0,8).map((factory)=>factory());
-  return { difficulty, tasks, targetMs: difficulty===3 ? 650 : difficulty===2 ? 800 : 950 };
+  return {
+    difficulty,
+    tasks: shuffled(chooseDiverse(tasks, 8, (task) => task.mode, 2)),
+    targetMs: difficulty===3 ? 650 : difficulty===2 ? 800 : 950,
+  };
 }
