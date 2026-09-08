@@ -36,6 +36,7 @@ const brainFitTraining = read("components/BrainFitTraining.tsx");
 
 expect("V4 core: persistent recent-task history exists", dynamicTraining.includes("readRecentTaskIds") && dynamicTraining.includes("rememberTaskIds"));
 expect("V4 core: balanced session selection exists", dynamicTraining.includes("balancedByMode") || dynamicTraining.includes("finalizeBalancedSessionTasks"));
+expect("V4 core: session recipe diversity exists", dynamicTraining.includes("selectSessionRecipe") && dynamicTraining.includes("maxPerMode") && dynamicTraining.includes("minActiveModes"));
 expect("V4 core: evidence-based difficulty exists", dynamicTraining.includes("difficultyFromEvidence"));
 expect("V5 core: within-session adaptive controller retained", adaptiveDifficultyV5.includes("createAdaptiveDifficultyState") && adaptiveDifficultyV5.includes("applyAdaptiveDifficultyResult") && adaptiveDifficultyV5.includes("correctStreak >= 3") && adaptiveDifficultyV5.includes("wrongStreak >= 2"));
 
@@ -64,7 +65,7 @@ expect("Visual adaptive quality UI active", hasAdaptiveQualityLabel(visualTraini
 expect("Visual V4: generated visual modes retained", ["rotation","mirror","pattern","matrix","position","search","compare","memory"].every((mode) => visual.includes(`\"${mode}\"`)));
 expect("Visual V4: expanded independent candidate rounds", visualV2.includes("round < 7"));
 expect("Visual V4: fresh-first selection active", visualV2.includes("readRecentTaskIds") && visualV2.includes("recent.has"));
-expect("Visual V4: balanced selection active", visualV2.includes("balancedByMode"));
+expect("Visual V4: varied balanced selection active", visualV2.includes("finalizeBalancedSessionTasks") || visualV2.includes("balancedByMode"));
 expect("Visual V4: long anti-repeat history", visualV2.includes("HISTORY_LIMIT = 144"));
 expect("Visual V5: forced difficulty regeneration active", visualV2.includes("forcedDifficulty") && hasForcedVisualRegeneration(visualTraining));
 
