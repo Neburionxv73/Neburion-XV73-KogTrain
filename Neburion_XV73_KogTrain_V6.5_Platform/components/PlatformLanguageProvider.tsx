@@ -86,6 +86,7 @@ type LanguageContextValue = {
   language: PlatformLanguage;
   setLanguage: (language: PlatformLanguage) => void;
   t: (key: string, values?: Record<string, string | number>) => string;
+  pick: (de: string, en: string) => string;
 };
 
 const LanguageContext = createContext<LanguageContextValue | null>(null);
@@ -124,6 +125,7 @@ export function PlatformLanguageProvider({ children }: { children: ReactNode }) 
       const current = entry[language];
       return typeof current === "function" ? current(values) : current;
     },
+    pick: (de, en) => language === "en" ? en : de,
   }), [language]);
 
   return (
