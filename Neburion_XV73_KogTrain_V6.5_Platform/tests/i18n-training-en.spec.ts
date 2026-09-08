@@ -7,6 +7,8 @@ const routes = [
   ["/training/language", "Understand words. Identify relations. Interpret context."],
   ["/training/visual", "See. Compare. Remember. Think spatially."],
   ["/training/brain-fit", "BrainFit & everyday skills"],
+  ["/training/focus", "Your training now truly adapts to you."],
+  ["/training/journey", "Your next session is built from your progress."],
 ] as const;
 
 const germanSessionPatterns = /\b(Aufgabe|Welche|Welcher|Welches|Wohin|Ergänze|Erkenne|Berechne|Wie oft|Scanne|Merke|Präge|Ziffer|Wörter|Richtig wäre|Nächste Aufgabe|Auswertung|Dynamik|Bestwert|Reaktionszeit|Zieltempo|Trainingshinweis|Noch nicht|Regel erkannt|Schlüsse ziehen|Räumlich denken|identisch|umgekehrte Reihenfolge|eine Position anders|nur die Größe ist anders|Neue Variante|Neue Einheit)\b/i;
@@ -45,6 +47,26 @@ test.describe("English training mode", () => {
       await expect(page.getByText(expected, { exact: false }).first()).toBeVisible();
     });
   }
+
+  test("adaptive focus setup and plan are fully English", async ({ page }) => {
+    await english(page); await page.goto("/training/focus");
+    await expect(page.getByText("Adaptive recommendation", { exact: true })).toBeVisible();
+    await expect(page.getByText("Choose a learning goal", { exact: true })).toBeVisible();
+    await expect(page.getByText("Weekly rhythm", { exact: true })).toBeVisible();
+    await expect(page.getByText("Targeted exercises", { exact: true })).toBeVisible();
+    await expect(page.getByText("Your next training plan.", { exact: true })).toBeVisible();
+    await expect(page.locator("main")).not.toContainText("Dein Training passt sich jetzt wirklich an.");
+    await expect(page.locator("main")).not.toContainText("Dein nächster Trainingsplan.");
+  });
+
+  test("adaptive journey controls and coach plan are English", async ({ page }) => {
+    await english(page); await page.goto("/training/journey");
+    await expect(page.getByText("Choose time", { exact: false })).toBeVisible();
+    await expect(page.getByText("Training logic", { exact: false })).toBeVisible();
+    await expect(page.getByText("Your coach plan", { exact: false })).toBeVisible();
+    await expect(page.getByText("Start Adaptive Journey", { exact: true })).toBeVisible();
+    await expect(page.locator("main")).not.toContainText("Deine nächste Einheit wird aus deinem Fortschritt gebaut.");
+  });
 
   test("Memory session uses English through memorize and recall", async ({ page }) => {
     await english(page); await page.goto("/training/memory");
