@@ -1,0 +1,7 @@
+.languageSwitch{position:fixed;top:16px;right:16px;z-index:1200;display:flex;gap:4px;padding:4px;border:1px solid rgba(15,23,42,.12);border-radius:999px;background:rgba(255,255,255,.9);backdrop-filter:blur(14px);box-shadow:0 10px 30px rgba(15,23,42,.12)}
+.languageSwitch button{min-width:44px;min-height:44px;border:0;border-radius:999px;background:transparent;color:#334155;font:700 13px/1 system-ui,sans-serif;cursor:pointer;transition:background .2s ease,color .2s ease,transform .2s ease}
+.languageSwitch button:hover{transform:translateY(-1px)}
+.languageSwitch button[aria-pressed="true"]{background:#0f766e;color:#fff}
+.languageSwitch button:focus-visible{outline:3px solid rgba(14,116,144,.35);outline-offset:2px}
+@media (max-width:760px){.languageSwitch{top:10px;right:10px}.languageSwitch button{min-width:42px;min-height:42px}}
+@media (prefers-reduced-motion:reduce){.languageSwitch button{transition:none}}
