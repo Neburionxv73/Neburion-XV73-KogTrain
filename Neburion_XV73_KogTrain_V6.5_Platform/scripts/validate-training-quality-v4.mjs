@@ -55,6 +55,7 @@ expect("Logic adaptive quality UI active", hasAdaptiveQualityLabel(logicTraining
 expect("Logic V4: advanced sequence/rule tasks active", logicV2.includes("v4-seq") && logicV2.includes("v4-rule"));
 expect("Logic V4: deduction and operator depth active", logicV2.includes("v4-ded") && logicV2.includes("v4-op"));
 expect("Logic V4: long anti-repeat history", logicV2.includes("logic-v4") && logicV2.includes("144"));
+expect("Logic V5: reverse and relational archetypes retained", logicV2.includes("sequenceMissing") && logicV2.includes("reverseRule") && logicV2.includes("relationChoice"));
 
 expect("Language V4: adaptive quality UI active", hasAdaptiveQualityLabel(languageTraining));
 expect("Language V4: dedicated V4 task bank active", languageV2.includes("V4_BANK") && languageV2.includes("v4-syn-") && languageV2.includes("v4-ctx-"));
@@ -70,6 +71,7 @@ expect("Visual V4: fresh-first selection active", visualV2.includes("readRecentT
 expect("Visual V4: varied balanced selection active", visualV2.includes("finalizeBalancedSessionTasks") || visualV2.includes("balancedByMode"));
 expect("Visual V4: long anti-repeat history", visualV2.includes("HISTORY_LIMIT = 144"));
 expect("Visual V5: forced difficulty regeneration active", visualV2.includes("forcedDifficulty") && hasForcedVisualRegeneration(visualTraining));
+expect("Visual V5: spatial archetype expansion retained", visualV2.includes("counterRotation") && visualV2.includes("doubleMirror") && visualV2.includes("positionRelation"));
 
 expect("BrainFit V4: all eight areas retained", ["sudoku","words","crossword","memory","categories","sequence","everydayMath","timeOrder"].every((area) => brainFit.includes(`\"${area}\"`)));
 expect("BrainFit V4: evidence-based area mode retained", brainFit.includes("adaptiveMode") && brainFit.includes("stat.sessions>=4") && brainFit.includes("stat.bestScore"));
