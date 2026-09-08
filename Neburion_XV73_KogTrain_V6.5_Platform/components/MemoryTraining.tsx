@@ -3,7 +3,8 @@
 import { FormEvent, useEffect, useState } from "react";
 import { createMemorySession, MEMORY_SESSION_LENGTH, MEMORY_STORAGE_KEY, normalizeMemoryInput, type MemoryMode, type MemorySession } from "@/lib/memory";
 import { applyAdaptiveDifficultyResult, createAdaptiveDifficultyState, difficultyLabel, scoreForDifficulty, type AdaptiveDifficultyState } from "@/lib/adaptiveDifficultyV5";
-import { localizeTrainingText, localizedDifficultyLabel } from "@/lib/trainingLocale";
+import { localizedDifficultyLabel } from "@/lib/trainingLocale";
+import { localizeSessionText } from "@/lib/sessionLocale";
 import { usePlatformLanguage } from "./PlatformLanguageProvider";
 import styles from "./MemoryTraining.module.css";
 
@@ -16,7 +17,7 @@ const initialProgress:SavedProgress={bestScore:0,completedSessions:0,lastScore:0
 function renderPositionPattern(value:string,className:string,label:string){const positions=value.replace("pos:","").split(",").map(Number);return <span className={className} aria-label={`${label} ${positions.map(p=>p+1).join(", ")}`}>{Array.from({length:9},(_,i)=><i key={i} data-active={positions.includes(i)}/>)}</span>}
 
 export function MemoryTraining(){
- const {language,pick}=usePlatformLanguage(); const tr=(value:string|undefined)=>localizeTrainingText(value,language); const dl=(level:1|2|3)=>localizedDifficultyLabel(difficultyLabel(level),language);
+ const {language,pick}=usePlatformLanguage(); const tr=(value:string|undefined)=>localizeSessionText(value,language); const dl=(level:1|2|3)=>localizedDifficultyLabel(difficultyLabel(level),language);
  const [phase,setPhase]=useState<Phase>("intro"),[session,setSession]=useState<MemorySession|null>(null),[index,setIndex]=useState(0),[answer,setAnswer]=useState(""),[selected,setSelected]=useState<string|null>(null),[wasCorrect,setWasCorrect]=useState<boolean|null>(null),[results,setResults]=useState<SessionResult[]>([]),[progress,setProgress]=useState<SavedProgress>(initialProgress),[adaptive,setAdaptive]=useState<AdaptiveDifficultyState>(createAdaptiveDifficultyState(1));
  const task=session?.tasks[index];
  useEffect(()=>{try{const raw=localStorage.getItem(MEMORY_STORAGE_KEY);if(!raw)return;const parsed=JSON.parse(raw) as Partial<SavedProgress>;setProgress({bestScore:parsed.bestScore??0,completedSessions:parsed.completedSessions??0,lastScore:parsed.lastScore??0,modeStats:{...emptyModeStats,...(parsed.modeStats??{})}})}catch{setProgress(initialProgress)}},[]);
