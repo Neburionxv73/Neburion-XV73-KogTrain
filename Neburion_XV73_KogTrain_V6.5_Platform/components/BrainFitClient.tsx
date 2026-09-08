@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { BrainFitEnglishBridge } from "./BrainFitEnglishBridge";
+import { usePlatformLanguage } from "./PlatformLanguageProvider";
 
 const BrainFitTraining = dynamic(() => import("./BrainFitTraining").then((module) => module.BrainFitTraining), { ssr: false });
 const BrainFitAdaptiveV5 = dynamic(() => import("./BrainFitAdaptiveV5").then((module) => module.BrainFitAdaptiveV5), { ssr: false });
@@ -9,5 +10,6 @@ const BrainFitCompletionPanel = dynamic(() => import("./BrainFitCompletionPanel"
 const UnifiedTrainingCoach = dynamic(() => import("./UnifiedTrainingCoach").then((module) => module.UnifiedTrainingCoach), { ssr: false });
 
 export function BrainFitClient() {
-  return <BrainFitEnglishBridge><BrainFitTraining /><BrainFitAdaptiveV5 /><BrainFitCompletionPanel /><UnifiedTrainingCoach /></BrainFitEnglishBridge>;
+  const { language } = usePlatformLanguage();
+  return <BrainFitEnglishBridge key={language}><BrainFitTraining /><BrainFitAdaptiveV5 /><BrainFitCompletionPanel /><UnifiedTrainingCoach /></BrainFitEnglishBridge>;
 }
