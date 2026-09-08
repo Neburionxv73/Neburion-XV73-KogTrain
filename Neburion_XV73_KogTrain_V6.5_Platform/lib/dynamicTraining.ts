@@ -105,6 +105,58 @@ export function chooseDiverse<T>(items: readonly T[], count: number, keyOf: (ite
   return selected.slice(0, count);
 }
 
+export function chooseExperienceMix<T>(
+  items: readonly T[],
+  count: number,
+  keyOf: (item: T) => string,
+  activeKeyCount: number,
+  maxPerKey = 2,
+): T[] {
+  if (count <= 0 || items.length === 0) return [];
+  const groups = new Map<string, T[]>();
+  shuffled(items).forEach((item) => {
+    const key = keyOf(item);
+    groups.set(key, [...(groups.get(key) ?? []), item]);
+  });
+
+  const allKeys = shuffled([...groups.keys()]);
+  const targetDistinct = Math.max(1, Math.min(activeKeyCount, allKeys.length, count));
+  const activeKeys = allKeys.slice(0, targetDistinct);
+  const selected: T[] = [];
+  const used = new Map<string, number>();
+
+  for (const key of activeKeys) {
+    const group = groups.get(key) ?? [];
+    const item = group.shift();
+    if (!item) continue;
+    selected.push(item);
+    used.set(key, 1);
+  }
+
+  let candidates = shuffled(activeKeys);
+  while (selected.length < Math.min(count, items.length) && candidates.length > 0) {
+    const nextRound: string[] = [];
+    for (const key of candidates) {
+      if (selected.length >= count) break;
+      const group = groups.get(key) ?? [];
+      const usedForKey = used.get(key) ?? 0;
+      if (group.length === 0 || usedForKey >= maxPerKey) continue;
+      const item = group.shift();
+      if (!item) continue;
+      selected.push(item);
+      used.set(key, usedForKey + 1);
+      if (group.length > 0 && usedForKey + 1 < maxPerKey) nextRound.push(key);
+    }
+    candidates = shuffled(nextRound);
+  }
+
+  if (selected.length < count) {
+    const selectedSet = new Set(selected);
+    selected.push(...shuffled(items.filter((item) => !selectedSet.has(item))).slice(0, count - selected.length));
+  }
+  return shuffled(selected.slice(0, count));
+}
+
 export function createSessionSeed(): number {
   if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
     const value = new Uint32Array(1);
