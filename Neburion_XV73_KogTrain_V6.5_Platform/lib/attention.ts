@@ -46,6 +46,15 @@ function visualSearch(seed: number, difficulty: Difficulty): AttentionTask {
   return withAnswer({ id:stableId("visual-search", `${difficulty}-${target}-${targetCount}-${visual.join("")}`), mode:"visual-search", label:"Visuelle Suche", prompt:`Wie oft erscheint ${target}?`, instruction:difficulty===3?"Scanne das dichte Feld. Ähnliche Formen sind absichtliche Distraktoren.":"Scanne das Feld und zähle nur den Zielreiz.", visual, explanation:`${target} erscheint ${targetCount}-mal im Reizfeld.` }, correct, distractors);
 }
 
+function visualOddOneOut(seed:number,difficulty:Difficulty):AttentionTask{
+  const pool=difficulty===1?symbols.slice(0,8):symbols;
+  const [common,odd]=shuffled(pool).slice(0,2);
+  const total=difficulty===3?18:difficulty===2?14:10;
+  const visual=shuffled([...Array.from({length:total-1},()=>common),odd]);
+  const distractors=shuffled(pool.filter(item=>item!==odd)).slice(0,3);
+  return withAnswer({id:stableId("visual-search",`odd-${difficulty}-${common}-${odd}-${seed%17}`),mode:"visual-search",label:"Einzelgänger-Suche",prompt:"Welcher Reiz kommt nur einmal vor?",instruction:"Finde den einzigen Reiz, der sich vom wiederholten Muster unterscheidet.",visual,explanation:`${odd} war der einzige abweichende Reiz.`},odd,distractors);
+}
+
 function ruleSwitch(seed: number, difficulty: Difficulty): AttentionTask {
   const [a,b,c] = shuffled(symbols).slice(0,3);
   const ruleIndex = difficulty===3 ? seed%3 : seed%2;
@@ -55,6 +64,17 @@ function ruleSwitch(seed: number, difficulty: Difficulty): AttentionTask {
   const correct = shown===active ? "Reagieren" : "Ignorieren";
   const ruleName = String.fromCharCode(65+ruleIndex);
   return withAnswer({ id:stableId("rule-switch", `${difficulty}-${ruleName}-${a}-${b}-${c}-${shown}`), mode:"rule-switch", label:"Regelwechsel", prompt:`Regel ${ruleName}: Reagiere auf ${active}`, instruction:difficulty===3?"Drei mögliche Regeln wechseln. Prüfe jedes Mal nur die aktuell angezeigte Regel.":"Achte auf die aktuelle Regel – nicht auf die Regel der vorherigen Aufgabe.", visual:[shown], explanation:`Für diese Aufgabe galt Regel ${ruleName} mit Zielreiz ${active}.` }, correct, [correct==="Reagieren" ? "Ignorieren" : "Reagieren"]);
+}
+
+function featureSwitch(seed:number,difficulty:Difficulty):AttentionTask{
+  const pairs=[["◆","◇"],["●","○"],["■","□"],["▲","△"]] as const;
+  const pair=pairs[seed%pairs.length];
+  const rule=seed%2===0?"GEFÜLLT":"KONTUR";
+  const shown=pair[(seed+1)%2];
+  const isFilled=shown===pair[0];
+  const correct=(rule==="GEFÜLLT"?isFilled:!isFilled)?"Reagieren":"Ignorieren";
+  const visual=difficulty===3?[shown,pair[isFilled?1:0]]:[shown];
+  return withAnswer({id:stableId("rule-switch",`feature-${rule}-${shown}-${difficulty}`),mode:"rule-switch",label:"Merkmalswechsel",prompt:`Aktive Regel: ${rule}`,instruction:difficulty===3?"Bewerte nur den ersten Reiz nach der aktuell eingeblendeten Merkmalsregel. Der zweite ist Ablenkung.":"Wechsle zwischen den Regeln GEFÜLLT und KONTUR.",visual,explanation:`Die aktive Regel war ${rule}; entscheidend war ${shown}.`},correct,[correct==="Reagieren"?"Ignorieren":"Reagieren"]);
 }
 
 function inhibition(seed: number, difficulty: Difficulty): AttentionTask {
@@ -76,6 +96,18 @@ function divided(seed: number, difficulty: Difficulty): AttentionTask {
   return withAnswer({ id:stableId("divided", `${difficulty}-${target}-${visual.join("")}`), mode:"divided", label:"Geteilte Aufmerksamkeit", prompt:`Finde die Kombination ${target}`, instruction:difficulty===3?"Beachte Farbe und Form gleichzeitig; ähnliche Kombinationen liegen bewusst dicht beieinander.":"Beachte gleichzeitig Farbe und Form.", visual, explanation:`Gesucht war genau die Kombination ${target}.` }, target, shuffled(set.filter((item)=>item!==target)).slice(0,3));
 }
 
+function dividedCount(seed:number,difficulty:Difficulty):AttentionTask{
+  const set=["🔴▲","🔴■","🔵▲","🔵■","🟢●","🟢◆","🟡●","🟡◆"];
+  const target=shuffled(set)[0];
+  const count=randomInt(1,difficulty===3?5:3);
+  const total=difficulty===3?18:difficulty===2?14:10;
+  const others=shuffled(set.filter(item=>item!==target));
+  const visual=shuffled([...Array.from({length:count},()=>target),...Array.from({length:total-count},(_,i)=>others[(i+seed)%others.length])]);
+  const correct=String(count);
+  const distractors=shuffled(["1","2","3","4","5","6"].filter(v=>v!==correct)).slice(0,3);
+  return withAnswer({id:stableId("divided",`count-${difficulty}-${target}-${count}-${seed%19}`),mode:"divided",label:"Doppelmerkmal-Zählung",prompt:`Wie oft erscheint exakt ${target}?`,instruction:"Verfolge Farbe und Form gleichzeitig. Nur die exakte Kombination zählt.",visual,explanation:`${target} erscheint ${count}-mal.`},correct,distractors);
+}
+
 function speed(seed: number, difficulty: Difficulty): AttentionTask {
   const [target, other] = shuffled(symbols).slice(0,2);
   const shown = seed % 2 === 0 ? target : other;
@@ -93,13 +125,35 @@ function interference(seed: number, difficulty: Difficulty): AttentionTask {
   return withAnswer({ id:stableId("interference", `${difficulty}-${visual.join("-")}`), mode:"interference", label:"Störreiz", prompt:difficulty===3?"Welche Farbe zeigt das mittlere Farbsymbol?":"Welche Farbe zeigt der Punkt?", instruction:difficulty===3?"Ignoriere beide Wörter und antworte ausschließlich nach dem mittleren Farbsymbol.":"Ignoriere das geschriebene Farbwort und antworte nach dem Farbsymbol.", visual, explanation:`Entscheidend war das Farbsymbol ${colorIcons[iconIndex]}, nicht das geschriebene Farbwort.` }, labels[iconIndex], shuffled(labels.filter((item)=>item!==labels[iconIndex])).slice(0,3));
 }
 
+function directionInterference(seed:number,difficulty:Difficulty):AttentionTask{
+  const arrows=["←","→","↑","↓"];
+  const words=["LINKS","RECHTS","OBEN","UNTEN"];
+  const index=seed%4;
+  let wordIndex=(index+1+seed%3)%4;
+  if(seed%(difficulty===1?3:5)===0)wordIndex=index;
+  const visual=difficulty===3?[words[(wordIndex+2)%4],arrows[index],words[wordIndex]]:[arrows[index],words[wordIndex]];
+  return withAnswer({id:stableId("interference",`direction-${difficulty}-${visual.join("-")}`),mode:"interference",label:"Richtungs-Interferenz",prompt:"In welche Richtung zeigt der Pfeil?",instruction:difficulty===3?"Ignoriere beide Richtungswörter und bewerte nur den mittleren Pfeil.":"Ignoriere das Richtungswort und antworte nur nach dem Pfeil.",visual,explanation:`Der Pfeil zeigt nach ${words[index].toLocaleLowerCase("de-AT")}.`},words[index],shuffled(words.filter((_,i)=>i!==index)).slice(0,3));
+}
+
 export function createAttentionSession(bestAccuracy: number): AttentionSession {
   const difficulty = difficultyFromPercent(bestAccuracy);
   const seed = createSessionSeed();
   const rounds=difficulty===3?5:difficulty===2?4:3;
   const candidates = Array.from({length:rounds},(_,round)=>{
     const s=seed+round*37;
-    return [goNoGo(s+1,difficulty),visualSearch(s+2,difficulty),ruleSwitch(s+3,difficulty),inhibition(s+4,difficulty),divided(s+5,difficulty),speed(s+6,difficulty),interference(s+7,difficulty)];
+    return [
+      goNoGo(s+1,difficulty),
+      visualSearch(s+2,difficulty),
+      visualOddOneOut(s+12,difficulty),
+      ruleSwitch(s+3,difficulty),
+      featureSwitch(s+13,difficulty),
+      inhibition(s+4,difficulty),
+      divided(s+5,difficulty),
+      dividedCount(s+15,difficulty),
+      speed(s+6,difficulty),
+      interference(s+7,difficulty),
+      directionInterference(s+17,difficulty),
+    ];
   }).flat();
   const taskCount=difficulty===3?10:difficulty===2?9:8;
   const tasks = finalizeBalancedSessionTasks("attention-v4", candidates, taskCount, 112);
