@@ -9,6 +9,7 @@ const state = read("app/api/player-state/route.ts");
 const identity = read("lib/playerIdentity.ts");
 const bridge = read("components/CloudPlayerBridge.tsx");
 const accountPanel = read("components/AccountPanel.tsx");
+const accountPageContent = read("components/AccountPageContent.tsx");
 const layout = read("app/layout.tsx");
 const accountPage = read("app/account/page.tsx");
 
@@ -38,7 +39,7 @@ const checks = [
   ["cloud saves are serialized", bridge.includes("saving = true") && bridge.includes("savePending = true")],
   ["cloud checkpoints on device lifecycle", bridge.includes('"pagehide"') && bridge.includes('"visibilitychange"') && bridge.includes('"online"')],
   ["cloud bridge mounted globally", layout.includes("<CloudPlayerBridge />")],
-  ["account UI exists", accountPage.includes("<AccountPanel />")],
+  ["account UI exists", (accountPage.includes("<AccountPanel />")) || (accountPage.includes("<AccountPageContent />") && accountPageContent.includes("<AccountPanel />"))],
 ];
 
 let failed = 0;
