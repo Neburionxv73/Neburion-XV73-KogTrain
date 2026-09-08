@@ -29,9 +29,9 @@ export function shuffleOptions<T extends { options: string[]; answer: number }>(
   return { ...question, options, answer: options.indexOf(correct) };
 }
 
-const HISTORY_PREFIX = "neburion-v66-task-history:";
+const HISTORY_PREFIX = "neburion-v12-task-history:";
 
-export function readRecentTaskIds(scope: string, max = 24): string[] {
+export function readRecentTaskIds(scope: string, max = 48): string[] {
   if (typeof window === "undefined") return [];
   try {
     const parsed = JSON.parse(window.localStorage.getItem(`${HISTORY_PREFIX}${scope}`) ?? "[]");
@@ -41,22 +41,68 @@ export function readRecentTaskIds(scope: string, max = 24): string[] {
   }
 }
 
-export function rememberTaskIds(scope: string, ids: readonly string[], max = 24): void {
+export function rememberTaskIds(scope: string, ids: readonly string[], max = 48): void {
   if (typeof window === "undefined") return;
   try {
     const previous = readRecentTaskIds(scope, max);
-    const merged = [...previous, ...ids].filter((id, index, all) => all.lastIndexOf(id) === index).slice(-max);
+    const merged = [...previous, ...ids].slice(-max);
     window.localStorage.setItem(`${HISTORY_PREFIX}${scope}`, JSON.stringify(merged));
   } catch {
     // Training remains usable when browser storage is unavailable.
   }
 }
 
+export function recencyPenalty(id: string, recentIds: readonly string[]): number {
+  let penalty = 0;
+  recentIds.forEach((recentId, index) => {
+    if (recentId !== id) return;
+    const age = recentIds.length - index;
+    penalty += Math.max(1, 16 - Math.min(age, 15));
+  });
+  return penalty;
+}
+
 export function chooseFresh<T extends { id: string }>(items: readonly T[], count: number, recentIds: readonly string[] = []): T[] {
-  const recent = new Set(recentIds);
-  const fresh = shuffled(items.filter((item) => !recent.has(item.id)));
-  const fallback = shuffled(items.filter((item) => recent.has(item.id)));
-  return [...fresh, ...fallback].slice(0, Math.min(count, items.length));
+  return shuffled(items)
+    .map((item) => ({ item, penalty: recencyPenalty(item.id, recentIds), tie: Math.random() }))
+    .sort((a, b) => a.penalty - b.penalty || a.tie - b.tie)
+    .slice(0, Math.min(count, items.length))
+    .map(({ item }) => item);
+}
+
+export function chooseDiverse<T>(items: readonly T[], count: number, keyOf: (item: T) => string, maxPerKey = 2): T[] {
+  if (count <= 0 || items.length === 0) return [];
+  const groups = new Map<string, T[]>();
+  shuffled(items).forEach((item) => {
+    const key = keyOf(item);
+    groups.set(key, [...(groups.get(key) ?? []), item]);
+  });
+
+  const selected: T[] = [];
+  const used = new Map<string, number>();
+  let keys = shuffled([...groups.keys()]);
+
+  while (selected.length < Math.min(count, items.length) && keys.length > 0) {
+    const nextKeys: string[] = [];
+    for (const key of keys) {
+      if (selected.length >= count) break;
+      const group = groups.get(key) ?? [];
+      const usedForKey = used.get(key) ?? 0;
+      if (group.length === 0 || usedForKey >= maxPerKey) continue;
+      const item = group.shift();
+      if (!item) continue;
+      selected.push(item);
+      used.set(key, usedForKey + 1);
+      if (group.length > 0 && usedForKey + 1 < maxPerKey) nextKeys.push(key);
+    }
+    keys = shuffled(nextKeys);
+  }
+
+  if (selected.length < count) {
+    const selectedSet = new Set(selected);
+    selected.push(...shuffled(items.filter((item) => !selectedSet.has(item))).slice(0, count - selected.length));
+  }
+  return selected.slice(0, count);
 }
 
 export function createSessionSeed(): number {
