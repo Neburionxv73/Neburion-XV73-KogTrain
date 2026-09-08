@@ -28,7 +28,6 @@ const rules:Array<[RegExp,string]>=[
  [/Herausforderung · weniger Vorgaben und kompaktere Unterstützung/g,"Challenge · less guidance and more compact support"],
  [/(\d+) Bereiche/g,"$1 areas"],[/(\d+) Paare/g,"$1 pairs"],[/(\d+) Begriffe/g,"$1 words"],[/(\d+) gefunden/g,"$1 found"],
  [/Aufgabe (\d+)\/(\d+)/g,"Task $1/$2"],[/Richtig wäre:/g,"Correct answer:"],[/Gefunden:/g,"Found:"],
- [/Ein ruhiger, zugänglicher Trainingsbereich/g,"A calm, accessible training area"],
  [/kurze Aufgaben mit wechselnden Inhalten\. Kein Zeitdruck; nach jeder Antwort siehst du sofort, ob sie passt\./g,"short tasks with changing content. No time pressure; after each answer you immediately see whether it is correct."],
  [/Starte eine neue, zufällig zusammengestellte Einheit\./g,"Start a new randomly assembled set."],
  [/Jedes Tier darf in jeder Zeile, Spalte und jedem markierten 2×2-Bereich nur einmal vorkommen\./g,"Each animal may appear only once in every row, column and marked 2×2 block"],
@@ -39,6 +38,18 @@ function translate(text:string){const trimmed=text.trim();if(!trimmed)return tex
 
 export function BrainFitEnglishBridge({children}:{children:ReactNode}){
  const {language}=usePlatformLanguage(); const ref=useRef<HTMLDivElement>(null);
- useEffect(()=>{const root=ref.current;if(!root)return;const apply=()=>{if(language!=="en")return;const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let node:Node|null;while((node=walker.nextNode())){if(node.nodeValue)node.nodeValue=translate(node.nodeValue);}root.querySelectorAll<HTMLElement>("[aria-label],[title],[placeholder]").forEach(el=>{for(const attr of ["aria-label","title","placeholder"]){const value=el.getAttribute(attr);if(value)el.setAttribute(attr,translate(value));}});};apply();if(language!=="en")return;const observer=new MutationObserver(apply);observer.observe(root,{childList:true,subtree:true,characterData:true});return()=>observer.disconnect();},[language]);
+ useEffect(()=>{
+   const root=ref.current;if(!root||language!=="en")return;
+   let applying=false;
+   const apply=()=>{
+     if(applying)return;applying=true;
+     const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);let node:Node|null;
+     while((node=walker.nextNode())){if(node.nodeValue){const next=translate(node.nodeValue);if(next!==node.nodeValue)node.nodeValue=next;}}
+     root.querySelectorAll<HTMLElement>("[aria-label],[title],[placeholder]").forEach(el=>{for(const attr of ["aria-label","title","placeholder"]){const value=el.getAttribute(attr);if(value){const next=translate(value);if(next!==value)el.setAttribute(attr,next);}}});
+     applying=false;
+   };
+   apply();
+   const observer=new MutationObserver(()=>queueMicrotask(apply));observer.observe(root,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:["aria-label","title","placeholder"]});return()=>observer.disconnect();
+ },[language]);
  return <div ref={ref}>{children}</div>;
 }
