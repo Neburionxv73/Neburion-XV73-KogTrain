@@ -9,7 +9,7 @@ const routes = [
   ["/training/brain-fit", "BrainFit & everyday skills"],
 ] as const;
 
-const germanSessionPatterns = /\b(Aufgabe|Welche|Welcher|Welches|Wie oft|Scanne|Merke|Präge|Ziffer|Wörter|Richtig wäre|Nächste Aufgabe|Auswertung|Dynamik|Bestwert|Reaktionszeit|Zieltempo|Trainingshinweis|Noch nicht|Regel erkannt|Schlüsse ziehen|Räumlich denken)\b/i;
+const germanSessionPatterns = /\b(Aufgabe|Welche|Welcher|Welches|Wie oft|Scanne|Merke|Präge|Ziffer|Wörter|Richtig wäre|Nächste Aufgabe|Auswertung|Dynamik|Bestwert|Reaktionszeit|Zieltempo|Trainingshinweis|Noch nicht|Regel erkannt|Schlüsse ziehen|Räumlich denken|identisch|umgekehrte Reihenfolge|eine Position anders|nur die Größe ist anders|Neue Variante|Neue Einheit)\b/i;
 
 async function english(page: Page) {
   await page.addInitScript(() => localStorage.setItem("neburion-kogtrain-language", "en"));
@@ -80,13 +80,29 @@ test.describe("English training mode", () => {
     await expect(page.locator("main")).not.toContainText("Welche Fortsetzung");
   });
 
-  test("Visual session stays English across multiple generated tasks", async ({ page }) => {
+  test("Visual session localizes prompts and answer buttons", async ({ page }) => {
     await english(page); await page.goto("/training/visual");
     await page.getByRole("button", { name: /Start Visual session/i }).click();
     await page.waitForTimeout(3400);
     await assertSessionEnglish(page);
-    await advanceChoiceSession(page, 3);
+    await advanceChoiceSession(page, 4);
     await expect(page.locator("main")).not.toContainText("Präge dir die Reihenfolge ein.");
+    await expect(page.locator("main")).not.toContainText("identisch");
+    await expect(page.locator("main")).not.toContainText("umgekehrte Reihenfolge");
+    await expect(page.locator("main")).not.toContainText("eine Position anders");
+  });
+
+  test("BrainFit word search uses native English grid data and English actions", async ({ page }) => {
+    await english(page); await page.goto("/training/brain-fit");
+    await expect(page.getByRole("button", { name: "Relaxed", exact: true })).toBeVisible();
+    await page.getByRole("tab", { name: /Word search/i }).click();
+    await expect(page.getByText("Words to find", { exact: true })).toBeVisible();
+    const mainText = await page.locator("main").innerText();
+    expect(mainText).toMatch(/APPLE|FOREST|MOON|CAT|TREE|BREAD|TRAIN|WINTER|PLANET|HARBOR/);
+    expect(mainText).not.toMatch(/APFEL|WALD|MOND|KATZE|BAUM|BROT|ZUG|WINTER\b.*SCHNEE|HAFEN/);
+    await expect(page.getByRole("button", { name: /Check selection/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /New variant/i })).toBeVisible();
+    await assertSessionEnglish(page);
   });
 
   test("BrainFit dynamic controls and task areas remain English", async ({ page }) => {
