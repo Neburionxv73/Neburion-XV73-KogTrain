@@ -52,7 +52,8 @@ export function localizeSessionText(value:string|undefined, language:PlatformLan
   if(!value || language==="de") return value ?? "";
   const mapped = answers[value];
   if(mapped) return mapped;
-  let out = localizeTrainingText(value,language);
+  let out = value;
   for(const [pattern,replacement] of rules) out=out.replace(pattern,replacement);
+  out = localizeTrainingText(out,language);
   return out;
 }
