@@ -1,4 +1,4 @@
-import { createSessionSeed, difficultyFromPercent, randomInt, shuffled, type Difficulty } from "@/lib/dynamicTraining";
+import { chooseDiverse, createSessionSeed, difficultyFromPercent, randomInt, shuffled, type Difficulty } from "@/lib/dynamicTraining";
 
 export type MemoryMode = "digits" | "reverse" | "words" | "symbols" | "positions" | "recognition" | "nback1" | "nback2";
 export type MemoryTask = {
@@ -90,17 +90,21 @@ export function createMemorySession(bestScore: number): MemorySession {
   const percent = Math.round((bestScore / MEMORY_SESSION_LENGTH) * 100);
   const difficulty = difficultyFromPercent(percent);
   const seed = createSessionSeed();
-  const factories = [
-    () => sequenceTask("digits", difficulty, seed + 1),
-    () => sequenceTask("reverse", difficulty, seed + 2),
-    () => wordTask(difficulty, seed + 3),
-    () => symbolTask(difficulty, seed + 4),
-    () => positionTask(difficulty, seed + 5),
-    () => recognitionTask(difficulty, seed + 6),
-    () => nbackTask(1, difficulty, seed + 7),
-    () => nbackTask(2, difficulty, seed + 8),
+  const tasks: MemoryTask[] = [
+    sequenceTask("digits", difficulty, seed + 1), sequenceTask("digits", difficulty, seed + 11),
+    sequenceTask("reverse", difficulty, seed + 2), sequenceTask("reverse", difficulty, seed + 12),
+    wordTask(difficulty, seed + 3), wordTask(difficulty, seed + 13),
+    symbolTask(difficulty, seed + 4), symbolTask(difficulty, seed + 14),
+    positionTask(difficulty, seed + 5), positionTask(difficulty, seed + 15),
+    recognitionTask(difficulty, seed + 6), recognitionTask(difficulty, seed + 16),
+    nbackTask(1, difficulty, seed + 7), nbackTask(1, difficulty, seed + 17),
+    nbackTask(2, difficulty, seed + 8), nbackTask(2, difficulty, seed + 18),
   ];
-  return { difficulty, showMs: difficulty === 3 ? 3200 : difficulty === 2 ? 3800 : 4400, tasks: shuffled(factories).map((factory) => factory()) };
+  return {
+    difficulty,
+    showMs: difficulty === 3 ? 3200 : difficulty === 2 ? 3800 : 4400,
+    tasks: shuffled(chooseDiverse(tasks, MEMORY_SESSION_LENGTH, (task) => task.mode, 2)),
+  };
 }
 
 export function normalizeMemoryInput(task: MemoryTask, value: string): string {
