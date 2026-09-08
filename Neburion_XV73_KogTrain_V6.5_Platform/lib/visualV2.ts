@@ -7,9 +7,8 @@ import {
   type VisualTask,
 } from "@/lib/visual";
 import {
-  balancedByMode,
   difficultyFromEvidence,
-  finalizeSessionTasks,
+  finalizeBalancedSessionTasks,
   readRecentTaskIds,
   type Difficulty,
 } from "@/lib/dynamicTraining";
@@ -41,7 +40,7 @@ export function createVisualSession(
   const candidates: VisualTask[] = [];
 
   // Generate several independent sessions so every visual mode gets a much
-  // larger candidate pool before the final balanced selection is made.
+  // larger candidate pool before the final experience-level recipe is made.
   for (let round = 0; round < 7; round += 1) {
     const session = createBaseVisualSession(scoreForDifficulty(difficulty));
     candidates.push(...session.tasks);
@@ -50,8 +49,7 @@ export function createVisualSession(
   const unique = [...new Map(candidates.map((item) => [item.id, item])).values()];
   const fresh = unique.filter((item) => !recent.has(item.id));
   const source = fresh.length >= VISUAL_SESSION_LENGTH ? fresh : unique;
-  const balanced = balancedByMode(source, VISUAL_SESSION_LENGTH);
-  const tasks = finalizeSessionTasks(HISTORY_SCOPE, balanced, HISTORY_LIMIT);
+  const tasks = finalizeBalancedSessionTasks(HISTORY_SCOPE, source, VISUAL_SESSION_LENGTH, HISTORY_LIMIT);
 
   return { difficulty, tasks };
 }
