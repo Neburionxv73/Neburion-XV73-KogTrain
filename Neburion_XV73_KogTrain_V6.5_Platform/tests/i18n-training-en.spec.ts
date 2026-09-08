@@ -9,7 +9,7 @@ const routes = [
   ["/training/brain-fit", "BrainFit & everyday skills"],
 ] as const;
 
-const germanSessionPatterns = /\b(Aufgabe|Welche|Welcher|Welches|Wie oft|Scanne|Merke|Präge|Ziffer|Wörter|Richtig wäre|Nächste Aufgabe|Auswertung|Dynamik|Bestwert|Reaktionszeit|Zieltempo|Trainingshinweis|Noch nicht|Regel erkannt|Schlüsse ziehen|Räumlich denken|identisch|umgekehrte Reihenfolge|eine Position anders|nur die Größe ist anders|Neue Variante|Neue Einheit)\b/i;
+const germanSessionPatterns = /\b(Aufgabe|Welche|Welcher|Welches|Wohin|Ergänze|Erkenne|Berechne|Wie oft|Scanne|Merke|Präge|Ziffer|Wörter|Richtig wäre|Nächste Aufgabe|Auswertung|Dynamik|Bestwert|Reaktionszeit|Zieltempo|Trainingshinweis|Noch nicht|Regel erkannt|Schlüsse ziehen|Räumlich denken|identisch|umgekehrte Reihenfolge|eine Position anders|nur die Größe ist anders|Neue Variante|Neue Einheit)\b/i;
 
 async function english(page: Page) {
   await page.addInitScript(() => localStorage.setItem("neburion-kogtrain-language", "en"));
@@ -64,10 +64,12 @@ test.describe("English training mode", () => {
     await expect(page.locator("main")).not.toContainText("Scanne das Feld");
   });
 
-  test("Logic session stays English across multiple generated tasks", async ({ page }) => {
+  test("Logic entire session keeps prompts, details, answers and feedback English", async ({ page }) => {
     await english(page); await page.goto("/training/logic");
     await page.getByRole("button", { name: /Start Logic session/i }).click();
-    await advanceChoiceSession(page, 4);
+    await advanceChoiceSession(page, 8);
+    const text = await page.locator("main").innerText();
+    expect(text).not.toMatch(/Welche|Welcher|Welches|Wohin blickst|Ergänze die Analogie|Erkenne die Regel|Berechne mit der neuen Operatorregel|Welche Aussage folgt sicher/i);
     await expect(page.locator("main")).not.toContainText("Welche Zahl fehlt innerhalb der Folge?");
     await expect(page.locator("main")).not.toContainText("Welche Ausgabe ist korrekt?");
   });
