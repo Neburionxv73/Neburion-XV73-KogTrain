@@ -38,8 +38,27 @@ function operator(seed:number,d:Difficulty){const x=randomInt(2,8),y=randomInt(2
 const EX=[{v:["5","10","15","22","25"],c:"22",r:"Alle anderen sind durch 5 teilbar."},{v:["8","16","24","31","40"],c:"31",r:"Alle anderen sind durch 8 teilbar."},{v:["2","3","5","7","9","11"],c:"9",r:"Alle anderen sind Primzahlen."},{v:["12","18","24","30","35"],c:"35",r:"Alle anderen sind durch 6 teilbar."},{v:["9","16","25","36","45","49"],c:"45",r:"Alle anderen sind Quadratzahlen."},{v:["8","27","64","81","125"],c:"81",r:"Alle anderen sind Kubikzahlen."},{v:["21","28","35","42","50","56"],c:"50",r:"Alle anderen sind durch 7 teilbar."},{v:["16","25","36","49","63","64"],c:"63",r:"Alle anderen sind Quadratzahlen."},{v:["11","13","17","19","21","23"],c:"21",r:"Alle anderen sind Primzahlen."}];
 function exclusion(seed:number,d:Difficulty){const start=d===1?0:d===2?2:5,span=d===1?3:d===2?4:4,e=EX[start+seed%span];return makeTask(`v4-exc-${e.v.join("-")}`,"exclusion","Welche Zahl passt nicht?",e.v.join(" · "),e.c,e.v.filter(x=>x!==e.c).slice(0,3),e.r)}
 function spatial(seed:number,d:Difficulty){const dirs=["Norden","Osten","Süden","Westen"],start=seed%4,n=d===1?2:d===2?4:6;let p=start;const moves:string[]=[];for(let i=0;i<n;i++){const right=(seed+i*2)%5<3;p=(p+(right?1:3))%4;moves.push(right?"rechts":"links")}return makeTask(`v4-spa-${dirs[start]}-${moves.join("-")}`,"spatial","Wohin blickst du am Ende?",`Start: ${dirs[start]}. Drehungen: ${moves.join(" → ")}.`,dirs[p],dirs.filter(x=>x!==dirs[p]),`Führe alle ${n} Vierteldrehungen nacheinander aus.`)}
+
+function sequenceMissing(seed:number,d:Difficulty):LogicTask{
+ const start=randomInt(2,12),step=randomInt(2,d===3?9:6),values=[0,1,2,3,4].map(i=>start+i*step),missing=1+(seed%3),correct=values[missing],shown=values.map((value,index)=>index===missing?"?":String(value));
+ return makeTask(`v5-seq-missing-${start}-${step}-${missing}`,"sequence","Welche Zahl fehlt innerhalb der Folge?",shown.join(" · "),String(correct),[String(correct-step),String(correct+step),String(correct+1)],`Alle Werte liegen im konstanten Abstand +${step}. Die Lücke liegt mitten in der Reihe.`);
+}
+function reverseRule(seed:number,d:Difficulty):LogicTask{
+ const input=randomInt(2,9),mult=d===1?2:d===2?3:randomInt(3,5),add=d===1?1:randomInt(2,7),output=input*mult+add;
+ return makeTask(`v5-rule-reverse-${input}-${mult}-${add}`,"rule","Welche Eingabe führte zu dieser Ausgabe?",`Regel: ×${mult}, danach +${add}. ? → ${output}`,String(input),[String(input+1),String(Math.max(1,input-1)),String(output-mult)],`Rückwärts denken: zuerst ${add} abziehen, danach durch ${mult} teilen.`);
+}
+function relationChoice(seed:number,d:Difficulty):LogicTask{
+ const sets=[
+  {detail:"Schlüssel : Schloss",correct:"Passwort : Konto",wrong:["Stift : Papier","Schuh : Straße","Fenster : Wand"],why:"Beide Paare verbinden Zugangsmittel und geschützten Zugang."},
+  {detail:"Thermometer : Temperatur",correct:"Waage : Gewicht",wrong:["Uhr : Kalender","Pinsel : Farbe","Buch : Regal"],why:"Beide Paare verbinden Messgerät und Messgröße."},
+  {detail:"Kapitel : Buch",correct:"Szene : Film",wrong:["Tisch : Zimmer","Auto : Straße","Stift : Text"],why:"Beide Paare verbinden Bestandteil und übergeordnetes Ganzes."},
+  {detail:"Ursache : Wirkung",correct:"Frage : Antwort",wrong:["Plan : Papier","Licht : Lampe","Wasser : Glas"],why:"Beide Paare bilden eine auslösende bzw. beantwortende Folgebeziehung."}
+ ];
+ const v=sets[(seed+d)%sets.length]; return makeTask(`v5-ana-choice-${seed%sets.length}-${d}`,"analogy","Welches Paar besitzt dieselbe Beziehung?",v.detail,v.correct,v.wrong,v.why);
+}
+
 export function createLogicSession(bestScore:number):LogicSession{
  const difficulty=difficultyFromPercent((bestScore/LOGIC_SESSION_LENGTH)*100),seed=createSessionSeed();
- const candidates=Array.from({length:difficulty===3?5:4},(_,round)=>{const s=seed+round*97;return [sequence(s,difficulty),rule(s+11,difficulty),analogy(s+23,difficulty),deduction(s+37,difficulty),matrix(s+41,difficulty),operator(s+53,difficulty),exclusion(s+67,difficulty),spatial(s+79,difficulty)]}).flat();
+ const candidates=Array.from({length:difficulty===3?5:4},(_,round)=>{const s=seed+round*97;return [sequence(s,difficulty),sequenceMissing(s+5,difficulty),rule(s+11,difficulty),reverseRule(s+17,difficulty),analogy(s+23,difficulty),relationChoice(s+29,difficulty),deduction(s+37,difficulty),matrix(s+41,difficulty),operator(s+53,difficulty),exclusion(s+67,difficulty),spatial(s+79,difficulty)]}).flat();
  return {difficulty,tasks:finalizeBalancedSessionTasks("logic-v4",candidates,LOGIC_SESSION_LENGTH,144)};
 }
