@@ -7,10 +7,14 @@ import {
   dailyMixTasks, emptyCompletionStats, recordCompletion, tasksForArea, todayKey,
   type CompletionArea, type CompletionStats, type CompletionTask,
 } from "@/lib/brainFitCompletion";
+import { localizeBrainFitCompletionText } from "@/lib/brainFitCompletionLocale";
+import { usePlatformLanguage } from "./PlatformLanguageProvider";
 
 type View = "daily" | CompletionArea;
 
 export function BrainFitCompletionPanel(){
+  const {language,pick}=usePlatformLanguage();
+  const tr=(value:string|undefined)=>localizeBrainFitCompletionText(value,language);
   const [view,setView]=useState<View>("daily");
   const [stats,setStats]=useState<CompletionStats>(()=>emptyCompletionStats());
   const [tasks,setTasks]=useState<CompletionTask[]>(()=>dailyMixTasks());
@@ -48,33 +52,36 @@ export function BrainFitCompletionPanel(){
     try{localStorage.setItem(BRAIN_FIT_COMPLETION_KEY,JSON.stringify(nextStats));}catch{}
   }
 
+  const viewArea=view==="daily"?null:COMPLETION_AREAS.find(item=>item.id===view);
+  const currentArea=current?COMPLETION_AREAS.find(item=>item.id===current.area):null;
+
   return <section className={styles.wrap} aria-labelledby="completion-title">
     <div className={styles.head}>
-      <div><p className="eyebrow">Learning Expansion 3.7.6 · Completion Pack</p><h2 id="completion-title">Tagesmix & zusätzliche Gehirnfit-Welten.</h2><p>Kurze, ruhige Einheiten ergänzen die acht Hauptübungen um Sprache, Zuordnung, Sprichwörter und Alltagsorientierung. Alles ohne Zeitdruck.</p></div>
-      <div className={styles.summary}><span>Runden <strong>{stats.sessions}</strong></span><span>Ø <strong>{stats.sessions?`${completionAverage(stats)}%`:"–"}</strong></span><span>Erfolge <strong>{unlocked}/{achievements.length}</strong></span></div>
+      <div><p className="eyebrow">Learning Expansion 3.7.6 · Completion Pack</p><h2 id="completion-title">{pick("Tagesmix & zusätzliche Gehirnfit-Welten.","Daily mix & additional BrainFit worlds.")}</h2><p>{pick("Kurze, ruhige Einheiten ergänzen die acht Hauptübungen um Sprache, Zuordnung, Sprichwörter und Alltagsorientierung. Alles ohne Zeitdruck.","Short, calm sessions complement the eight main exercises with language, matching, proverbs and everyday orientation. Everything is without time pressure.")}</p></div>
+      <div className={styles.summary}><span>{pick("Runden","Rounds")} <strong>{stats.sessions}</strong></span><span>Ø <strong>{stats.sessions?`${completionAverage(stats)}%`:"–"}</strong></span><span>{pick("Erfolge","Achievements")} <strong>{unlocked}/{achievements.length}</strong></span></div>
     </div>
 
-    <div className={styles.nav} aria-label="Zusätzliche Gehirnfit-Bereiche">
-      <button type="button" aria-pressed={view==="daily"} onClick={()=>load("daily")}>🌤️ Tagesmix</button>
-      {COMPLETION_AREAS.map(area=><button type="button" key={area.id} aria-pressed={view===area.id} onClick={()=>load(area.id)}>{area.icon} {area.title}</button>)}
+    <div className={styles.nav} aria-label={pick("Zusätzliche Gehirnfit-Bereiche","Additional BrainFit areas")}>
+      <button type="button" aria-pressed={view==="daily"} onClick={()=>load("daily")}>🌤️ {pick("Tagesmix","Daily mix")}</button>
+      {COMPLETION_AREAS.map(item=><button type="button" key={item.id} aria-pressed={view===item.id} onClick={()=>load(item.id)}>{item.icon} {tr(item.title)}</button>)}
     </div>
 
     <div className={styles.card}>
-      <div className={styles.cardHead}><div><span>{view==="daily"?"Gemischte Runde":COMPLETION_AREAS.find(area=>area.id===view)?.subtitle}</span><h3>{view==="daily"?"Dein heutiger Gehirnfit-Mix":COMPLETION_AREAS.find(area=>area.id===view)?.title}</h3></div><span>{complete?"Abgeschlossen":`${Math.min(index+1,tasks.length)}/${tasks.length}`}</span></div>
+      <div className={styles.cardHead}><div><span>{view==="daily"?pick("Gemischte Runde","Mixed round"):tr(viewArea?.subtitle)}</span><h3>{view==="daily"?pick("Dein heutiger Gehirnfit-Mix","Your BrainFit mix for today"):tr(viewArea?.title)}</h3></div><span>{complete?pick("Abgeschlossen","Complete"):`${Math.min(index+1,tasks.length)}/${tasks.length}`}</span></div>
 
       {!complete&&current&&<div className={styles.task}>
-        <p className={styles.areaTag}>{COMPLETION_AREAS.find(area=>area.id===current.area)?.icon} {COMPLETION_AREAS.find(area=>area.id===current.area)?.title}</p>
-        <h4>{current.prompt}</h4>
-        <div className={styles.options}>{current.options.map(option=><button type="button" key={option} onClick={()=>answer(option)} disabled={selected!==null} data-selected={selected===option} data-correct={selected!==null&&option===current.answer}>{option}</button>)}</div>
-        {selected&&<div className={isCorrect?styles.good:styles.help}>{isCorrect?"Richtig ✓":`Fast – richtig wäre: ${current.answer}. ${current.hint}`}</div>}
-        <button className={styles.primary} type="button" disabled={!selected} onClick={next}>{index===tasks.length-1?"Auswertung":"Nächste Aufgabe"}</button>
+        <p className={styles.areaTag}>{currentArea?.icon} {tr(currentArea?.title)}</p>
+        <h4>{tr(current.prompt)}</h4>
+        <div className={styles.options}>{current.options.map(option=><button type="button" key={option} onClick={()=>answer(option)} disabled={selected!==null} data-selected={selected===option} data-correct={selected!==null&&option===current.answer}>{tr(option)}</button>)}</div>
+        {selected&&<div className={isCorrect?styles.good:styles.help}>{isCorrect?pick("Richtig ✓","Correct ✓"):`${pick("Fast – richtig wäre:","Not quite — correct answer:")} ${tr(current.answer)}. ${tr(current.hint)}`}</div>}
+        <button className={styles.primary} type="button" disabled={!selected} onClick={next}>{index===tasks.length-1?pick("Auswertung","Results"):pick("Nächste Aufgabe","Next task")}</button>
       </div>}
 
-      {complete&&<div className={styles.result}><strong>{Math.round((correct/tasks.length)*100)}%</strong><h4>Runde abgeschlossen.</h4><p>{correct} von {tasks.length} Aufgaben richtig. Du kannst dieselbe Welt mit einer neuen Variante wiederholen oder zum Tagesmix wechseln.</p><div className={styles.resultActions}><button type="button" onClick={()=>load(view)}>Neue Variante</button><button type="button" onClick={()=>load("daily")}>Tagesmix öffnen</button></div></div>}
+      {complete&&<div className={styles.result}><strong>{Math.round((correct/tasks.length)*100)}%</strong><h4>{pick("Runde abgeschlossen.","Round complete.")}</h4><p>{pick(`${correct} von ${tasks.length} Aufgaben richtig. Du kannst dieselbe Welt mit einer neuen Variante wiederholen oder zum Tagesmix wechseln.`,`${correct} of ${tasks.length} tasks correct. You can repeat the same world with a new variant or switch to the daily mix.`)}</p><div className={styles.resultActions}><button type="button" onClick={()=>load(view)}>{pick("Neue Variante","New variant")}</button><button type="button" onClick={()=>load("daily")}>{pick("Tagesmix öffnen","Open daily mix")}</button></div></div>}
     </div>
 
-    <div className={styles.achievements} aria-label="Gehirnfit-Erfolge"><div><p className="eyebrow">Meilensteine</p><h3>Fortschritt sichtbar machen.</h3><p>Die Erfolge sind Motivation, keine Bewertung. Sie werden ausschließlich lokal in diesem Browser gespeichert.</p></div><div className={styles.badges}>{achievements.map(item=><span key={item.label} data-unlocked={item.unlocked}>{item.unlocked?"✓":"○"} {item.label}</span>)}</div></div>
+    <div className={styles.achievements} aria-label={pick("Gehirnfit-Erfolge","BrainFit achievements")}><div><p className="eyebrow">{pick("Meilensteine","Milestones")}</p><h3>{pick("Fortschritt sichtbar machen.","Make progress visible.")}</h3><p>{pick("Die Erfolge sind Motivation, keine Bewertung. Sie werden ausschließlich lokal in diesem Browser gespeichert.","Achievements are for motivation, not evaluation. They are stored only locally in this browser.")}</p></div><div className={styles.badges}>{achievements.map(item=><span key={item.label} data-unlocked={item.unlocked}>{item.unlocked?"✓":"○"} {tr(item.label)}</span>)}</div></div>
 
-    {stats.completedToday===todayKey()&&<p className={styles.today}>Heute bereits eine Completion-Runde abgeschlossen ✓</p>}
+    {stats.completedToday===todayKey()&&<p className={styles.today}>{pick("Heute bereits eine Completion-Runde abgeschlossen ✓","A completion round has already been finished today ✓")}</p>}
   </section>;
 }
