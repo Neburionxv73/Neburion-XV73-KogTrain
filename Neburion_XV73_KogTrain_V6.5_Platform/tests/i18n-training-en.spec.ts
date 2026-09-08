@@ -24,19 +24,14 @@ async function assertSessionEnglish(page: Page) {
 async function advanceChoiceSession(page: Page, rounds = 3) {
   for (let round = 0; round < rounds; round += 1) {
     await assertSessionEnglish(page);
-    const taskButtons = page.locator("main button").filter({ hasNotText: /^(DE|EN)$/ });
-    const visible = taskButtons.filter({ visible: true });
-    const option = visible.filter({ has: page.locator("kbd") }).first();
-    if (await option.count()) await option.click();
-    else {
-      const candidate = visible.filter({ hasNotText: /Training worlds|Start .*session|New .*session/i }).first();
-      if (await candidate.count()) await candidate.click();
-    }
+    const option = page.locator("main button:visible").filter({ has: page.locator("kbd") }).first();
+    if (!(await option.count())) break;
+    await option.click();
     await page.waitForTimeout(80);
     await assertSessionEnglish(page);
     const next = page.getByRole("button", { name: /Next task|Results/i }).first();
-    if (await next.count()) await next.click();
-    else break;
+    if (!(await next.count())) break;
+    await next.click();
     await page.waitForTimeout(80);
   }
 }
