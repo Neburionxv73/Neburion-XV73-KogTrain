@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - dev/v6.7-platform
+      - dev/v6.5-platform
     paths:
       - "Neburion_XV73_KogTrain_V6.5_Platform/**"
       - ".github/workflows/v103-runtime-qa.yml"
