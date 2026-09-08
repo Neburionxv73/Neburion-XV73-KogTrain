@@ -50,6 +50,15 @@ async function readProgress(page: import("@playwright/test").Page) {
   }), { activeKey: ACTIVE_PLAYER_KEY, unifiedKey: UNIFIED_KEY, historyKey: HISTORY_KEY });
 }
 
+async function waitForHydrationReload(page: import("@playwright/test").Page) {
+  await expect.poll(async () => page.evaluate(() => {
+    const navigation = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
+    return navigation?.type ?? "navigate";
+  }), { message: "Fresh device should finish the remote-hydration reload before local save checkpoints are tested" }).toBe("reload");
+  await page.waitForLoadState("domcontentloaded");
+  await page.waitForFunction((userId) => sessionStorage.getItem(`kogtrain-cloud-hydrated:${userId}`) === "1", USER.id);
+}
+
 test("cloud state survives Device A -> Device B restore before any B save", async ({ browser }) => {
   const server = { value: null as CloudState | null };
   const deviceAWrites: CloudState[] = [];
@@ -84,7 +93,9 @@ test("cloud state survives Device A -> Device B restore before any B save", asyn
   await pageB.goto("/", { waitUntil: "domcontentloaded" });
 
   await expect.poll(async () => (await readProgress(pageB)).unified).toBe(progressA);
+  await waitForHydrationReload(pageB);
   const restoredB = await readProgress(pageB);
+  expect(restoredB.unified).toBe(progressA);
   expect(restoredB.history).toBe(historyA);
   expect(JSON.parse(restoredB.active ?? "{}").id).toBe(player.id);
   expect(deviceBWrites, "Device B must restore before it is allowed to save").toHaveLength(0);
@@ -108,7 +119,9 @@ test("cloud state survives Device A -> Device B restore before any B save", asyn
   const pageC = await deviceC.newPage();
   await pageC.goto("/", { waitUntil: "domcontentloaded" });
   await expect.poll(async () => (await readProgress(pageC)).unified).toBe(progressB);
+  await waitForHydrationReload(pageC);
   const restoredC = await readProgress(pageC);
+  expect(restoredC.unified).toBe(progressB);
   expect(restoredC.history).toBe(historyB);
   expect(deviceCWrites, "Fresh device must not write before remote hydration").toHaveLength(0);
 
