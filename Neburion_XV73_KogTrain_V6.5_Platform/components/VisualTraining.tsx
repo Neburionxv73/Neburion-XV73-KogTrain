@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { createVisualSession, VISUAL_SESSION_LENGTH, VISUAL_STORAGE_KEY, type VisualMode, type VisualSession } from "@/lib/visualV2";
 import { applyAdaptiveDifficultyResult, createAdaptiveDifficultyState, difficultyLabel, type AdaptiveDifficultyState } from "@/lib/adaptiveDifficultyV5";
-import { localizeTrainingText, localizedDifficultyLabel } from "@/lib/trainingLocale";
+import { localizedDifficultyLabel } from "@/lib/trainingLocale";
+import { localizeSessionText } from "@/lib/sessionLocale";
 import { usePlatformLanguage } from "./PlatformLanguageProvider";
 import styles from "./VisualTraining.module.css";
 
@@ -14,7 +15,7 @@ type Phase = "intro" | "preview" | "question" | "feedback" | "done";
 const initialStats: VisualStats = { sessions: 0, bestScore: 0, modeStats: {} };
 
 export function VisualTraining() {
-  const {language,pick}=usePlatformLanguage(); const tr=(value:string|undefined)=>localizeTrainingText(value,language); const dl=(level:1|2|3)=>localizedDifficultyLabel(difficultyLabel(level),language);
+  const {language,pick}=usePlatformLanguage(); const tr=(value:string|undefined)=>localizeSessionText(value,language); const dl=(level:1|2|3)=>localizedDifficultyLabel(difficultyLabel(level),language);
   const labels: Record<VisualMode, string> = { rotation:"Rotation",mirror:pick("Spiegelung","Reflection"),pattern:pick("Musterreihe","Pattern sequence"),matrix:"Matrix",position:pick("Positionswechsel","Position shift"),search:pick("Visuelle Suche","Visual search"),compare:pick("Formvergleich","Shape comparison"),memory:pick("Kurzzeitgedächtnis","Short-term memory") };
   const positionLabels=language==="en"?["top left","top center","top right","middle left","center","middle right","bottom left","bottom center","bottom right"]:["oben links","oben Mitte","oben rechts","Mitte links","Mitte","Mitte rechts","unten links","unten Mitte","unten rechts"];
   const [session,setSession]=useState<VisualSession|null>(null); const [index,setIndex]=useState(0); const [selected,setSelected]=useState<number|null>(null); const [outcomes,setOutcomes]=useState<Outcome[]>([]); const [phase,setPhase]=useState<Phase>("intro"); const [stats,setStats]=useState<VisualStats>(initialStats); const [adaptive,setAdaptive]=useState<AdaptiveDifficultyState>(createAdaptiveDifficultyState(1)); const current=session?.tasks[index];
