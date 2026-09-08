@@ -44,6 +44,7 @@ expect("Memory adaptive quality UI active", hasAdaptiveQualityLabel(memoryTraini
 expect("Memory V4: eight generated memory modes retained", ["digits","reverse","words","symbols","positions","recognition","nback1","nback2"].every((mode) => memory.includes(`\"${mode}\"`)));
 expect("Memory V4: generated sessions and adaptive span active", memory.includes("createSessionSeed") && memory.includes("finalizeBalancedSessionTasks") && memory.includes("showMs"));
 expect("Memory V4: long anti-repeat history", memory.includes("memory-v4") && memory.includes("144"));
+expect("Memory V5: varied recall archetypes retained", memory.includes("digitGapTask") && memory.includes("wordOrderChoiceTask") && memory.includes("symbolPositionTask"));
 
 expect("Attention V4: adaptive quality UI active", attentionTraining.includes("createAttentionSession(stats.bestAccuracy)") && attentionTraining.includes("session.difficulty") && attentionTraining.includes("session.targetMs"));
 expect("Attention V4: advanced modes retained", ["go-no-go","visual-search","rule-switch","inhibition","divided","speed","interference"].every((mode) => attention.includes(`\"${mode}\"`)));
@@ -60,6 +61,7 @@ expect("Language V4: dedicated V4 task bank active", languageV2.includes("V4_BAN
 expect("Language V4: rolling history minimum 32", historyAtLeast(languageTraining, 32));
 expect("Language V4: rolling history read/write active", languageTraining.includes("readRecentTaskIds") && languageTraining.includes("rememberTaskIds"));
 expect("Language V4: balanced adaptive selection active", languageV2.includes("difficultyFromEvidence") && languageV2.includes("finalizeBalancedSessionTasks"));
+expect("Language V5: reasoning archetype expansion retained", ["v4-syn-kontext","v4-ana-reverse","v4-cat-ausreisser","v4-field-cluster","v4-rel-paarvergleich"].every((id) => languageV2.includes(id)));
 
 expect("Visual adaptive quality UI active", hasAdaptiveQualityLabel(visualTraining) && visualTraining.includes("data-adaptive-level") && visualTraining.includes("applyAdaptiveDifficultyResult"));
 expect("Visual V4: generated visual modes retained", ["rotation","mirror","pattern","matrix","position","search","compare","memory"].every((mode) => visual.includes(`\"${mode}\"`)));
