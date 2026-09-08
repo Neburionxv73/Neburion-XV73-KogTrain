@@ -1,29 +1,18 @@
-import Link from "next/link";
 import { LanguageTraining } from "@/components/LanguageTraining";
+import { BilingualLabIntro, BilingualTrainingDisclaimer } from "@/components/BilingualLabIntro";
 import { LabViewportStyle } from "@/components/LabViewportStyle";
+import { TrainingTopbar } from "@/components/TrainingTopbar";
 
-export const metadata = {
-  title: "Language Lab 2.0 · Neburion XV73 V6.6",
-  description: "Adaptives Sprachtraining mit Synonymen, Antonymen, Analogien, Kategorien, Wortfeldern, Satzlogik, Bedeutungsbeziehungen und Kontextverständnis.",
-};
+export const metadata = { title: "Language Lab 2.0 · Neburion XV73 V6.6", description: "Adaptive language training / Adaptives Sprachtraining mit Synonymen, Antonymen, Analogien, Kategorien, Wortfeldern, Satzlogik, Bedeutungsbeziehungen und Kontextverständnis." };
 
 export default function LanguagePage() {
-  return (
-    <main className="trainingPage labPage">
-      <LabViewportStyle />
-      <div className="trainingTopbar">
-        <Link className="backLink" href="/#training">← Trainingswelten</Link>
-        <span>Language Lab 2.0 · V6.6</span>
-      </div>
-      <section className="trainingShell">
-        <header className="trainingIntro">
-          <p className="eyebrow">Language Lab 2.0</p>
-          <h1>Wörter verstehen. Beziehungen erkennen. Kontext deuten.</h1>
-          <p>Acht dynamische Aufgaben kombinieren Synonyme, Antonyme, Analogien, Kategorien, Wortfelder, Satzlogik, Bedeutungsbeziehungen und Kontextverständnis. Varianten und Schwierigkeitsstufe passen sich an deinen bisherigen Bestwert an.</p>
-        </header>
-        <LanguageTraining />
-        <p className="trainingDisclaimer">Dieses Training dient Lern- und Übungszwecken und stellt keine medizinische Diagnose oder Behandlung dar.</p>
-      </section>
-    </main>
-  );
+  return <main className="trainingPage labPage">
+    <LabViewportStyle />
+    <TrainingTopbar href="/#training" backDe="Trainingswelten" backEn="Training worlds" titleDe="Language Lab 2.0 · V6.6" titleEn="Language Lab 2.0 · V6.6" />
+    <section className="trainingShell">
+      <BilingualLabIntro eyebrow="Language Lab 2.0" titleDe="Wörter verstehen. Beziehungen erkennen. Kontext deuten." titleEn="Understand words. Identify relations. Interpret context." bodyDe="Acht dynamische Aufgaben kombinieren Synonyme, Antonyme, Analogien, Kategorien, Wortfelder, Satzlogik, Bedeutungsbeziehungen und Kontextverständnis. Varianten und Schwierigkeitsstufe passen sich an deinen bisherigen Bestwert an." bodyEn="Eight dynamic tasks combine synonyms, antonyms, analogies, categories, semantic fields, sentence logic, meaning relations and contextual understanding. Variants and difficulty adapt to your previous performance." />
+      <LanguageTraining />
+      <BilingualTrainingDisclaimer />
+    </section>
+  </main>;
 }
