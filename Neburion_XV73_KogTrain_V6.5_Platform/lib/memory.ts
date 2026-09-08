@@ -28,14 +28,28 @@ function sequenceTask(mode:"digits"|"reverse",d:Difficulty,seed:number):MemoryTa
  const prompt=mode==="reverse"?(seed%2?"Welche Zahlenfolge entsteht von hinten nach vorne?":"Gib die Folge rückwärts ein."):(seed%2?"Rekonstruiere die Zahlenfolge exakt.":"Gib die Folge in gleicher Reihenfolge ein.");
  return {id:stableId(mode,raw),mode,label:mode==="reverse"?"Rückwärtsfolge":"Zahlenfolge",prompt,instruction:`Präge dir ${length} Ziffern und ihre Reihenfolge ein.`,display:sequence,answerType:"text",expected,explanation:mode==="reverse"?"Die ursprüngliche Folge wird vollständig umgekehrt abgerufen.":"Alle Ziffern müssen in der gezeigten Reihenfolge erinnert werden."};
 }
+function digitGapTask(d:Difficulty,seed:number):MemoryTask{
+ const length=d===1?5:d===2?7:9,sequence=digits(length),hidden=(seed+length)%length,expected=sequence[hidden],masked=sequence.map((value,index)=>index===hidden?"?":value);
+ const options=uniqueOptions(expected,()=>String(randomInt(0,9)));
+ return {id:stableId("digits",`gap-${sequence.join("")}-${hidden}`),mode:"digits",label:"Fehlende Ziffer",prompt:`Welche Ziffer fehlte in ${masked.join(" ")}?`,instruction:`Merke dir ${length} Ziffern. Danach fehlt genau eine Position.`,display:sequence,answerType:"choice",expected,options,explanation:`An Position ${hidden+1} stand die Ziffer ${expected}.`};
+}
 function wordTask(d:Difficulty,seed:number):MemoryTask{
  const count=d===1?4:d===2?6:7,list=shuffled(WORDS).slice(0,count),signature=list.map(w=>w.toLowerCase()).join("-");
  return {id:stableId("words",signature),mode:"words",label:"Wortgedächtnis",prompt:seed%2?"Gib die Wörter in derselben Reihenfolge ein.":"Welche Wortfolge wurde gezeigt?",instruction:`Merke dir ${count} Wörter und ihre genaue Reihenfolge.`,display:list,answerType:"text",expected:normalizeWords(list),explanation:"Freier Abruf: Wortlaut und Reihenfolge müssen zusammen stimmen."};
+}
+function wordOrderChoiceTask(d:Difficulty,seed:number):MemoryTask{
+ const count=d===1?4:d===2?5:6,list=shuffled(WORDS).slice(0,count),correct=list.join(" · ");
+ const options=uniqueOptions(correct,()=>{const copy=[...list];const a=randomInt(0,count-2);[copy[a],copy[a+1]]=[copy[a+1],copy[a]];if(d===3&&seed%2===0){const b=randomInt(0,count-1);copy[b]=shuffled(WORDS.filter(word=>!copy.includes(word)))[0]}return copy.join(" · ")});
+ return {id:stableId("words",`order-${list.map(w=>w.toLowerCase()).join("-")}`),mode:"words",label:"Wortreihenfolge",prompt:"Welche Reihenfolge wurde exakt gezeigt?",instruction:`Merke dir ${count} Wörter und besonders ihre Positionen.`,display:list,answerType:"choice",expected:correct,options,explanation:"Hier zählt nicht nur, welche Wörter vorkamen, sondern ihre exakte Reihenfolge."};
 }
 function symbolTask(d:Difficulty,seed:number):MemoryTask{
  const count=d===1?4:d===2?6:8,list=Array.from({length:count},()=>SYMBOLS[randomInt(0,SYMBOLS.length-1)]),correct=list.join(" ");
  const options=uniqueOptions(correct,()=>{const copy=[...list];const swaps=d===3?2:1;for(let i=0;i<swaps;i++){const at=randomInt(0,count-1);copy[at]=SYMBOLS[randomInt(0,SYMBOLS.length-1)]}return copy.join(" ")});
  return {id:stableId("symbols",correct),mode:"symbols",label:"Symbolgedächtnis",prompt:seed%2?"Welche Symbolfolge hast du gesehen?":"Wähle die exakt gezeigte Symbolreihe.",instruction:`Merke dir ${count} Symbole. Ähnliche Formen können später als Ablenkung erscheinen.`,display:list,answerType:"choice",expected:correct,options,explanation:"Entscheidend sind Symbolidentität und Position in der Reihe."};
+}
+function symbolPositionTask(d:Difficulty,seed:number):MemoryTask{
+ const count=d===1?5:d===2?7:9,list=Array.from({length:count},()=>SYMBOLS[randomInt(0,SYMBOLS.length-1)]),position=(seed+count)%count,expected=list[position],options=uniqueOptions(expected,()=>SYMBOLS[randomInt(0,SYMBOLS.length-1)]);
+ return {id:stableId("symbols",`position-${list.join("")}-${position}`),mode:"symbols",label:"Symbolposition",prompt:`Welches Symbol stand an Position ${position+1}?`,instruction:`Merke dir ${count} Symbole und ihre genaue Position.`,display:list,answerType:"choice",expected,options,explanation:`An Position ${position+1} stand ${expected}.`};
 }
 function positionTask(d:Difficulty,seed:number):MemoryTask{
  const count=d===1?2:d===2?4:5,positions=shuffled([0,1,2,3,4,5,6,7,8]).slice(0,count).sort((a,b)=>a-b),correct=`pos:${positions.join(",")}`;
@@ -56,7 +70,7 @@ function nbackTask(n:1|2,d:Difficulty,seed:number):MemoryTask{
 }
 export function createMemorySession(bestScore:number):MemorySession{
  const percent=Math.round(bestScore/MEMORY_SESSION_LENGTH*100),difficulty=difficultyFromPercent(percent),seed=createSessionSeed();
- const rounds=difficulty===3?5:4,candidates=Array.from({length:rounds},(_,round)=>{const o=seed+round*43;return [sequenceTask("digits",difficulty,o+1),sequenceTask("reverse",difficulty,o+2),wordTask(difficulty,o+3),symbolTask(difficulty,o+4),positionTask(difficulty,o+5),recognitionTask(difficulty,o+6),nbackTask(1,difficulty,o+7),nbackTask(2,difficulty,o+8)]}).flat();
+ const rounds=difficulty===3?5:4,candidates=Array.from({length:rounds},(_,round)=>{const o=seed+round*43;return [sequenceTask("digits",difficulty,o+1),digitGapTask(difficulty,o+11),sequenceTask("reverse",difficulty,o+2),wordTask(difficulty,o+3),wordOrderChoiceTask(difficulty,o+13),symbolTask(difficulty,o+4),symbolPositionTask(difficulty,o+14),positionTask(difficulty,o+5),recognitionTask(difficulty,o+6),nbackTask(1,difficulty,o+7),nbackTask(2,difficulty,o+8)]}).flat();
  const tasks=finalizeBalancedSessionTasks("memory-v4",candidates,MEMORY_SESSION_LENGTH,144);
  return {difficulty,showMs:difficulty===3?3000:difficulty===2?3800:4600,tasks};
 }
