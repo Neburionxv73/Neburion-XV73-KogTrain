@@ -48,15 +48,27 @@ test.describe("English training mode", () => {
     });
   }
 
-  test("adaptive focus setup and plan are fully English", async ({ page }) => {
+  test("adaptive focus daily mix, all areas and milestones are fully English", async ({ page }) => {
     await english(page); await page.goto("/training/focus");
     await expect(page.getByText("Adaptive recommendation", { exact: true })).toBeVisible();
+    await expect(page.getByText("Today at a glance", { exact: true })).toBeVisible();
+    await expect(page.getByText("Strengths & development", { exact: true })).toBeVisible();
+    await expect(page.getByText("Skill profile", { exact: true })).toBeVisible();
     await expect(page.getByText("Choose a learning goal", { exact: true })).toBeVisible();
     await expect(page.getByText("Weekly rhythm", { exact: true })).toBeVisible();
     await expect(page.getByText("Targeted exercises", { exact: true })).toBeVisible();
+    await expect(page.getByText("Milestones unlocked", { exact: true })).toBeVisible();
     await expect(page.getByText("Your next training plan.", { exact: true })).toBeVisible();
-    await expect(page.locator("main")).not.toContainText("Dein Training passt sich jetzt wirklich an.");
-    await expect(page.locator("main")).not.toContainText("Dein nächster Trainingsplan.");
+    const main = page.locator("main");
+    await expect(main).not.toContainText("Dein Training passt sich jetzt wirklich an.");
+    await expect(main).not.toContainText("Heute auf einen Blick");
+    await expect(main).not.toContainText("Stärken & Entwicklung");
+    await expect(main).not.toContainText("Skill-Profil");
+    await expect(main).not.toContainText("Lernziel wählen");
+    await expect(main).not.toContainText("Wochenrhythmus");
+    await expect(main).not.toContainText("Gezielte Übungen");
+    await expect(main).not.toContainText("Erfolge freigeschaltet");
+    await expect(main).not.toContainText("Dein nächster Trainingsplan.");
   });
 
   test("adaptive journey controls and coach plan are English", async ({ page }) => {
