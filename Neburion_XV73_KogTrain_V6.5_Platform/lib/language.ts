@@ -1,4 +1,4 @@
-import { difficultyFromPercent, shuffled, type Difficulty } from "@/lib/dynamicTraining";
+import { chooseFresh, difficultyFromPercent, shuffled, type Difficulty } from "@/lib/dynamicTraining";
 
 export type LanguageMode = "synonym" | "antonym" | "analogy" | "category" | "wordfield" | "sentence" | "relation" | "context";
 export type LanguageTask = {
@@ -68,9 +68,7 @@ export function createLanguageSession(bestScore: number, recentIds: string[] = [
   const modes: LanguageMode[] = ["synonym","antonym","analogy","category","wordfield","sentence","relation","context"];
   const tasks = modes.map((mode) => {
     const eligible = bank.filter((item) => item.mode === mode && item.difficulty <= difficulty);
-    const fresh = eligible.filter((item) => !recentIds.includes(item.id));
-    const source = fresh.length ? fresh : eligible;
-    return shuffledTask(shuffled(source)[0]);
+    return shuffledTask(chooseFresh(eligible, 1, recentIds)[0]);
   });
   return { difficulty, tasks: shuffled(tasks) };
 }
