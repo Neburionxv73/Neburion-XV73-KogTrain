@@ -1,4 +1,4 @@
-import { createSessionSeed, difficultyFromPercent, randomInt, shuffled, type Difficulty } from "@/lib/dynamicTraining";
+import { chooseDiverse, createSessionSeed, difficultyFromPercent, randomInt, shuffled, type Difficulty } from "@/lib/dynamicTraining";
 
 export type LogicMode = "sequence" | "rule" | "analogy" | "deduction" | "matrix" | "operator" | "exclusion" | "spatial";
 export type LogicTask = { id:string; mode:LogicMode; prompt:string; detail:string; options:string[]; answer:number; explanation:string };
@@ -56,4 +56,18 @@ function exclusion(seed:number,difficulty:Difficulty){const pools=[
 ];const range=difficulty===1?pools.slice(0,2):difficulty===2?pools.slice(2,4):pools.slice(4);const v=range[seed%range.length];return makeTask(`exc-${seed}`,"exclusion","Welche Zahl passt nicht?",v.values.join(" · "),v.correct,v.values.filter(x=>x!==v.correct).slice(0,3),v.reason);}
 function spatial(seed:number,difficulty:Difficulty){const turns=difficulty===1?1:difficulty===2?2:3,dirs=["Norden","Osten","Süden","Westen"],start=seed%4,right=seed%2===0,correct=dirs[(start+(right?turns:4-turns))%4];return makeTask(`spa-${seed}`,"spatial","Wohin blickst du danach?",`Start: ${dirs[start]}. Drehe dich ${turns}× nach ${right?"rechts":"links"}.`,correct,dirs.filter(d=>d!==correct),"Jede Vierteldrehung entspricht 90°.");}
 
-export function createLogicSession(bestScore:number):LogicSession{const difficulty=difficultyFromPercent(bestScore/LOGIC_SESSION_LENGTH*100),seed=createSessionSeed(),tasks=[sequence(seed,difficulty),rule(seed+1,difficulty),analogy(seed+2,difficulty),deduction(seed+3,difficulty),matrix(seed+4,difficulty),operator(seed+5,difficulty),exclusion(seed+6,difficulty),spatial(seed+7,difficulty)];return {difficulty,tasks:shuffled(tasks)};}
+export function createLogicSession(bestScore:number):LogicSession{
+  const difficulty=difficultyFromPercent(bestScore/LOGIC_SESSION_LENGTH*100);
+  const seed=createSessionSeed();
+  const tasks:LogicTask[]=[
+    sequence(seed,difficulty),sequence(seed+11,difficulty),
+    rule(seed+1,difficulty),rule(seed+12,difficulty),
+    analogy(seed+2,difficulty),analogy(seed+13,difficulty),
+    deduction(seed+3,difficulty),deduction(seed+14,difficulty),
+    matrix(seed+4,difficulty),matrix(seed+15,difficulty),
+    operator(seed+5,difficulty),operator(seed+16,difficulty),
+    exclusion(seed+6,difficulty),exclusion(seed+17,difficulty),
+    spatial(seed+7,difficulty),spatial(seed+18,difficulty)
+  ];
+  return {difficulty,tasks:shuffled(chooseDiverse(tasks,LOGIC_SESSION_LENGTH,(task)=>task.mode,2))};
+}
