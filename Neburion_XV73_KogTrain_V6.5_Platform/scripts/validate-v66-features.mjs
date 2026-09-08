@@ -74,7 +74,16 @@ expect("V6.6 baseline: Progress dashboard is mounted on home", legacyProgressMou
 expect("V6.6 baseline: Progress tracks trained areas", progress.includes("trainedAreas") && (progressUi.includes("Trainierte Bereiche") || homeDashboardV11.includes("displayLabs")));
 expect("V6.6 baseline: Progress tracks active days", progress.includes("activeDays7") && (progressUi.includes("Aktive Tage") || homeDashboardV11.includes("activeDays7")));
 expect("V6.6 baseline: Progress tracks last session", progress.includes("lastSessionAt") && (progressUi.includes("Letzte Session") || homeDashboardV11.includes("lastSessionAt")));
-expect("V6.6 baseline: Journey documents full session flow",journey.includes("startHref") && journey.includes("Nach jeder Station") && journey.includes("Fortschritt ansehen") && journey.includes("Jetzt {duration} Minuten starten"));
+
+// Locale-agnostic journey regression: preserve the complete session-flow architecture
+// regardless of whether visible labels are rendered directly or through DE/EN pick().
+const journeyHasDurationChoice = journey.includes("DURATIONS") && journey.includes("setDuration") && journey.includes("durationConfig.slots");
+const journeyHasTrackChoice = journey.includes("TRACKS") && journey.includes("setTrack") && journey.includes('track===\"adaptive\"');
+const journeyHasAdaptivePlan = journey.includes("buildWeeklyPlan") && journey.includes("adaptivePlan") && journey.includes("stationGrid");
+const journeyHasStartFlow = journey.includes("startHref") && journey.includes("primaryAction") && journey.includes("secondaryAction");
+const journeyHasReturnFlow = journey.includes('href="/#fortschritt"') && journey.includes("journey plan");
+expect("V6.6 baseline: Journey documents full session flow", journeyHasDurationChoice && journeyHasTrackChoice && journeyHasAdaptivePlan && journeyHasStartFlow && journeyHasReturnFlow);
+
 const forbiddenRecommendationUi = ["Empfehlung öffnen", "Empfohlen", "Nächster Fokus", "Heute sinnvoll", "Coach-Empfehlung"];
 expect("V6.6 baseline: No visible recommendation UI in progress", forbiddenRecommendationUi.every((label) => !progressUi.includes(label) && !homeDashboardV11.includes(label)));
 
