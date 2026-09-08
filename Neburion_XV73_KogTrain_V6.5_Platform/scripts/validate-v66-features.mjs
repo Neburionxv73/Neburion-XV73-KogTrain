@@ -52,7 +52,7 @@ expect("Logic UI uses generative engine", logicTraining.includes("createLogicSes
 expect("Logic has expanded variants", logic.includes("Thermometer : Temperatur") && logic.includes("Kubikzahlen") && logic.includes("createSessionSeed"));
 
 expect("Language route wires LanguageTraining", languageRoute.includes('LanguageTraining') && languageRoute.includes('V6.6'));
-expect("Language persists rolling history", languageTraining.includes("readRecentTaskIds") && languageTraining.includes("rememberTaskIds") && languageTraining.includes("32"));
+expect("Language persists rolling history", languageTraining.includes("readRecentTaskIds") && languageTraining.includes("rememberTaskIds") && languageTraining.includes("48"));
 
 expect("Visual route wires VisualTraining", visualRoute.includes('VisualTraining') && visualRoute.includes('V6.6'));
 expect("Visual UI uses generative engine", visualTraining.includes("createVisualSession") && visualTraining.includes("VISUAL_STORAGE_KEY"));
