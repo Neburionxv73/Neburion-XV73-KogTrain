@@ -40,7 +40,7 @@ expect("Release: production robots policy retained", layout.includes("VERCEL_ENV
 expect("Release: progress engine retains trained areas", progress.includes("trainedAreas"));
 expect("Release: progress engine retains active days", progress.includes("activeDays7"));
 expect("Release: progress engine retains last session", progress.includes("lastSessionAt"));
-expect("Release: adaptive journey remains functional", journey.includes("startHref") && journey.includes("Nach jeder Station") && journey.includes("Jetzt {duration} Minuten starten"));
+expect("Release: adaptive journey remains functional", journey.includes("startHref") && journey.includes("sessionPlan") && journey.includes("adaptivePlan") && journey.includes("startActions") && journey.includes("primaryAction") && journey.includes("secondaryAction") && journey.includes("/training/focus"));
 expect("Release: reduced-motion handling exists", foundation.includes("prefers-reduced-motion") || dashboardCss.includes("prefers-reduced-motion") || guardCss.includes("prefers-reduced-motion"));
 expect("Release: touch target baseline retained", foundation.includes("min-height:44px") || dashboardCss.includes("min-height:44px") || guardCss.includes("min-height:44px"));
 expect("Release: V6.7 product version retained", packageJson.version === "6.7.0-dev");
