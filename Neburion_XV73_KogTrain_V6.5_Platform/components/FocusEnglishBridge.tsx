@@ -129,7 +129,6 @@ const exact: Record<string, string> = {
   "Kopfrechnen": "Mental arithmetic",
   "Synonym": "Synonym",
   "Antonym": "Antonym",
-  "Wortbildung": "Word formation",
   "Rechne möglichst ohne Hilfsmittel.": "Calculate without aids if possible.",
   "Erkenne die Regel und setze sie fort.": "Identify the rule and continue it.",
   "Berechne den Prozentwert.": "Calculate the percentage value.",
