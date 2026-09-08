@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { FocusTraining31 } from "@/components/FocusTraining31";
+import { FocusEnglishBridge } from "@/components/FocusEnglishBridge";
+import { TrainingTopbar } from "@/components/TrainingTopbar";
 import { UnifiedTrainingCoach } from "@/components/UnifiedTrainingCoach";
 
 export const metadata: Metadata = {
@@ -12,11 +13,14 @@ export const metadata: Metadata = {
 export default function FocusTrainingPage() {
   return (
     <main className="trainingPage">
-      <div className="trainingTopbar">
-        <Link className="backLink" href="/training/journey">← Zur Training Journey</Link>
-        <span>Learning Expansion 3.6 · Persönlicher Lernmix</span>
-      </div>
-      <FocusTraining31 />
+      <TrainingTopbar
+        href="/training/journey"
+        backDe="Zur Training Journey"
+        backEn="Back to Training Journey"
+        titleDe="Learning Expansion 3.6 · Persönlicher Lernmix"
+        titleEn="Learning Expansion 3.6 · Personal learning mix"
+      />
+      <FocusEnglishBridge><FocusTraining31 /></FocusEnglishBridge>
       <UnifiedTrainingCoach />
     </main>
   );
