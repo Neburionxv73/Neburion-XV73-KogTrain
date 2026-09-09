@@ -33,13 +33,7 @@ const answers: Record<string,string> = {
   "Ignoriere beide Wörter und antworte ausschließlich nach dem mittleren Farbsymbol.":"Ignore both words and answer only according to the middle color symbol.",
   "Ignoriere das Richtungswort und antworte nur nach dem Pfeil.":"Ignore the direction word and answer only according to the arrow.",
   "Ignoriere beide Richtungswörter und bewerte nur den mittleren Pfeil.":"Ignore both direction words and judge only the middle arrow.",
-  "Alternierendes Go / No-Go":"Alternating Go / No-Go",
-  "Paar-Suche":"Pair search",
-  "Zahlen-Regelwechsel":"Number rule switching",
-  "Stoppsignal":"Stop signal",
-  "Doppelbedingung":"Dual condition",
-  "Schnellvergleich":"Rapid comparison",
-  "Symbol-Wort-Konflikt":"Symbol-word conflict",
+  "Alternierendes Go / No-Go":"Alternating Go / No-Go","Paar-Suche":"Pair search","Zahlen-Regelwechsel":"Number rule switching","Stoppsignal":"Stop signal","Doppelbedingung":"Dual condition","Schnellvergleich":"Rapid comparison","Symbol-Wort-Konflikt":"Symbol-word conflict",
   "Die Zielregel wechselt zwischen zwei Reizen. Reagiere nur auf das aktuell aktive Ziel.":"The target rule alternates between two stimuli. Respond only to the currently active target.",
   "Achte auf beide Symbole und ihre Reihenfolge. Vertauschte Paare zählen nicht.":"Track both symbols and their order. Reversed pairs do not count.",
   "Bewerte nur die letzte Zahl nach der eingeblendeten Regel. Vorherige Zahlen dienen als Ablenkung.":"Judge only the last number using the displayed rule. Earlier numbers are distractors.",
@@ -47,15 +41,13 @@ const answers: Record<string,string> = {
   "Das Stoppsignal kann direkt nach dem Zielreiz erscheinen. Hemme dann die vorbereitete Reaktion.":"The stop signal can appear immediately after the target. Inhibit the prepared response when it does.",
   "Ein ✖ hebt die Reaktionsregel sofort auf.":"A ✖ immediately cancels the response rule.",
   "Prüfe Farbe und Zahleneigenschaft gleichzeitig. Beide Bedingungen müssen erfüllt sein.":"Check color and the number property at the same time. Both conditions must be met.",
-  "Vergleiche sofort, ohne nachzurechnen.":"Compare immediately without calculating.",
   "Ignoriere die geschriebenen Richtungen und antworte ausschließlich nach dem Pfeilsymbol.":"Ignore the written directions and answer only according to the arrow symbol.",
-  "Welche Seite zeigt die größere Zahl?":"Which side shows the larger number?",
-  "Welche Richtung zeigt das Symbol?":"Which direction does the symbol point?",
-  "Links":"Left","Rechts":"Right","Gleich":"Equal",
-  "GERADE":"EVEN","UNGERADE":"ODD",
+  "Welche Seite zeigt die größere Zahl?":"Which side shows the larger number?","Welche Richtung zeigt das Symbol?":"Which direction does the symbol point?",
+  "Links":"Left","Rechts":"Right","Gleich":"Equal","OBEN":"UP","UNTEN":"DOWN","LINKS":"LEFT","RECHTS":"RIGHT","Reagieren":"Respond","Ignorieren":"Ignore","Ja":"Yes","Nein":"No","GERADE":"EVEN","UNGERADE":"ODD",
 };
 
-const rules:Array<[RegExp,string]> = [
+type Replacement = string | ((substring:string,...args:string[])=>string);
+const rules:Array<[RegExp,Replacement]> = [
   [/Wie zeigt der Pfeil nach (\d+)° Drehung im Uhrzeigersinn\?/g,"Which way does the arrow point after a $1° clockwise rotation?"],
   [/Wie zeigt der Pfeil nach (\d+)° Drehung gegen den Uhrzeigersinn\?/g,"Which way does the arrow point after a $1° counterclockwise rotation?"],
   [/Welcher Pfeil ist die vertikale Spiegelung\?/g,"Which arrow is the vertical reflection?"],
@@ -85,13 +77,13 @@ const rules:Array<[RegExp,string]> = [
   [/^Aktives Ziel: (.+)$/g,"Active target: $1"],
   [/^Wie oft erscheint exakt (.+)\?$/g,"How often does exactly $1 appear?"],
   [/^Das Zielpaar (.+) erscheint (\d+)-mal\.$/g,"The target pair $1 appears $2 times."],
-  [/^Aktive Regel: (GERADE|UNGERADE)$/g,(_match,rule)=>`Active rule: ${rule==="GERADE"?"EVEN":"ODD"}` as unknown as string],
-  [/^Die letzte Zahl war (\d+); für (GERADE|UNGERADE) ist die richtige Reaktion (Reagieren|Ignorieren)\.$/g,"The last number was $1; for rule $2 the correct response is $3."],
-  [/^Passt (.+) zu (.+) \+ (GERADE|UNGERADE)\?$/g,"Does $1 match $2 + $3?"],
-  [/^Farbe (passt|passt nicht); die Zahl (passt|passt nicht) zur Regel (GERADE|UNGERADE)\.$/g,"The color $1; the number $2 rule $3."],
+  [/^Aktive Regel: (GERADE|UNGERADE)$/g,(_m,rule)=>`Active rule: ${rule==="GERADE"?"EVEN":"ODD"}`],
+  [/^Die letzte Zahl war (\d+); für (GERADE|UNGERADE) ist die richtige Reaktion (Reagieren|Ignorieren)\.$/g,(_m,n,rule,response)=>`The last number was ${n}; for ${rule==="GERADE"?"EVEN":"ODD"} the correct response is ${response==="Reagieren"?"Respond":"Ignore"}.`],
+  [/^Passt (.+) zu (.+) \+ (GERADE|UNGERADE)\?$/g,(_m,value,color,rule)=>`Does ${value} match ${color} + ${rule==="GERADE"?"EVEN":"ODD"}?`],
+  [/^Farbe (passt|passt nicht); die Zahl (passt|passt nicht) zur Regel (GERADE|UNGERADE)\.$/g,(_m,colorState,numberState,rule)=>`The color ${colorState==="passt"?"matches":"does not match"}; the number ${numberState==="passt"?"matches":"does not match"} the ${rule==="GERADE"?"EVEN":"ODD"} rule.`],
   [/^Vergleiche sofort, ohne nachzurechnen\. Zielzeit: (\d+) ms\.$/g,"Compare immediately without calculating. Target time: $1 ms."],
   [/^(\d+) war die größere Zahl\.$/g,"$1 was the larger number."],
-  [/^Entscheidend war (.+), also (LINKS|RECHTS|OBEN|UNTEN)\.$/g,"The decisive symbol was $1, so the direction was $2."],
+  [/^Entscheidend war (.+), also (LINKS|RECHTS|OBEN|UNTEN)\.$/g,(_m,symbol,direction)=>`The decisive symbol was ${symbol}, so the direction was ${{LINKS:"LEFT",RECHTS:"RIGHT",OBEN:"UP",UNTEN:"DOWN"}[direction]??direction}.`],
   [/^Aktiv war (.+); gezeigt wurde (.+)\.$/g,"The active target was $1; the shown stimulus was $2."],
 ];
 
@@ -100,7 +92,7 @@ export function localizeSessionText(value:string|undefined, language:PlatformLan
   const mapped = answers[value];
   if(mapped) return mapped;
   let out = value;
-  for(const [pattern,replacement] of rules) out=out.replace(pattern,replacement as string);
+  for(const [pattern,replacement] of rules) out = typeof replacement==="string" ? out.replace(pattern,replacement) : out.replace(pattern,replacement);
   out = localizeTrainingText(out,language);
   return out;
 }
