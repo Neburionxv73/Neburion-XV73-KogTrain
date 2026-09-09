@@ -50,6 +50,7 @@ export function shuffleOptions<T extends { options: string[]; answer: number }>(
 }
 
 const HISTORY_PREFIX = "neburion-v66-task-history:";
+const RECIPE_HISTORY_PREFIX = "neburion-v67-recipe-history:";
 
 export function readRecentTaskIds(scope: string, max = 32): string[] {
   if (typeof window === "undefined") return [];
@@ -65,12 +66,30 @@ export function rememberTaskIds(scope: string, ids: readonly string[], max = 32)
   if (typeof window === "undefined") return;
   try {
     const previous = readRecentTaskIds(scope, max);
-    // Keep chronological occurrences instead of de-duplicating them. Repeated
-    // appearances therefore carry a stronger penalty in future sessions.
     const merged = [...previous, ...ids].slice(-max);
     window.localStorage.setItem(`${HISTORY_PREFIX}${scope}`, JSON.stringify(merged));
   } catch {
     // Training remains usable when browser storage is unavailable.
+  }
+}
+
+function readRecentRecipeSignatures(scope: string, max = 10): string[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const parsed = JSON.parse(window.localStorage.getItem(`${RECIPE_HISTORY_PREFIX}${scope}`) ?? "[]");
+    return Array.isArray(parsed) ? parsed.filter((value): value is string => typeof value === "string").slice(-max) : [];
+  } catch {
+    return [];
+  }
+}
+
+function rememberRecipeSignature(scope: string, signature: string, max = 10): void {
+  if (typeof window === "undefined") return;
+  try {
+    const previous = readRecentRecipeSignatures(scope, max);
+    window.localStorage.setItem(`${RECIPE_HISTORY_PREFIX}${scope}`, JSON.stringify([...previous, signature].slice(-max)));
+  } catch {
+    // Recipe diversity is best-effort and never blocks training.
   }
 }
 
@@ -92,11 +111,6 @@ export function chooseFresh<T extends { id: string }>(items: readonly T[], count
     .map(({ item }) => item);
 }
 
-/**
- * Reorders a generated session so unseen tasks come first and persists only
- * tasks that are actually delivered. This prevents hidden candidates from
- * polluting the anti-repeat history.
- */
 export function finalizeSessionTasks<T extends { id: string }>(scope: string, tasks: readonly T[], maxHistory = 32, count = tasks.length): T[] {
   const recentIds = readRecentTaskIds(scope, maxHistory);
   const result = chooseFresh(tasks, Math.min(count, tasks.length), recentIds);
@@ -104,7 +118,6 @@ export function finalizeSessionTasks<T extends { id: string }>(scope: string, ta
   return result;
 }
 
-/** Keeps mode coverage broad instead of allowing one task type to dominate. */
 export function balancedByMode<T extends { mode: string }>(items: readonly T[], count: number): T[] {
   const groups = new Map<string, T[]>();
   shuffled(items).forEach((item) => groups.set(item.mode, [...(groups.get(item.mode) ?? []), item]));
@@ -129,11 +142,6 @@ export function balancedByMode<T extends { mode: string }>(items: readonly T[], 
   return result;
 }
 
-/**
- * Session Recipe Engine: each round activates only a subset of available modes.
- * This changes the macro-rhythm of the session instead of merely shuffling the
- * same one-of-each-mode sequence. A mode may appear at most twice by default.
- */
 export function selectSessionRecipe<T extends { id: string; mode: string }>(
   items: readonly T[],
   count: number,
@@ -196,18 +204,61 @@ export function selectSessionRecipe<T extends { id: string; mode: string }>(
   return shuffled(selected).slice(0, target);
 }
 
+function recipeSignature<T extends { mode: string }>(tasks: readonly T[]): string {
+  const counts = new Map<string, number>();
+  tasks.forEach((task) => counts.set(task.mode, (counts.get(task.mode) ?? 0) + 1));
+  return [...counts.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([mode, count]) => `${mode}:${count}`).join("|");
+}
+
+function recipePenalty(signature: string, recent: readonly string[]): number {
+  let penalty = 0;
+  recent.forEach((value, index) => {
+    if (value !== signature) return;
+    const age = recent.length - index;
+    penalty += Math.max(2, 28 - Math.min(age * 3, 24));
+  });
+  return penalty;
+}
+
+/**
+ * Cross-session diversity gate. It evaluates several valid session recipes and
+ * prefers a structure that has not been used recently, while still respecting
+ * task-level recency and the 1–2 tasks-per-mode rule.
+ */
+function chooseDiverseRecipe<T extends { id: string; mode: string }>(
+  scope: string,
+  items: readonly T[],
+  count: number,
+  recentIds: readonly string[],
+  minActiveModes: number,
+  maxActiveModes: number,
+  maxPerMode: number,
+): T[] {
+  const recentRecipes = readRecentRecipeSignatures(scope, 10);
+  const candidates = Array.from({ length: 8 }, () => selectSessionRecipe(items, count, recentIds, minActiveModes, maxActiveModes, maxPerMode));
+  const ranked = candidates.map((tasks) => {
+    const signature = recipeSignature(tasks);
+    const taskPenalty = tasks.reduce((sum, task) => sum + recencyPenalty(task.id, recentIds), 0);
+    return { tasks, signature, penalty: recipePenalty(signature, recentRecipes) + taskPenalty, tie: Math.random() };
+  }).sort((a, b) => a.penalty - b.penalty || a.tie - b.tie);
+  const winner = ranked[0] ?? { tasks: [], signature: "", penalty: 0, tie: 0 };
+  if (winner.signature) rememberRecipeSignature(scope, winner.signature, 10);
+  return winner.tasks;
+}
+
 /**
  * Anti-repeat selector for generated pools plus experience-level recipe diversity.
- * Typical 8-task sessions now use 5–6 active modes with at most two tasks per mode.
+ * Typical 8-task sessions use 5–6 active modes with at most two tasks per mode,
+ * while recent task IDs and recent session structures are both penalized.
  */
-export function finalizeBalancedSessionTasks<T extends { id: string; mode: string }>(scope: string, tasks: readonly T[], count: number, maxHistory = 48): T[] {
+export function finalizeBalancedSessionTasks<T extends { id: string; mode: string }>(scope: string, tasks: readonly T[], count: number, maxHistory = 96): T[] {
   const recentIds = readRecentTaskIds(scope, maxHistory);
   const availableModes = new Set(tasks.map((task) => task.mode)).size;
   const maxPerMode = 2;
   const minimumModesNeeded = Math.ceil(Math.min(count, tasks.length) / maxPerMode);
   const minActiveModes = Math.min(availableModes, Math.max(minimumModesNeeded, Math.min(5, availableModes)));
   const maxActiveModes = Math.min(availableModes, Math.max(minActiveModes, Math.min(6, availableModes)));
-  const result = selectSessionRecipe(tasks, count, recentIds, minActiveModes, maxActiveModes, maxPerMode);
+  const result = chooseDiverseRecipe(scope, tasks, count, recentIds, minActiveModes, maxActiveModes, maxPerMode);
   rememberTaskIds(scope, result.map((task) => task.id), maxHistory);
   return result;
 }
