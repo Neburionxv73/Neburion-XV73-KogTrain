@@ -71,7 +71,7 @@ jobs:
       - name: Playwright functional, responsive, i18n, account lifecycle and cross-device cloud QA
         env:
           QA_BASE_URL: http://127.0.0.1:3000
-        run: pnpm exec playwright test tests/runtime-smoke.spec.ts tests/mobile-brainfit.spec.ts tests/i18n-training-en.spec.ts tests/account-emailfree-e2e.spec.ts tests/cloud-cross-device.spec.ts
+        run: pnpm exec playwright test tests/runtime-smoke.spec.ts tests/mobile-brainfit.spec.ts tests/i18n-training-en.spec.ts tests/presentation-timing.spec.ts tests/account-emailfree-e2e.spec.ts tests/cloud-cross-device.spec.ts
 
       - name: Lighthouse mobile release gates
         run: pnpm exec lhci autorun --config=./lighthouserc.cjs

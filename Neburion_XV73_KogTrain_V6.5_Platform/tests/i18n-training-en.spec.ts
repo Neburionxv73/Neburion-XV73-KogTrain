@@ -37,6 +37,11 @@ async function assertSessionEnglish(page: Page) {
 
 async function advanceChoiceSession(page: Page, rounds = 3) {
   for (let round = 0; round < rounds; round += 1) {
+    const preview = page.locator('[data-training-lab="visual"][data-training-phase="preview"]');
+    if (await preview.count()) {
+      await page.clock.fastForward(13_000);
+      await expect(page.locator('[data-training-lab="visual"]')).toHaveAttribute("data-training-phase", "question");
+    }
     await assertSessionEnglish(page);
     const option = page.locator("main button:visible").filter({ has: page.locator("kbd") }).first();
     if (!(await option.count())) break;
@@ -108,10 +113,12 @@ test.describe("English training mode", () => {
   });
 
   test("Memory session uses English through memorize and recall", async ({ page }) => {
+    await page.clock.install();
     await english(page); await page.goto("/training/memory");
     await page.getByRole("button", { name: /Start Memory Lab V5/i }).click();
     await assertSessionEnglish(page);
-    await page.waitForTimeout(4800);
+    await page.clock.fastForward(13_000);
+    await expect(page.locator('[data-training-lab="memory"]')).toHaveAttribute("data-training-phase", "recall");
     await assertSessionEnglish(page);
     await expect(page.locator("main")).not.toContainText("Wörter mit Leerzeichen eingeben");
     await expect(page.locator("main")).not.toContainText("Antwort prüfen");
@@ -144,9 +151,10 @@ test.describe("English training mode", () => {
   });
 
   test("Visual session localizes prompts and answer buttons", async ({ page }) => {
+    await page.clock.install();
     await english(page); await page.goto("/training/visual");
     await page.getByRole("button", { name: /Start Visual session/i }).click();
-    await page.waitForTimeout(3400);
+    await page.clock.fastForward(13_000);
     await assertSessionEnglish(page);
     await advanceChoiceSession(page, 4);
     await expect(page.locator("main")).not.toContainText("Präge dir die Reihenfolge ein.");

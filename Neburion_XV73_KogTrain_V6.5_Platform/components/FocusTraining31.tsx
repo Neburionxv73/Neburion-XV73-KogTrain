@@ -15,6 +15,8 @@ import {
   type PersonalTask,
   type SessionMode,
 } from "@/lib/personalTraining";
+import { taskPreviewDurationMs } from "@/lib/trainingTiming";
+import { usePlatformLanguage } from "./PlatformLanguageProvider";
 import styles from "./FocusTraining.module.css";
 
 type Phase = "setup" | "preview" | "question" | "feedback" | "done";
@@ -73,6 +75,7 @@ function topicKey(task:PersonalTask){return `${task.area}:${task.topicLabel??tas
 function topicTitle(key:string){return key.split(":").slice(1).join(":")||key;}
 
 export function FocusTraining31(){
+  const {pick}=usePlatformLanguage();
   const [areas,setAreas]=useState<FocusArea[]>(["math","words","translation"]);
   const [topics,setTopics]=useState<FocusTopic[]>([]);
   const [difficulty,setDifficulty]=useState<Difficulty>(1);
@@ -90,6 +93,7 @@ export function FocusTraining31(){
   const [sessionLabel,setSessionLabel]=useState("Persönlicher Plan");
   const shownAt=useRef(0);
   const current=tasks[index];
+  const previewMs=taskPreviewDurationMs(current?.previewMs);
   const score=results.filter(Boolean).length;
 
   useEffect(()=>{
@@ -101,7 +105,7 @@ export function FocusTraining31(){
     }catch{}
   },[]);
 
-  useEffect(()=>{if(phase!=="preview"||!current?.previewMs)return;const timer=window.setTimeout(()=>{shownAt.current=performance.now();setPhase("question");},current.previewMs);return()=>window.clearTimeout(timer);},[phase,current]);
+  useEffect(()=>{if(phase!=="preview"||!current?.preview)return;const timer=window.setTimeout(()=>{shownAt.current=performance.now();setPhase("question");},previewMs);return()=>window.clearTimeout(timer);},[phase,current,previewMs]);
   useEffect(()=>{if(phase!=="question")return;const handler=(event:KeyboardEvent)=>{const i=Number(event.key)-1;if(i>=0&&i<4)answer(i);};window.addEventListener("keydown",handler);return()=>window.removeEventListener("keydown",handler);});
 
   const adaptivePlan=useMemo(()=>buildAdaptivePlan({selectedAreas:areas,selectedTopics:topics,skillStats:stats.skillStats,topicStats:stats.topicStats,reactionStats:stats.reactionStats,lastAccuracy:stats.lastAccuracy,baseDifficulty:difficulty}),[areas,topics,stats.skillStats,stats.topicStats,stats.reactionStats,stats.lastAccuracy,difficulty]);
@@ -161,7 +165,7 @@ export function FocusTraining31(){
   function next(){if(index>=tasks.length-1){finish();return;}const n=index+1;setIndex(n);setSelected(null);if(tasks[n].preview)setPhase("preview");else{shownAt.current=performance.now();setPhase("question");}}
   const avgReaction=reactionSamples.length?Math.round(reactionSamples.reduce((a,b)=>a+b.ms,0)/reactionSamples.length):0;
 
-  if(phase==="setup")return <section className={styles.trainer} aria-labelledby="focus-title"><div className={styles.setup}>
+  if(phase==="setup")return <section className={styles.trainer} aria-labelledby="focus-title" data-training-lab="focus" data-training-phase={phase}><div className={styles.setup}>
     <p className="eyebrow">Learning Expansion 3.6 · Adaptive Learning Engine</p>
     <h1 id="focus-title">Dein Training passt sich jetzt wirklich an.</h1>
     <p>KogTrain bewertet Trefferquote, Trainingsmenge, Unterthemen, letzte Session und – bei Reaktionsaufgaben – deine Reaktionszeit. Daraus entsteht ein erklärbarer nächster Trainingsreiz statt einer Black-Box-Empfehlung.</p>
@@ -209,8 +213,8 @@ export function FocusTraining31(){
     <div className={styles.finishActions}><button className="primaryButton" type="button" onClick={()=>start("personal")}>{adaptive?"Adaptiven Lernpfad starten":"Meinen Lernpfad starten"}</button><button className={styles.secondaryButton} type="button" onClick={()=>start("daily")}>Tages-Challenge · 8 Aufgaben</button></div>
   </div></section>;
 
-  return <section className={styles.trainer} aria-live="polite"><div className={styles.sessionTop}><span>{sessionLabel}</span><span>Aufgabe {Math.min(index+1,tasks.length)}/{tasks.length}</span><span>{current?.topicLabel??current?.label??"Auswertung"}</span><span>Level {sessionDifficulty}</span></div>
-    {phase==="preview"&&current?.preview&&<div className={styles.stage}><p className="eyebrow">Merkfähigkeit</p><h2>Präge dir die Folge ein.</h2><div className={styles.preview}>{current.preview.map((item,i)=><span key={`${item}-${i}`}>{item}</span>)}</div><p>Gleich wird die Folge ausgeblendet.</p></div>}
+  return <section className={styles.trainer} aria-live="polite" data-training-lab="focus" data-training-phase={phase} data-preview-duration-ms={phase==="preview"?previewMs:undefined}><div className={styles.sessionTop}><span>{sessionLabel}</span><span>Aufgabe {Math.min(index+1,tasks.length)}/{tasks.length}</span><span>{current?.topicLabel??current?.label??"Auswertung"}</span><span>Level {sessionDifficulty}</span></div>
+    {phase==="preview"&&current?.preview&&<div className={styles.stage}><p className="eyebrow">Merkfähigkeit</p><h2>Präge dir die Folge ein.</h2><div className={styles.preview}>{current.preview.map((item,i)=><span key={`${item}-${i}`}>{item}</span>)}</div><p>{pick(`Die Antwortansicht öffnet sich nach ${previewMs/1000} Sekunden.`,`The answer view opens after ${previewMs/1000} seconds.`)}</p></div>}
     {phase==="question"&&current&&<div className={styles.stage}><p className="eyebrow">{current.topicLabel??current.label}</p><h2>{current.prompt}</h2><div className={styles.detail}>{current.detail}</div><div className={styles.options}>{current.options.map((option,i)=><button key={`${option}-${i}`} type="button" onClick={()=>answer(i)}><kbd>{i+1}</kbd><span>{option}</span></button>)}</div><p>Tastatur: 1–4</p></div>}
     {phase==="feedback"&&current&&selected!==null&&<div className={styles.stage}><p className={`${styles.badge} ${selected===current.answer?styles.correct:styles.incorrect}`}>{selected===current.answer?"Richtig ✓":"Fast – weiter geht’s"}</p><h2>{selected===current.answer?"Sauber gelöst.":`Richtig wäre: ${current.options[current.answer]}`}</h2><p>{current.explanation}</p>{current.area==="reaction"&&<p>Reaktionszeit: <strong>{reactionSamples.at(-1)?.ms} ms</strong></p>}<button className="primaryButton" type="button" onClick={next}>{index===tasks.length-1?"Auswertung":"Nächste Aufgabe"}</button></div>}
     {phase==="done"&&<div className={styles.stage}><p className="eyebrow">Heute geschafft 🎉</p><h2>{score}/{tasks.length} Aufgaben richtig</h2><div className={styles.bigScore}>{Math.round((score/tasks.length)*100)}%</div><p>{avgReaction?`Ø Reaktionszeit: ${avgReaction} ms · `:""}+{20+score*10+(score===tasks.length?30:0)} XP. {adaptive?"Die Adaptive Engine hat deine Werte aktualisiert und berechnet daraus den nächsten Themenmix.":"Dein Training bleibt auf dem gewählten Niveau."}</p><div className={styles.finishActions}><button className="primaryButton" type="button" onClick={()=>setPhase("setup")}>Fortschritt ansehen</button><button className={styles.secondaryButton} type="button" onClick={()=>start("recommended")}>Adaptiv weitertrainieren</button></div></div>}
