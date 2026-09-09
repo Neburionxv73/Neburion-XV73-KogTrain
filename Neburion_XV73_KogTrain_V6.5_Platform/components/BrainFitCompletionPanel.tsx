@@ -3,8 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import styles from "./BrainFitCompletionPanel.module.css";
 import {
-  BRAIN_FIT_COMPLETION_KEY, COMPLETION_AREAS, completionAchievements, completionAverage,
-  dailyMixTasks, emptyCompletionStats, recordCompletion, tasksForArea, todayKey,
+  BRAIN_FIT_COMPLETION_KEY, BRAIN_FIT_COMPLETION_RECENT_KEY, COMPLETION_AREAS,
+  completionAchievements, completionAverage, completionTaskKey, dailyMixTasks,
+  emptyCompletionStats, recordCompletion, tasksForArea, todayKey,
   type CompletionArea, type CompletionStats, type CompletionTask,
 } from "@/lib/brainFitCompletion";
 import { localizeBrainFitCompletionText } from "@/lib/brainFitCompletionLocale";
@@ -12,12 +13,22 @@ import { usePlatformLanguage } from "./PlatformLanguageProvider";
 
 type View = "daily" | CompletionArea;
 
+function freshTasks(view:View):CompletionTask[]{
+  if(typeof window==="undefined") return view==="daily"?dailyMixTasks():tasksForArea(view,6);
+  let recent:string[]=[];
+  try{const raw=localStorage.getItem(BRAIN_FIT_COMPLETION_RECENT_KEY);if(raw)recent=JSON.parse(raw);}catch{}
+  const next=view==="daily"?dailyMixTasks(8,recent):tasksForArea(view,6,recent);
+  const merged=[...recent,...next.map(completionTaskKey)].slice(-32);
+  try{localStorage.setItem(BRAIN_FIT_COMPLETION_RECENT_KEY,JSON.stringify(merged));}catch{}
+  return next;
+}
+
 export function BrainFitCompletionPanel(){
   const {language,pick}=usePlatformLanguage();
   const tr=(value:string|undefined)=>localizeBrainFitCompletionText(value,language);
   const [view,setView]=useState<View>("daily");
   const [stats,setStats]=useState<CompletionStats>(()=>emptyCompletionStats());
-  const [tasks,setTasks]=useState<CompletionTask[]>(()=>dailyMixTasks());
+  const [tasks,setTasks]=useState<CompletionTask[]>(()=>freshTasks("daily"));
   const [index,setIndex]=useState(0);
   const [correct,setCorrect]=useState(0);
   const [selected,setSelected]=useState<string|null>(null);
@@ -37,7 +48,7 @@ export function BrainFitCompletionPanel(){
 
   function load(next:View){
     setView(next);setIndex(0);setCorrect(0);setSelected(null);setComplete(false);
-    setTasks(next==="daily"?dailyMixTasks():tasksForArea(next,6));
+    setTasks(freshTasks(next));
   }
 
   function answer(option:string){if(selected!==null||!current)return;setSelected(option);if(option===current.answer)setCorrect(value=>value+1);}
@@ -45,8 +56,7 @@ export function BrainFitCompletionPanel(){
   function next(){
     if(!selected)return;
     if(index<tasks.length-1){setIndex(value=>value+1);setSelected(null);return;}
-    const finalCorrect=correct;
-    const score=Math.round((finalCorrect/tasks.length)*100);
+    const score=Math.round((correct/tasks.length)*100);
     const nextStats=recordCompletion(stats,score);
     setStats(nextStats);setComplete(true);
     try{localStorage.setItem(BRAIN_FIT_COMPLETION_KEY,JSON.stringify(nextStats));}catch{}
