@@ -11,10 +11,22 @@ const routes = [
   ["/training/journey", "Your next session is built from your progress."],
 ] as const;
 
+const liveSwitchRoutes = [
+  ["/", "Welcome back!"],
+  ["/profile", "Your learning. Your progress."],
+  ["/account", "Your progress. Available everywhere."],
+  ...routes,
+] as const;
+
 const germanSessionPatterns = /\b(Aufgabe|Welche|Welcher|Welches|Wohin|Ergänze|Erkenne|Berechne|Wie oft|Scanne|Merke|Präge|Ziffer|Wörter|Richtig wäre|Nächste Aufgabe|Auswertung|Dynamik|Bestwert|Reaktionszeit|Zieltempo|Trainingshinweis|Noch nicht|Regel erkannt|Schlüsse ziehen|Räumlich denken|identisch|umgekehrte Reihenfolge|eine Position anders|nur die Größe ist anders|Neue Variante|Neue Einheit)\b/i;
+const germanUiPatterns = /\b(Zur Plattform|Zu den Spielerprofilen|Dein Lernen|Dein Spielstand|Dieses Profil|Aktiver Spielstand|Spielerprofile|Profil laden|Profil erstellen|Spielername|Datenschutz zuerst|Keine E-Mail erforderlich|Dein Training|Tagesmix|Meilensteine|Erfolge|Runden|Aufgabe|Welche|Welcher|Welches|Wohin|Ergänze|Erkenne|Berechne|Wie oft|Scanne|Merke|Präge|Ziffer|Wörter|Richtig wäre|Nächste Aufgabe|Auswertung|Dynamik|Bestwert|Reaktionszeit|Zieltempo|Trainingshinweis|Noch nicht|Regel erkannt|Schlüsse ziehen|Räumlich denken|Neue Variante|Neue Einheit)\b/i;
 
 async function english(page: Page) {
   await page.addInitScript(() => localStorage.setItem("neburion-kogtrain-language", "en"));
+}
+
+async function german(page: Page) {
+  await page.addInitScript(() => localStorage.setItem("neburion-kogtrain-language", "de"));
 }
 
 async function assertSessionEnglish(page: Page) {
@@ -35,6 +47,21 @@ async function advanceChoiceSession(page: Page, rounds = 3) {
     if (!(await next.count())) break;
     await next.click();
     await page.waitForTimeout(80);
+  }
+}
+
+test.describe("Live platform language switch", () => {
+  for (const [route, expected] of liveSwitchRoutes) {
+    test(`${route} switches completely from German to English`, async ({ page }) => {
+      await german(page);
+      await page.goto(route);
+      await expect(page.locator("html")).toHaveAttribute("lang", "de");
+      await page.getByRole("button", { name: "EN", exact: true }).click();
+      await expect(page.locator("html")).toHaveAttribute("lang", "en");
+      await expect(page.getByText(expected, { exact: false }).first()).toBeVisible();
+      const mainText = await page.locator("main").innerText();
+      expect(mainText).not.toMatch(germanUiPatterns);
+    });
   }
 }
 
