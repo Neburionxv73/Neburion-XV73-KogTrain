@@ -13,6 +13,10 @@ const sessionHistoryAtLeast = (source, scope, minimum) => {
   const match = source.match(new RegExp(`finalizeBalancedSessionTasks\\(\\s*"${scope}"[\\s\\S]*?,\\s*(\\d+)\\s*\\)`));
   return match ? Number(match[1]) >= minimum : false;
 };
+const loopUpperBoundAtLeast = (source, variable, minimum) => {
+  const match = source.match(new RegExp(`${variable}\\s*<\\s*(\\d+)`));
+  return match ? Number(match[1]) >= minimum : false;
+};
 const hasAdaptiveQualityLabel = (source) =>
   source.includes("Adaptive Quality V4") ||
   source.includes("Adaptive Difficulty V5") ||
@@ -71,7 +75,7 @@ expect("Language V5: reasoning archetype expansion retained", ["v4-syn-kontext",
 
 expect("Visual adaptive quality UI active", hasAdaptiveQualityLabel(visualTraining) && visualTraining.includes("data-adaptive-level") && visualTraining.includes("applyAdaptiveDifficultyResult"));
 expect("Visual V4: generated visual modes retained", ["rotation","mirror","pattern","matrix","position","search","compare","memory"].every((mode) => visual.includes(`\"${mode}\"`)));
-expect("Visual V4: expanded independent candidate rounds", visualV2.includes("round < 7"));
+expect("Visual V4: expanded independent candidate rounds", loopUpperBoundAtLeast(visualV2, "round", 7));
 expect("Visual V4: fresh-first selection active", visualV2.includes("readRecentTaskIds") && visualV2.includes("recent.has"));
 expect("Visual V4: varied balanced selection active", visualV2.includes("finalizeBalancedSessionTasks") || visualV2.includes("balancedByMode"));
 expect("Visual V4: long anti-repeat history", historyAtLeast(visualV2, 144));
