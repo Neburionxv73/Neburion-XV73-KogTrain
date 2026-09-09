@@ -13,6 +13,10 @@ const exact:Record<string,string>={
   "Vor dem Schlafengehen stelle ich den ___ auf sieben Uhr.":"Before going to sleep, I set the ___ for seven o'clock.","Wecker":"alarm clock","Besen":"broom","Er erinnert dich am Morgen an die Uhrzeit.":"It reminds you of the time in the morning.",
   "Gemüse schneide ich auf einem ___.":"I cut vegetables on a ___.","Schneidebrett":"cutting board","Kopfkissen":"pillow","Teppich":"carpet","Es gehört in die Küche.":"It belongs in the kitchen.",
   "Für kalte Getränke stelle ich die Flasche in den ___.":"To keep a drink cold, I put the bottle in the ___.","Kühlschrank":"refrigerator","Kleiderschrank":"wardrobe","Ofen":"oven","Dort bleiben Lebensmittel kühl.":"Food stays cold there.",
+  "Zum Öffnen der Haustür brauche ich meinen ___.":"To open the front door I need my ___.","Er passt in das Türschloss.":"It fits the door lock.",
+  "Beim Radfahren trage ich zur Sicherheit einen ___.":"When cycling, I wear a ___ for safety.","Helm":"helmet","Schal":"scarf","Ordner":"folder","Er schützt den Kopf.":"It protects your head.",
+  "Eine wichtige Notiz schreibe ich in meinen ___.":"I write an important note in my ___.","Kalender":"calendar","Darin lassen sich Termine und Erinnerungen festhalten.":"You can record appointments and reminders in it.",
+  "Nach dem Händewaschen trockne ich sie mit einem ___.":"After washing my hands, I dry them with a ___.","Handtuch":"towel","Es nimmt Wasser auf.":"It absorbs water.",
 
   "Morgenstund hat ___ im Mund.":"The early bird catches the ___.","Gold":"worm","Brot":"bread","Regen":"rain","Holz":"wood","Ein bekanntes Sprichwort über den frühen Start.":"A familiar proverb about starting early.",
   "Viele Köche verderben den ___.":"Too many cooks spoil the ___.","Brei":"broth","Es geht um zu viele Beteiligte.":"It is about too many people being involved.",
@@ -24,6 +28,10 @@ const exact:Record<string,string>={
   "Geteiltes Leid ist halbes ___.":"A trouble shared is a trouble ___.","Leid":"halved","Gemeinsam trägt sich eine Belastung leichter.":"A burden is easier to carry together.",
   "Wer anderen eine Grube gräbt, fällt selbst ___.":"Whoever digs a pit for others falls ___ themselves.","hinein":"into it","hinaus":"out","hinauf":"up","vorbei":"past it","Das Sprichwort warnt vor Schadenfreude.":"The proverb warns against wishing harm on others.",
   "Kleider machen ___.":"Clothes make the ___.","Leute":"man","Tage":"days","Straßen":"streets","Bäume":"trees","Äußeres beeinflusst den Eindruck.":"Appearance influences the impression you make.",
+  "Reden ist Silber, Schweigen ist ___.":"Speech is silver, silence is ___.","Das Sprichwort bewertet Zurückhaltung besonders hoch.":"The proverb places a high value on restraint.",
+  "Andere Länder, andere ___.":"Different countries, different ___.","Sitten":"customs","Fenster":"windows","Gemeint sind unterschiedliche Gewohnheiten und Regeln.":"It refers to different customs and rules.",
+  "Wer rastet, der ___.":"If you rest, you ___.","rostet":"rust","lacht":"laugh","rennt":"run","kocht":"cook","Aktivität hält in Bewegung.":"Activity keeps you moving.",
+  "Zeit ist ___.":"Time is ___.","Geld":"money","Sand":"sand","Das Sprichwort betont den Wert von Zeit.":"The proverb emphasizes the value of time.",
 
   "Welcher Begriff passt zu 🐶?":"Which term matches 🐶?","Hund":"dog","Katze":"cat","Vogel":"bird","Fisch":"fish","Ein Haustier mit vier Pfoten.":"A pet with four paws.",
   "Welcher Begriff passt zu ☕?":"Which term matches ☕?","Ein warmes Getränk.":"A warm drink.",
@@ -33,12 +41,16 @@ const exact:Record<string,string>={
   "Welcher Begriff passt zu ⏰?":"Which term matches ⏰?","Sie zeigt die Zeit.":"It shows the time.",
   "Welcher Begriff passt zu 🧭?":"Which term matches 🧭?","Kompass":"compass","Buch":"book","Er hilft bei der Orientierung.":"It helps with orientation.",
   "Welcher Begriff passt zu 🥕?":"Which term matches 🥕?","Karotte":"carrot","Apfel":"apple","Käse":"cheese","Ein orangefarbenes Gemüse.":"An orange vegetable.",
-  "Welcher Begriff passt zu 📚?":"Which term matches 📚?","Bücher":"books","Schuhe":"shoes","Fenster":"window","Man liest darin.":"You read them.",
+  "Welcher Begriff passt zu 📚?":"Which term matches 📚?","Bücher":"books","Schuhe":"shoes","Man liest darin.":"You read them.",
   "Welcher Begriff passt zu 🔨?":"Which term matches 🔨?","Ein Werkzeug zum Einschlagen von Nägeln.":"A tool used to drive in nails.",
+  "Welcher Begriff passt zu ✉️?":"Which term matches ✉️?","Brief":"letter","Er wird verschickt oder zugestellt.":"It is sent or delivered.",
+  "Welcher Begriff passt zu 🚌?":"Which term matches 🚌?","Bus":"bus","Ein öffentliches Verkehrsmittel auf der Straße.":"A form of public transport that travels on roads.",
+  "Welcher Begriff passt zu 🥛?":"Which term matches 🥛?","Milch":"milk","Ein helles Getränk.":"A light-colored drink.",
+  "Welcher Begriff passt zu 🧤?":"Which term matches 🧤?","Handschuh":"glove","Hut":"hat","Er wird an der Hand getragen.":"It is worn on the hand.",
 
   "Wo kauft man Medikamente?":"Where do you buy medication?","Apotheke":"pharmacy","Bäckerei":"bakery","Park":"park","Gesucht ist ein Fachgeschäft für Arzneimittel.":"Look for a specialist shop for medicines.",
   "Wo hebt man normalerweise Bargeld ab?":"Where do you normally withdraw cash?","Bankomat":"ATM","Dort erhält man Geld mit Karte.":"You can get cash there using a card.",
-  "Was braucht man typischerweise für eine Busfahrt?":"What do you typically need for a bus journey?","Fahrschein":"ticket","Kochtopf":"cooking pot","Handtuch":"towel","Eine Fahrberechtigung.":"It gives you permission to travel.",
+  "Was braucht man typischerweise für eine Busfahrt?":"What do you typically need for a bus journey?","Fahrschein":"ticket","Kochtopf":"cooking pot","Eine Fahrberechtigung.":"It gives you permission to travel.",
   "Welche Nummer steht in Österreich für den Euro-Notruf?":"Which number is the European emergency number in Austria?","Europäische Notrufnummer.":"European emergency number.",
   "Was prüft man vor einem Arzttermin am besten?":"What should you check before a doctor's appointment?","Datum und Uhrzeit":"date and time","Schuhgröße":"shoe size","Wetter von gestern":"yesterday's weather","Fernsehprogramm":"TV schedule","Damit man pünktlich ist.":"So that you arrive on time.",
   "Wo wirft man einen frankierten Brief ein?":"Where do you post a stamped letter?","Er gehört zur Post.":"It belongs to the postal service.",
@@ -46,9 +58,13 @@ const exact:Record<string,string>={
   "Du möchtest Lebensmittel kühl halten. Was nutzt du?":"You want to keep food cold. What do you use?","Heizkörper":"radiator","Er hält Lebensmittel bei niedriger Temperatur.":"It keeps food at a low temperature.",
   "Was kontrollierst du vor dem Verlassen der Wohnung sinnvollerweise?":"What should you check before leaving your home?","Sofakissen":"sofa cushion","Blumenvase":"flower vase","Teppichmuster":"carpet pattern","Ohne ihn kommst du möglicherweise nicht wieder hinein.":"Without it, you may not be able to get back inside.",
   "Auf einer Rechnung steht 18 € und du bezahlst mit 20 €. Wie viel Rückgeld erhältst du?":"A bill is €18 and you pay with €20. How much change do you receive?","20 minus 18.":"20 minus 18.",
+  "Du hast um 14:30 Uhr einen Termin. Wann solltest du spätestens losgehen, wenn der Weg 20 Minuten dauert?":"You have an appointment at 2:30 PM. What is the latest time you should leave if the journey takes 20 minutes?","14:10 Uhr":"2:10 PM","14:25 Uhr":"2:25 PM","14:30 Uhr":"2:30 PM","13:30 Uhr":"1:30 PM","Ziehe die Wegzeit vom Termin ab.":"Subtract the travel time from the appointment time.",
+  "Welche Ampelfarbe bedeutet im Straßenverkehr normalerweise Stopp?":"Which traffic-light color normally means stop?","Rot":"red","Grün":"green","Blau":"blue","Weiß":"white","Diese Farbe signalisiert Anhalten.":"This color signals that you must stop.",
+  "Wo findest du normalerweise Abfahrtszeiten für einen Zug?":"Where do you normally find train departure times?","Kassenbon":"receipt","Er enthält Zeiten und Verbindungen.":"It contains times and connections.",
+  "Du kaufst zwei Artikel zu je 4 €. Wie hoch ist der Gesamtpreis?":"You buy two items at €4 each. What is the total price?","8 €":"€8","6 €":"€6","4 €":"€4","10 €":"€10","Addiere beide Einzelpreise.":"Add the two individual prices.",
 
   "Runden":"Rounds","Erfolge":"Achievements","Zusätzliche Gehirnfit-Bereiche":"Additional BrainFit areas","Gemischte Runde":"Mixed round","Dein heutiger Gehirnfit-Mix":"Your BrainFit mix for today","Abgeschlossen":"Complete","Richtig ✓":"Correct ✓","Auswertung":"Results","Nächste Aufgabe":"Next task","Runde abgeschlossen.":"Round complete.","Neue Variante":"New variant","Tagesmix öffnen":"Open daily mix","Meilensteine":"Milestones","Fortschritt sichtbar machen.":"Make progress visible.","Die Erfolge sind Motivation, keine Bewertung. Sie werden ausschließlich lokal in diesem Browser gespeichert.":"Achievements are for motivation, not evaluation. They are stored only locally in this browser.","Heute bereits eine Completion-Runde abgeschlossen ✓":"A completion round has already been finished today ✓",
-  "Erste Runde":"First round","5 Gehirnfit-Runden":"5 BrainFit rounds","10 Gehirnfit-Runden":"10 BrainFit rounds","80 % oder mehr":"80% or more","Perfekte Runde":"Perfect round","Heute aktiv":"Active today"
+  "Erste Runde":"First round","5 Gehirnfit-Runden":"5 BrainFit rounds","10 Gehirnfit-Runden":"10 BrainFit rounds","25 Gehirnfit-Runden":"25 BrainFit rounds","50 Gehirnfit-Runden":"50 BrainFit rounds","70 % Durchschnitt":"70% average","85 % Durchschnitt":"85% average","80 % oder mehr":"80% or more","90 % oder mehr":"90% or more","Perfekte Runde":"Perfect round","Starker Abschluss":"Strong finish","Heute aktiv":"Active today"
 };
 
 export function localizeBrainFitCompletionText(value:string|undefined,language:PlatformLanguage):string{
