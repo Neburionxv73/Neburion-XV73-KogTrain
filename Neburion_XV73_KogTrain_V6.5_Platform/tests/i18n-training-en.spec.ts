@@ -63,7 +63,7 @@ test.describe("Live platform language switch", () => {
       expect(mainText).not.toMatch(germanUiPatterns);
     });
   }
-}
+});
 
 test.describe("English training mode", () => {
   for (const [route, expected] of routes) {
