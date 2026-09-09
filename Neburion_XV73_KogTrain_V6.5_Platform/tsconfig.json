@@ -16,6 +16,7 @@
     "plugins": [{ "name": "next" }],
     "paths": {
       "@/lib/memory": ["./lib/memoryV6.ts"],
+      "@/lib/sessionLocale": ["./lib/sessionLocaleV6.ts"],
       "@/*": ["./*"]
     }
   },
