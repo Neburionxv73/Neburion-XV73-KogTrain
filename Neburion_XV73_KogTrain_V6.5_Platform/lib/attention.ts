@@ -1,4 +1,5 @@
 import { createSessionSeed, difficultyFromPercent, finalizeBalancedSessionTasks, randomInt, shuffled, type Difficulty } from "@/lib/dynamicTraining";
+import { createAttentionExpansionCandidates } from "@/lib/attentionExpansion";
 
 export type AttentionMode = "go-no-go" | "visual-search" | "rule-switch" | "inhibition" | "divided" | "speed" | "interference";
 
@@ -153,6 +154,7 @@ export function createAttentionSession(bestAccuracy: number): AttentionSession {
       speed(s+6,difficulty),
       interference(s+7,difficulty),
       directionInterference(s+17,difficulty),
+      ...createAttentionExpansionCandidates(s,difficulty),
     ];
   }).flat();
   const taskCount=difficulty===3?10:difficulty===2?9:8;
