@@ -9,6 +9,10 @@ const historyAtLeast = (source, minimum) => {
   const match = source.match(/HISTORY_LIMIT\s*=\s*(\d+)/);
   return match ? Number(match[1]) >= minimum : false;
 };
+const sessionHistoryAtLeast = (source, scope, minimum) => {
+  const match = source.match(new RegExp(`finalizeBalancedSessionTasks\\(\\s*"${scope}"[\\s\\S]*?,\\s*(\\d+)\\s*\\)`));
+  return match ? Number(match[1]) >= minimum : false;
+};
 const hasAdaptiveQualityLabel = (source) =>
   source.includes("Adaptive Quality V4") ||
   source.includes("Adaptive Difficulty V5") ||
@@ -55,7 +59,7 @@ expect("Attention V5: varied attention archetypes retained", attention.includes(
 expect("Logic adaptive quality UI active", hasAdaptiveQualityLabel(logicTraining));
 expect("Logic V4: advanced sequence/rule tasks active", logicV2.includes("v4-seq") && logicV2.includes("v4-rule"));
 expect("Logic V4: deduction and operator depth active", logicV2.includes("v4-ded") && logicV2.includes("v4-op"));
-expect("Logic V4: long anti-repeat history", logicV2.includes("logic-v4") && logicV2.includes("144"));
+expect("Logic V4: long anti-repeat history", logicV2.includes("logic-v4") && sessionHistoryAtLeast(logicV2, "logic-v4", 144));
 expect("Logic V5: reverse and relational archetypes retained", logicV2.includes("sequenceMissing") && logicV2.includes("reverseRule") && logicV2.includes("relationChoice"));
 
 expect("Language V4: adaptive quality UI active", hasAdaptiveQualityLabel(languageTraining));
