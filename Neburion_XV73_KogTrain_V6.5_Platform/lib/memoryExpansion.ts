@@ -1,5 +1,5 @@
 import { randomInt, shuffled, type Difficulty } from "@/lib/dynamicTraining";
-import type { MemoryTask } from "@/lib/memory";
+import type { MemoryTask } from "./memory";
 
 const SYMBOLS=["◆","●","▲","■","✦","⬟","★","◇","⬢","✚","⬣","◈","○","□","△","⬡","✖","✿","✧","⬥","◐","◒","◉","⬤"];
 const stable=(mode:MemoryTask["mode"],value:string)=>`${mode}:v6-${value}`;
