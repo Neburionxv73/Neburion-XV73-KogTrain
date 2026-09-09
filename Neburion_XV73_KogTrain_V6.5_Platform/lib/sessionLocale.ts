@@ -33,6 +33,26 @@ const answers: Record<string,string> = {
   "Ignoriere beide Wörter und antworte ausschließlich nach dem mittleren Farbsymbol.":"Ignore both words and answer only according to the middle color symbol.",
   "Ignoriere das Richtungswort und antworte nur nach dem Pfeil.":"Ignore the direction word and answer only according to the arrow.",
   "Ignoriere beide Richtungswörter und bewerte nur den mittleren Pfeil.":"Ignore both direction words and judge only the middle arrow.",
+  "Alternierendes Go / No-Go":"Alternating Go / No-Go",
+  "Paar-Suche":"Pair search",
+  "Zahlen-Regelwechsel":"Number rule switching",
+  "Stoppsignal":"Stop signal",
+  "Doppelbedingung":"Dual condition",
+  "Schnellvergleich":"Rapid comparison",
+  "Symbol-Wort-Konflikt":"Symbol-word conflict",
+  "Die Zielregel wechselt zwischen zwei Reizen. Reagiere nur auf das aktuell aktive Ziel.":"The target rule alternates between two stimuli. Respond only to the currently active target.",
+  "Achte auf beide Symbole und ihre Reihenfolge. Vertauschte Paare zählen nicht.":"Track both symbols and their order. Reversed pairs do not count.",
+  "Bewerte nur die letzte Zahl nach der eingeblendeten Regel. Vorherige Zahlen dienen als Ablenkung.":"Judge only the last number using the displayed rule. Earlier numbers are distractors.",
+  "Reagiere auf den Zielreiz – außer ein Stoppsignal erscheint.":"Respond to the target stimulus unless a stop signal appears.",
+  "Das Stoppsignal kann direkt nach dem Zielreiz erscheinen. Hemme dann die vorbereitete Reaktion.":"The stop signal can appear immediately after the target. Inhibit the prepared response when it does.",
+  "Ein ✖ hebt die Reaktionsregel sofort auf.":"A ✖ immediately cancels the response rule.",
+  "Prüfe Farbe und Zahleneigenschaft gleichzeitig. Beide Bedingungen müssen erfüllt sein.":"Check color and the number property at the same time. Both conditions must be met.",
+  "Vergleiche sofort, ohne nachzurechnen.":"Compare immediately without calculating.",
+  "Ignoriere die geschriebenen Richtungen und antworte ausschließlich nach dem Pfeilsymbol.":"Ignore the written directions and answer only according to the arrow symbol.",
+  "Welche Seite zeigt die größere Zahl?":"Which side shows the larger number?",
+  "Welche Richtung zeigt das Symbol?":"Which direction does the symbol point?",
+  "Links":"Left","Rechts":"Right","Gleich":"Equal",
+  "GERADE":"EVEN","UNGERADE":"ODD",
 };
 
 const rules:Array<[RegExp,string]> = [
@@ -62,6 +82,17 @@ const rules:Array<[RegExp,string]> = [
   [/Die Aufgabe prüft den kurzfristigen Abruf einer zuvor gezeigten Symbolfolge\./g,"This task tests short-term recall of a previously shown symbol sequence."],
   [/Die Lösung entsteht aus der räumlichen Beziehung zum Ausgangsfeld, nicht aus einer Bewegungsfolge\./g,"The solution comes from the spatial relation to the starting cell, not from a movement sequence."],
   [/Für diese Aufgabe galt Regel ([A-C]) mit Zielreiz (.+)\./g,"For this task, rule $1 applied with target stimulus $2."],
+  [/^Aktives Ziel: (.+)$/g,"Active target: $1"],
+  [/^Wie oft erscheint exakt (.+)\?$/g,"How often does exactly $1 appear?"],
+  [/^Das Zielpaar (.+) erscheint (\d+)-mal\.$/g,"The target pair $1 appears $2 times."],
+  [/^Aktive Regel: (GERADE|UNGERADE)$/g,(_match,rule)=>`Active rule: ${rule==="GERADE"?"EVEN":"ODD"}` as unknown as string],
+  [/^Die letzte Zahl war (\d+); für (GERADE|UNGERADE) ist die richtige Reaktion (Reagieren|Ignorieren)\.$/g,"The last number was $1; for rule $2 the correct response is $3."],
+  [/^Passt (.+) zu (.+) \+ (GERADE|UNGERADE)\?$/g,"Does $1 match $2 + $3?"],
+  [/^Farbe (passt|passt nicht); die Zahl (passt|passt nicht) zur Regel (GERADE|UNGERADE)\.$/g,"The color $1; the number $2 rule $3."],
+  [/^Vergleiche sofort, ohne nachzurechnen\. Zielzeit: (\d+) ms\.$/g,"Compare immediately without calculating. Target time: $1 ms."],
+  [/^(\d+) war die größere Zahl\.$/g,"$1 was the larger number."],
+  [/^Entscheidend war (.+), also (LINKS|RECHTS|OBEN|UNTEN)\.$/g,"The decisive symbol was $1, so the direction was $2."],
+  [/^Aktiv war (.+); gezeigt wurde (.+)\.$/g,"The active target was $1; the shown stimulus was $2."],
 ];
 
 export function localizeSessionText(value:string|undefined, language:PlatformLanguage):string {
@@ -69,7 +100,7 @@ export function localizeSessionText(value:string|undefined, language:PlatformLan
   const mapped = answers[value];
   if(mapped) return mapped;
   let out = value;
-  for(const [pattern,replacement] of rules) out=out.replace(pattern,replacement);
+  for(const [pattern,replacement] of rules) out=out.replace(pattern,replacement as string);
   out = localizeTrainingText(out,language);
   return out;
 }
