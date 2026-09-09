@@ -1,4 +1,5 @@
 import { createSessionSeed, difficultyFromPercent, finalizeBalancedSessionTasks, randomInt, shuffled, type Difficulty } from "@/lib/dynamicTraining";
+import { createLogicExpansionTasks } from "@/lib/logicExpansion";
 import { LOGIC_SESSION_LENGTH, LOGIC_STORAGE_KEY, type LogicMode, type LogicSession, type LogicTask } from "@/lib/logic";
 
 export { LOGIC_SESSION_LENGTH, LOGIC_STORAGE_KEY };
@@ -59,6 +60,6 @@ function relationChoice(seed:number,d:Difficulty):LogicTask{
 
 export function createLogicSession(bestScore:number):LogicSession{
  const difficulty=difficultyFromPercent((bestScore/LOGIC_SESSION_LENGTH)*100),seed=createSessionSeed();
- const candidates=Array.from({length:difficulty===3?5:4},(_,round)=>{const s=seed+round*97;return [sequence(s,difficulty),sequenceMissing(s+5,difficulty),rule(s+11,difficulty),reverseRule(s+17,difficulty),analogy(s+23,difficulty),relationChoice(s+29,difficulty),deduction(s+37,difficulty),matrix(s+41,difficulty),operator(s+53,difficulty),exclusion(s+67,difficulty),spatial(s+79,difficulty)]}).flat();
- return {difficulty,tasks:finalizeBalancedSessionTasks("logic-v4",candidates,LOGIC_SESSION_LENGTH,144)};
+ const candidates=Array.from({length:difficulty===3?5:4},(_,round)=>{const s=seed+round*97;return [sequence(s,difficulty),sequenceMissing(s+5,difficulty),rule(s+11,difficulty),reverseRule(s+17,difficulty),analogy(s+23,difficulty),relationChoice(s+29,difficulty),deduction(s+37,difficulty),matrix(s+41,difficulty),operator(s+53,difficulty),exclusion(s+67,difficulty),spatial(s+79,difficulty),...createLogicExpansionTasks(s+83,difficulty)]}).flat();
+ return {difficulty,tasks:finalizeBalancedSessionTasks("logic-v4",candidates,LOGIC_SESSION_LENGTH,176)};
 }
