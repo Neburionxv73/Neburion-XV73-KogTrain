@@ -74,7 +74,7 @@ expect("Visual V4: generated visual modes retained", ["rotation","mirror","patte
 expect("Visual V4: expanded independent candidate rounds", visualV2.includes("round < 7"));
 expect("Visual V4: fresh-first selection active", visualV2.includes("readRecentTaskIds") && visualV2.includes("recent.has"));
 expect("Visual V4: varied balanced selection active", visualV2.includes("finalizeBalancedSessionTasks") || visualV2.includes("balancedByMode"));
-expect("Visual V4: long anti-repeat history", visualV2.includes("HISTORY_LIMIT = 144"));
+expect("Visual V4: long anti-repeat history", historyAtLeast(visualV2, 144));
 expect("Visual V5: forced difficulty regeneration active", visualV2.includes("forcedDifficulty") && hasForcedVisualRegeneration(visualTraining));
 expect("Visual V5: spatial archetype expansion retained", visualV2.includes("counterRotation") && visualV2.includes("doubleMirror") && visualV2.includes("positionRelation"));
 
