@@ -18,6 +18,21 @@ const answers: Record<string,string> = {
   "Wie verhalten sich die beiden Formreihen zueinander?":"How do the two shape sequences relate to each other?",
   "Welches Zeichen setzt die visuelle Reihe fort?":"Which symbol continues the visual sequence?",
   "Welches Zeichen ergänzt die Matrix?":"Which symbol completes the matrix?",
+  "Reagiere nur, wenn der gezeigte Reiz dem Zielreiz entspricht.":"Respond only when the shown stimulus matches the target stimulus.",
+  "Reagiere nur, wenn der erste gezeigte Reiz dem Zielreiz entspricht. Der zweite Reiz ist Ablenkung.":"Respond only when the first shown stimulus matches the target stimulus. The second stimulus is a distractor.",
+  "Achte auf die aktuelle Regel – nicht auf die Regel der vorherigen Aufgabe.":"Follow the current rule — not the rule from the previous task.",
+  "Drei mögliche Regeln wechseln. Prüfe jedes Mal nur die aktuell angezeigte Regel.":"Three possible rules alternate. Each time, follow only the rule currently shown.",
+  "Wechsle zwischen den Regeln GEFÜLLT und KONTUR.":"Switch between the FILLED and OUTLINE rules.",
+  "Bewerte nur den ersten Reiz nach der aktuell eingeblendeten Merkmalsregel. Der zweite ist Ablenkung.":"Judge only the first stimulus using the currently displayed feature rule. The second is a distractor.",
+  "Ähnliche Konturen sind Distraktoren.":"Similar outlines are distractors.",
+  "Die zweite Form ist ein Konfliktreiz und darf deine Entscheidung nicht verändern.":"The second shape is a conflicting stimulus and must not change your decision.",
+  "Beachte gleichzeitig Farbe und Form.":"Track color and shape at the same time.",
+  "Beachte Farbe und Form gleichzeitig; ähnliche Kombinationen liegen bewusst dicht beieinander.":"Track color and shape at the same time; similar combinations are deliberately placed close together.",
+  "Verfolge Farbe und Form gleichzeitig. Nur die exakte Kombination zählt.":"Track color and shape simultaneously. Only the exact combination counts.",
+  "Ignoriere das geschriebene Farbwort und antworte nach dem Farbsymbol.":"Ignore the written color word and answer according to the color symbol.",
+  "Ignoriere beide Wörter und antworte ausschließlich nach dem mittleren Farbsymbol.":"Ignore both words and answer only according to the middle color symbol.",
+  "Ignoriere das Richtungswort und antworte nur nach dem Pfeil.":"Ignore the direction word and answer only according to the arrow.",
+  "Ignoriere beide Richtungswörter und bewerte nur den mittleren Pfeil.":"Ignore both direction words and judge only the middle arrow.",
 };
 
 const rules:Array<[RegExp,string]> = [
@@ -46,6 +61,7 @@ const rules:Array<[RegExp,string]> = [
   [/Vergleiche Position, Reihenfolge und Form beider Reihen systematisch\./g,"Compare the position, order and shape of both sequences systematically."],
   [/Die Aufgabe prüft den kurzfristigen Abruf einer zuvor gezeigten Symbolfolge\./g,"This task tests short-term recall of a previously shown symbol sequence."],
   [/Die Lösung entsteht aus der räumlichen Beziehung zum Ausgangsfeld, nicht aus einer Bewegungsfolge\./g,"The solution comes from the spatial relation to the starting cell, not from a movement sequence."],
+  [/Für diese Aufgabe galt Regel ([A-C]) mit Zielreiz (.+)\./g,"For this task, rule $1 applied with target stimulus $2."],
 ];
 
 export function localizeSessionText(value:string|undefined, language:PlatformLanguage):string {
