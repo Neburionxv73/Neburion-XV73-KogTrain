@@ -5,6 +5,7 @@ let schemaReady: Promise<void> | null = null;
 
 function resolveDatabaseUrl() {
   return process.env.DATABASE_URL
+    ?? process.env.NETLIFY_DB_URL
     ?? process.env.DATABASE_POSTGRES_URL
     ?? process.env.DATABASE_POSTGRES_PRISMA_URL
     ?? process.env.POSTGRES_URL
